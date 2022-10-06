@@ -39,7 +39,6 @@ public class BlockRouter extends BlockDevice.Colored
 {
     public static final BooleanProperty VERTICAL = BooleanProperty.create("vertical");
 
-    // Todo - do rotations for voxel shapes properly.
     private static final VoxelShape[] BODY_BOUNDING_BOX = {
             box(4, 0, 2, 12, 2, 14),
             box(4, 0, 2, 12, 2, 14),

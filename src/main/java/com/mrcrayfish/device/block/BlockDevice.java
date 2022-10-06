@@ -84,20 +84,6 @@ public abstract class BlockDevice extends HorizontalDirectionalBlock implements 
                 CompoundTag tag = new CompoundTag();
                 tag.put("BlockEntityTag", blockEntityTag);
 
-                ItemStack drop;
-                if (blockEntity instanceof Colorable) {
-                    drop = new ItemStack(this, 1);
-                } else {
-                    drop = new ItemStack(this);
-                }
-                drop.setTag(tag);
-
-                if (device.hasCustomName()) {
-                    drop.setHoverName(Component.literal(device.getCustomName()));
-                }
-
-                level.addFreshEntity(new ItemEntity((Level) level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop));
-
                 level.removeBlock(pos, false);
                 return;
             }
@@ -135,15 +121,6 @@ public abstract class BlockDevice extends HorizontalDirectionalBlock implements 
 
         public DyeColor getColor() {
             return color;
-        }
-
-        @Override
-        public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack stack) {
-            super.setPlacedBy(level, pos, state, placer, stack);
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof Colorable colored) {
-                colored.setColor(color);
-            }
         }
 
         @Override
