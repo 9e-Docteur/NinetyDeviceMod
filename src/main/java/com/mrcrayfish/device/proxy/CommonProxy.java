@@ -83,7 +83,7 @@ public class CommonProxy
 		{
 			PacketHandler.INSTANCE.sendTo(new MessageSyncApplications(allowedApps), (PlayerMP) event.player);
 		}
-		PacketHandler.INSTANCE.sendTo(new MessageSyncConfig(), (PlayerMP) event.player);
+		PacketHandler.sendTo(new MessageSyncConfig(), (PlayerMP) event.player);
 	}
 
 	@SubscribeEvent
