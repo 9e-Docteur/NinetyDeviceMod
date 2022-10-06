@@ -47,8 +47,6 @@ public class DeviceConfig
         CONFIG = builder.build();
     }
 
-    // TODO *** Add read/write of synchronization tags of the config file if needed ***
-
     public static void readSyncTag(CompoundTag tag) {
         if (tag.contains("pingRate", Tag.TAG_INT)) PING_RATE.set(tag.getInt("pingRate"));
         if (tag.contains("signalRange", Tag.TAG_INT)) SIGNAL_RANGE.set(tag.getInt("signalRange"));
