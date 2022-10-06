@@ -58,16 +58,12 @@ public class DeviceConfig
         tag.putInt("signalRange", SIGNAL_RANGE.get());
         return tag;
     }
-
     public static void init() {
-
     }
-
     public static void register(Object context) {
         throw new AssertionError();
     }
     public static void restore() {
-        // NO-OP
     }
 
     public void save() {
