@@ -1,22 +1,21 @@
 package com.mrcrayfish.device.tileentity.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import com.mrcrayfish.device.block.BlockPrinter;
 import com.mrcrayfish.device.block.BlockRouter;
 import com.mrcrayfish.device.core.network.NetworkDevice;
 import com.mrcrayfish.device.core.network.Router;
 import com.mrcrayfish.device.init.DeviceBlocks;
+import com.mrcrayfish.device.tileentity.TileEntityOfficeChair;
 import com.mrcrayfish.device.tileentity.TileEntityRouter;
 import com.mrcrayfish.device.util.CollisionHelper;
-import net.minecraft.block.state.IBlockState;
+import com.sun.javafx.geom.Vec3d;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.RenderSystem;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Collection;
@@ -24,25 +23,19 @@ import java.util.Collection;
 /**
  * Author: MrCrayfish
  */
-public class RouterRenderer extends TileEntitySpecialRenderer<TileEntityRouter>
-{
+public class RouterRenderer implements BlockEntityRenderer<TileEntityRouter> {
     @Override
-    public void render(TileEntityRouter te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
+    public void render(TileEntityRouter te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)
     {
-        IBlockState state = te.getLevel().getBlockState(te.getPos());
-        if(state.getBlock() != DeviceBlocks.ROUTER)
+        BlockState state = te.getLevel().getBlockState(te.getBlockPos());
+        if(state.getBlock() != DeviceBlocks.ROUTER.get())
             return;
 
         if(te.isDebug())
         {
-            RenderSystem.enableBlend();
-            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-            RenderSystem.disableLighting();
-            RenderSystem.disableTexture2D();
-            RenderSystem.enableAlpha();
-            RenderSystem.pushMatrix();
+            poseStack.pushPose();
             {
-                RenderSystem.translate(x, y, z);
+                //RenderSystem.translate(x, y, z);
                 Router router = te.getRouter();
                 BlockPos routerPos = router.getPos();
 
@@ -51,36 +44,32 @@ public class RouterRenderer extends TileEntitySpecialRenderer<TileEntityRouter>
                 final double startLineY = linePositions.y;
                 final double startLineZ = linePositions.z;
 
-                Tessellator tessellator = Tessellator.getInstance();
-                BufferBuilder buffer = tessellator.getBuffer();
+                Tesselator tesselator = Tesselator.getInstance();
+                BufferBuilder buffer = tesselator.getBuilder();
 
-                final Collection<NetworkDevice> DEVICES = router.getConnectedDevices(Minecraft.getMinecraft().Level);
+                final Collection<NetworkDevice> DEVICES = router.getConnectedDevices(Minecraft.getInstance().level());
                 DEVICES.forEach(networkDevice ->
                 {
                     BlockPos devicePos = networkDevice.getPos();
 
-                    GL11.glLineWidth(14F);
-                    buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-                    buffer.pos(startLineX, startLineY, startLineZ).color(0.0F, 0.0F, 0.0F, 0.5F).endVertex();
-                    buffer.pos((devicePos.getX() - routerPos.getX()) + 0.5F, (devicePos.getY() - routerPos.getY()), (devicePos.getZ() - routerPos.getZ()) + 0.5F).color(1.0F, 1.0F, 1.0F, 0.35F).endVertex();
-                    tessellator.draw();
+                    RenderSystem.lineWidth(14F);
+                    buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+                    buffer.vertex(startLineX, startLineY, startLineZ).color(0f, 0f, 0f, 0.5f).endVertex();
+                    buffer.vertex((devicePos.getX() - routerPos.getX()) + 0.5f, (devicePos.getY() - routerPos.getY()), (devicePos.getZ() - routerPos.getZ()) + 0.5f).color(1f, 1f, 1f, 0.35f).endVertex();
+                    tesselator.end();
 
-                    GL11.glLineWidth(4F);
-                    buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-                    buffer.pos(startLineX, startLineY, startLineZ).color(0.0F, 0.0F, 0.0F, 0.5F).endVertex();
-                    buffer.pos((devicePos.getX() - routerPos.getX()) + 0.5F, (devicePos.getY() - routerPos.getY()), (devicePos.getZ() - routerPos.getZ()) + 0.5F).color(0.0F, 1.0F, 0.0F, 0.5F).endVertex();
-                    tessellator.draw();
+                    RenderSystem.lineWidth(4F);
+                    buffer.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR);
+                    buffer.vertex(startLineX, startLineY, startLineZ).color(0f, 0f, 0f, 0.5f).endVertex();
+                    buffer.vertex((devicePos.getX() - routerPos.getX()) + 0.5f, (devicePos.getY() - routerPos.getY()), (devicePos.getZ() - routerPos.getZ()) + 0.5f).color(0f, 1f, 0f, 0.5f).endVertex();
+                    tesselator.end();
                 });
             }
-            RenderSystem.popMatrix();
-            RenderSystem.disableBlend();
-            RenderSystem.disableAlpha();
-            RenderSystem.enableLighting();
-            RenderSystem.enableTexture2D();
+            poseStack.popPose();
         }
     }
 
-    private Vec3d getLineStartPosition(IBlockState state)
+    private Vec3d getLineStartPosition(BlockState state)
     {
         float lineX = 0.5F;
         float lineY = 0.1F;

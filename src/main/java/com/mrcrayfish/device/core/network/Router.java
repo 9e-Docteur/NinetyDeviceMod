@@ -95,9 +95,9 @@ public class Router
         return NETWORK_DEVICES.values();
     }
 
-    public Collection<NetworkDevice> getConnectedDevices(Level Level)
+    public Collection<NetworkDevice> getConnectedDevices(Level level)
     {
-        sendBeacon(Level);
+        sendBeacon(level);
         return NETWORK_DEVICES.values().stream().filter(networkDevice -> networkDevice.getPos() != null).collect(Collectors.toList());
     }
 
