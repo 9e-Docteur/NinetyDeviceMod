@@ -12,6 +12,8 @@ import java.util.function.Supplier;
 
 public class MessageRequest implements IPacket<MessageRequest>
 {
+
+	//TODO: FIX ERROR IN ENCODE RECODE
 	private int id;
 	private Task request;
 	private CompoundTag nbt;
