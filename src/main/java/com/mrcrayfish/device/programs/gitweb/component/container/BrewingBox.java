@@ -1,9 +1,10 @@
 package com.mrcrayfish.device.programs.gitweb.component.container;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.core.Laptop;
 import net.minecraft.client.Minecraft;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Author: MrCrayfish
@@ -51,13 +52,13 @@ public class BrewingBox extends ContainerBox
     }
 
     @Override
-    protected void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+    protected void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
     {
-        super.render(laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
+        super.render(poseStack, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
 
-        mc.getTextureManager().bindTexture(CONTAINER_BOXES_TEXTURE);
+        mc.getTextureManager().bindForSetup(CONTAINER_BOXES_TEXTURE);
 
-        this.drawTexturedModalRect(x + 56, y + 47, 152, 252, 18, 4);
+        this.blit(poseStack, x + 56, y + 47, 152, 252, 18, 4);
 
         if (brewTimer > 0)
         {
@@ -67,14 +68,14 @@ public class BrewingBox extends ContainerBox
 
                 if(scaledPercent > 0)
                 {
-                    this.drawTexturedModalRect(x + 93, y + 19, 152, 223, 9, scaledPercent);
+                    this.blit(poseStack, x + 93, y + 19, 152, 223, 9, scaledPercent);
                 }
 
                 scaledPercent = BUBBLELENGTHS[brewTimer / 2 % 7];
 
                 if(scaledPercent > 0)
                 {
-                    this.drawTexturedModalRect(x + 59, y + 16 + 29 - scaledPercent, 161, 251 - scaledPercent, 12, scaledPercent);
+                    this.blit(poseStack, x + 59, y + 16 + 29 - scaledPercent, 161, 251 - scaledPercent, 12, scaledPercent);
                 }
             }
         }

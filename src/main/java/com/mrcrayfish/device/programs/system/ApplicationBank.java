@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.programs.system;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.*;
 import com.mrcrayfish.device.api.app.component.Button;
 import com.mrcrayfish.device.api.app.component.Label;
@@ -12,15 +13,13 @@ import com.mrcrayfish.device.api.utils.RenderUtil;
 import com.mrcrayfish.device.programs.system.task.TaskDeposit;
 import com.mrcrayfish.device.programs.system.task.TaskWithdraw;
 import com.mrcrayfish.device.util.InventoryUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.model.ModelVillager;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import javax.annotation.Nullable;
 import java.awt.Color;
@@ -30,7 +29,7 @@ public class ApplicationBank extends SystemApplication
 	private static final ItemStack EMERALD = new ItemStack(Items.EMERALD);
 	private static final ResourceLocation BANK_ASSETS = new ResourceLocation("cdm:textures/gui/bank.png");
 	private static final ResourceLocation villagerTextures = new ResourceLocation("textures/entity/villager/villager.png");
-    private static final ModelVillager villagerModel = new ModelVillager(0.0F);
+    //private static final ModelVillager villagerModel = new ModelVillager(0.0F); //TODO: Re-add this
 
 	private Layout layoutStart;
 	private Label labelTeller;
@@ -60,6 +59,7 @@ public class ApplicationBank extends SystemApplication
 	
 	private int emeraldAmount;
 	private int rotation;
+	private final PoseStack poseStack = new PoseStack();
 	
 	public ApplicationBank()
 	{
@@ -77,35 +77,38 @@ public class ApplicationBank extends SystemApplication
 	}
 	
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		layoutStart = new Layout();
-		layoutStart.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+		layoutStart.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
 		{
-            GlStateManager.pushMatrix();
-            {
-            	GlStateManager.enableDepth();
-                GlStateManager.translate(x + 25, y + 33, 15);
-                GlStateManager.scale((float) -2.5, (float) -2.5, (float) -2.5);
-                GlStateManager.rotate(-10F, 1, 0, 0);
-                GlStateManager.rotate(180F, 0, 0, 1);
-                GlStateManager.rotate(-20F, 0, 1, 0);
-                float scaleX = (mouseX - x - 25) / (float) width;
-                float scaleY = (mouseY - y - 20) / (float) height;
-                mc.getTextureManager().bindTexture(villagerTextures);
-                villagerModel.render(null, 0F, 0F, 0F, -70F * scaleX + 20F, 30F * scaleY, 1F);
-                GlStateManager.disableDepth();
-            }
-            GlStateManager.popMatrix();
+			//TODO: Villager Model Render
+			
+//            RenderSystem.pushMatrix();
+//            {
+//            	RenderSystem.enableDepth();
+//                RenderSystem.translate(x + 25, y + 33, 15);
+//                RenderSystem.scale((float) -2.5, (float) -2.5, (float) -2.5);
+//                RenderSystem.rotate(-10F, 1, 0, 0);
+//                RenderSystem.rotate(180F, 0, 0, 1);
+//                RenderSystem.rotate(-20F, 0, 1, 0);
+//                float scaleX = (mouseX - x - 25) / (float) width;
+//                float scaleY = (mouseY - y - 20) / (float) height;
+//                mc.getTextureManager().bindTexture(villagerTextures);
+//                villagerModel.render(null, 0F, 0F, 0F, -70F * scaleX + 20F, 30F * scaleY, 1F);
+//                RenderSystem.disableDepth();
+//            }
+//            RenderSystem.popMatrix();
 
-            mc.getTextureManager().bindTexture(BANK_ASSETS);
-            RenderUtil.drawRectWithTexture(x + 46, y + 19, 0, 0, 146, 52, 146, 52);
+
+            mc.getTextureManager().bindForSetup(BANK_ASSETS);
+            RenderUtil.fillWithTexture(x + 46, y + 19, 0, 0, 146, 52, 146, 52);
         });
 		
-		labelTeller = new Label(TextFormatting.YELLOW + "Casey The Teller", 60, 7);
+		labelTeller = new Label(ChatFormatting.YELLOW + "Casey The Teller", 60, 7);
 		layoutStart.addComponent(labelTeller);
 		
-		textWelcome = new Text(TextFormatting.BLACK + "Hello " + Minecraft.getMinecraft().player.getName() + ", welcome to The Emerald Bank! How can I help you?", 62, 25, 125);
+		textWelcome = new Text(ChatFormatting.BLACK + "Hello " + Minecraft.getInstance().player.getName() + ", welcome to The Emerald Bank! How can I help you?", 62, 25, 125);
 		layoutStart.addComponent(textWelcome);
 		
 		btnDepositWithdraw = new Button(54, 74, "View Account");
@@ -132,18 +135,18 @@ public class ApplicationBank extends SystemApplication
 			public void handleTick()
 			{
 				super.handleTick();
-				int amount = InventoryUtil.getItemAmount(Minecraft.getMinecraft().player, Items.EMERALD);
-				labelEmeraldAmount.setText("x " + Integer.toString(amount));
+				int amount = InventoryUtil.getItemAmount(Minecraft.getInstance().player, Items.EMERALD);
+				labelEmeraldAmount.setText("x " + amount);
 			}
 		};
-		layoutMain.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+		layoutMain.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
 		{
-            Gui.drawRect(x, y, x + width, y + 40, Color.GRAY.getRGB());
-			Gui.drawRect(x, y + 39, x + width, y + 40, Color.DARK_GRAY.getRGB());
-			Gui.drawRect(x + 62, y + 103, x + 115, y + 138, Color.BLACK.getRGB());
-			Gui.drawRect(x + 63, y + 104, x + 114, y + 113, Color.DARK_GRAY.getRGB());
-			Gui.drawRect(x + 63, y + 114, x + 114, y + 137, Color.GRAY.getRGB());
-            RenderUtil.renderItem(x + 65, y + 118, EMERALD, false);
+            Gui.fill(poseStack, x, y, x + width, y + 40, Color.GRAY.getRGB());
+			Gui.fill(poseStack, x, y + 39, x + width, y + 40, Color.DARK_GRAY.getRGB());
+			Gui.fill(poseStack, x + 62, y + 103, x + 115, y + 138, Color.BLACK.getRGB());
+			Gui.fill(poseStack, x + 63, y + 104, x + 114, y + 113, Color.DARK_GRAY.getRGB());
+			Gui.fill(poseStack, x + 63, y + 114, x + 114, y + 137, Color.GRAY.getRGB());
+            RenderUtil.renderItem( x + 65, y + 118, EMERALD, false);
         });
 		
 		labelBalance = new Label("Balance", 60, 5);
@@ -205,7 +208,7 @@ public class ApplicationBank extends SystemApplication
 					{
 						if(success)
 						{
-							int balance = nbt.getInteger("balance");
+							int balance = nbt.getInt("balance");
 							labelAmount.setText("$" + balance);
 							amountField.setText("0");
 						}
@@ -238,7 +241,7 @@ public class ApplicationBank extends SystemApplication
 					{
 						if(success)
 						{
-							int balance = nbt.getInteger("balance");
+							int balance = nbt.getInt("balance");
 							labelAmount.setText("$" + balance);
 							amountField.setText("0");
 						}
@@ -264,7 +267,7 @@ public class ApplicationBank extends SystemApplication
 		{
             if(success)
             {
-                int balance = nbt.getInteger("balance");
+                int balance = nbt.getInt("balance");
                 labelAmount.setText("$" + balance);
             }
         });
@@ -286,24 +289,24 @@ public class ApplicationBank extends SystemApplication
         });
 	}
 
-	private void deposit(int amount, Callback<NBTTagCompound> callback)
+	private void deposit(int amount, Callback<CompoundTag> callback)
 	{
 		TaskManager.sendTask(new TaskDeposit(amount).setCallback(callback));
 	}
 	
-	private void withdraw(int amount, Callback<NBTTagCompound> callback)
+	private void withdraw(int amount, Callback<CompoundTag> callback)
 	{
 		TaskManager.sendTask(new TaskWithdraw(amount).setCallback(callback));
 	}
 
 	@Override
-	public void load(NBTTagCompound tagCompound)
+	public void load(CompoundTag tagCompound)
 	{
 		
 	}
 
 	@Override
-	public void save(NBTTagCompound tagCompound)
+	public void save(CompoundTag tagCompound)
 	{
 		
 	}

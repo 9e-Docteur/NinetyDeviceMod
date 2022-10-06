@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.Icons;
 import com.mrcrayfish.device.api.app.Layout;
@@ -10,7 +11,7 @@ import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -98,7 +99,8 @@ public class ItemList<E> extends Component implements Iterable<E>
 		layoutLoading.addComponent(new Spinner((layoutLoading.width - 12) / 2, (layoutLoading.height - 12) / 2));
 		layoutLoading.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
 		{
-			Gui.drawRect(x, y, x + width, y + height, LOADING_BACKGROUND);
+			PoseStack poseStack = new PoseStack();
+			Gui.fill(poseStack, x, y, x + width, y + height, LOADING_BACKGROUND);
 		});
 		layout.addComponent(layoutLoading);
 
@@ -109,7 +111,7 @@ public class ItemList<E> extends Component implements Iterable<E>
 	}
 	
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) 
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if (this.visible)
         {
@@ -125,13 +127,14 @@ public class ItemList<E> extends Component implements Iterable<E>
 			Color borderColor = bgColor.darker().darker();
 
 			/* Fill */
-			Gui.drawRect(xPosition + 1, yPosition + 1, xPosition + width - 1, yPosition + (size * height) + size, bgColor.getRGB());
+			Gui.fill(poseStack, xPosition + 1, yPosition + 1, xPosition + width - 1, yPosition + (size * height) + size, bgColor.getRGB());
 
 			/* Box */
-			drawHorizontalLine(xPosition, xPosition + width - 1, yPosition, borderColor.getRGB());
-			drawVerticalLine(xPosition, yPosition, yPosition + (size * height) + size, borderColor.getRGB());
-			drawVerticalLine(xPosition + width - 1, yPosition, yPosition + (size * height) + size, borderColor.getRGB());
-			drawHorizontalLine(xPosition, xPosition + width - 1, yPosition + (size * height) + size, borderColor.getRGB());
+			drawHorizontalLine(poseStack,xPosition, xPosition + width - 1, yPosition, borderColor.getRGB());
+			drawVerticalLine(poseStack,xPosition, yPosition, yPosition + (size * height) + size, borderColor.getRGB());
+			drawVerticalLine(poseStack,xPosition + width - 1, yPosition, yPosition + (size * height) + size, borderColor.getRGB());
+			drawHorizontalLine(poseStack,xPosition, xPosition + width - 1, yPosition + (size * height) + size, borderColor.getRGB());
+
 
 			/* Items */
 			for(int i = 0; i < size - 1 && i < items.size(); i++)
@@ -141,14 +144,14 @@ public class ItemList<E> extends Component implements Iterable<E>
 				{
 					if(renderer != null)
 					{
-						renderer.render(item, this, mc, xPosition + 1, yPosition + (i * (renderer.getHeight())) + 1 + i, width - 2, renderer.getHeight(), (i + offset) == selected);
-						drawHorizontalLine(xPosition + 1, xPosition + width - 1, yPosition + (i * height) + i + height + 1, borderColor.getRGB());
+						renderer.render(poseStack, item, this, mc, xPosition + 1, yPosition + (i * (renderer.getHeight())) + 1 + i, width - 2, renderer.getHeight(), (i + offset) == selected);
+						drawHorizontalLine(poseStack, xPosition + 1, xPosition + width - 1, yPosition + (i * height) + i + height + 1, borderColor.getRGB());
 					}
 					else
 					{
-						drawRect(xPosition + 1, yPosition + (i * 14) + 1, xPosition + width - 1, yPosition + 13 + (i * 14) + 1, (i + offset) != selected ? bgColor.brighter().getRGB() : bgColor.brighter().brighter().getRGB());
-						drawString(mc.fontRenderer, item.toString(), xPosition + 3, yPosition + 3 + (i * 14), textColor);
-						drawHorizontalLine(xPosition + 1, xPosition + width - 2, yPosition + (i * height) + i + height + 1, borderColor.getRGB());
+						fill(poseStack,xPosition + 1, yPosition + (i * 14) + 1, xPosition + width - 1, yPosition + 13 + (i * 14) + 1, (i + offset) != selected ? bgColor.brighter().getRGB() : bgColor.brighter().brighter().getRGB());
+						drawString(poseStack, mc.font, item.toString(), xPosition + 3, yPosition + 3 + (i * 14), textColor);
+						drawHorizontalLine(poseStack, xPosition + 1, xPosition + width - 2, yPosition + (i * height) + i + height + 1, borderColor.getRGB());
 					}
 				}
 			}
@@ -159,24 +162,30 @@ public class ItemList<E> extends Component implements Iterable<E>
 			{
 				if(renderer != null)
 				{
-					renderer.render(item, this, mc, xPosition + 1, yPosition + (i * (renderer.getHeight())) + 1 + i, width - 2, renderer.getHeight(), (i + offset) == selected);
-					drawHorizontalLine(xPosition + 1, xPosition + width - 1, yPosition + (i * height) + i + height + 1, borderColor.getRGB());
+					renderer.render(poseStack, item, this, mc, xPosition + 1, yPosition + (i * (renderer.getHeight())) + 1 + i, width - 2, renderer.getHeight(), (i + offset) == selected);
+					drawHorizontalLine(poseStack, xPosition + 1, xPosition + width - 1, yPosition + (i * height) + i + height + 1, borderColor.getRGB());
 				}
 				else
 				{
-					drawRect(xPosition + 1, yPosition + (i * 14) + 1, xPosition + width - 1, yPosition + 13 + (i * 14) + 1, (i + offset) != selected ? bgColor.brighter().getRGB() : bgColor.brighter().brighter().getRGB());
-					drawString(Laptop.fontRenderer, item.toString(), xPosition + 3, yPosition + 3 + (i * 14), textColor);
+					fill(poseStack, xPosition + 1, yPosition + (i * 14) + 1, xPosition + width - 1, yPosition + 13 + (i * 14) + 1, (i + offset) != selected ? bgColor.brighter().getRGB() : bgColor.brighter().brighter().getRGB());
+					drawString(poseStack, Laptop.fontRenderer, item.toString(), xPosition + 3, yPosition + 3 + (i * 14), textColor);
 				}
 			}
 
 			if(items.size() > visibleItems)
 			{
-				drawRect(xPosition + width, yPosition, xPosition + width + 10, yPosition + (size * height) + size, Color.DARK_GRAY.getRGB());
-				drawVerticalLine(xPosition + width + 10, yPosition + 11, yPosition + (size * height) + size - 11, borderColor.getRGB());
+				fill(poseStack, xPosition + width, yPosition, xPosition + width + 10, yPosition + (size * height) + size, Color.DARK_GRAY.getRGB());
+				drawVerticalLine(poseStack, xPosition + width + 10, yPosition + 11, yPosition + (size * height) + size - 11, borderColor.getRGB());
 			}
         }
 	}
+	public void drawVerticalLine(PoseStack poseStack, int x, int y1, int y2, int rgb) {
+		fill(poseStack, x, y1, x + 1, y2, rgb);
+	}
 
+	public void drawHorizontalLine(PoseStack pose, int x1, int x2, int y, int rgb) {
+		fill(pose, x1, y, x2, y + 1, rgb);
+	}
 	@Override
 	public void handleMouseClick(int mouseX, int mouseY, int mouseButton)
 	{

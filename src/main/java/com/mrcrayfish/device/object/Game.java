@@ -1,12 +1,13 @@
 package com.mrcrayfish.device.object;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.object.tiles.Tile;
 import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -23,14 +24,14 @@ public class Game extends Component
 	
 	private Tile[][] tiles;
 	
-	private Player player = new Player(this);
+	private final Player player = new Player(this);
 	
 	private boolean editorMode = false;
 	private Tile currentTile = Tile.grass;
 	private Layer currentLayer = Layer.BACKGROUND;
 	private boolean renderBackground = true;
-	private boolean renderMidgroundLow = true;
-	private boolean renderMidgroundHigh = true;
+	private final boolean renderMidgroundLow = true;
+	private final boolean renderMidgroundHigh = true;
 	private boolean renderForeground = true;
 	private boolean renderPlayer = true;
 	
@@ -125,19 +126,18 @@ public class Game extends Component
 	}
 	
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) 
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		//long start = System.currentTimeMillis();
 		
 		if(editorMode)
 		{
-			drawRect(xPosition - 1, yPosition - 1, xPosition + mapWidth * Tile.WIDTH + 1, yPosition + mapHeight * Tile.HEIGHT + 1, Color.DARK_GRAY.getRGB());
+			fill(poseStack, xPosition - 1, yPosition - 1, xPosition + mapWidth * Tile.WIDTH + 1, yPosition + mapHeight * Tile.HEIGHT + 1, Color.DARK_GRAY.getRGB());
 		}
 		
-		GlStateManager.pushMatrix();
-		GlStateManager.pushAttrib();
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindTexture(ICONS);
+		poseStack.pushPose();
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		mc.getTextureManager().bindForSetup(ICONS);
 		
 		if(renderBackground)
 		{
@@ -186,7 +186,7 @@ public class Game extends Component
 			player.render(xPosition, yPosition, partialTicks);
 		}
 		
-		mc.getTextureManager().bindTexture(ICONS);
+		mc.getTextureManager().bindForSetup(ICONS);
 		if(renderMidgroundHigh)
 		{
 			for(int i = 0; i < tiles[2].length; i++)
@@ -228,9 +228,7 @@ public class Game extends Component
 				}
 			}
 		}
-		
-		GlStateManager.popAttrib();
-		GlStateManager.popMatrix();
+		poseStack.popPose();
 		
 		//System.out.println("Rendered game in " + (System.currentTimeMillis() - start));
 	}
@@ -337,7 +335,7 @@ public class Game extends Component
 		}
 	}
 
-	public static enum Layer
+	public enum Layer
 	{
 		BACKGROUND(0, 0), MIDGROUND_LOW(1, 0), MIDGROUND_HIGH(2, 20), FOREGROUND(3, 30);
 		

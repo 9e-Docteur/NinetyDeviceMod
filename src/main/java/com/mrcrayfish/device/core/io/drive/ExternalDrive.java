@@ -1,8 +1,9 @@
 package com.mrcrayfish.device.core.io.drive;
 
 import com.mrcrayfish.device.core.io.ServerFolder;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -13,20 +14,20 @@ import java.util.function.Predicate;
  */
 public final class ExternalDrive extends AbstractDrive
 {
-    private static final Predicate<NBTTagCompound> PREDICATE_DRIVE_TAG = tag ->
-            tag.hasKey("name", Constants.NBT.TAG_STRING)
-            && tag.hasKey("uuid", Constants.NBT.TAG_STRING)
-            && tag.hasKey("root", Constants.NBT.TAG_COMPOUND);
+    private static final Predicate<CompoundTag> PREDICATE_DRIVE_TAG = tag ->
+            tag.contains("name", Tag.TAG_STRING)
+            && tag.contains("uuid", Tag.TAG_STRING)
+            && tag.contains("root", Tag.TAG_COMPOUND);
 
     private ExternalDrive() {}
 
-    public ExternalDrive(String displayName)
+    public ExternalDrive(Component displayName)
     {
-        super(displayName);
+        super(String.valueOf(Component.literal(String.valueOf(displayName))));
     }
 
     @Nullable
-    public static AbstractDrive fromTag(NBTTagCompound driveTag)
+    public static AbstractDrive fromTag(CompoundTag driveTag)
     {
         if(!PREDICATE_DRIVE_TAG.test(driveTag))
             return null;
@@ -35,23 +36,23 @@ public final class ExternalDrive extends AbstractDrive
         drive.name = driveTag.getString("name");
         drive.uuid = UUID.fromString(driveTag.getString("uuid"));
 
-        NBTTagCompound folderTag = driveTag.getCompoundTag("root");
-        drive.root = ServerFolder.fromTag(folderTag.getString("file_name"), folderTag.getCompoundTag("data"));
+        CompoundTag folderTag = driveTag.getCompound("root");
+        drive.root = ServerFolder.fromTag(folderTag.getString("file_name"), folderTag.getCompound("data"));
 
         return drive;
     }
 
     @Override
-    public NBTTagCompound toTag()
+    public CompoundTag toTag()
     {
-        NBTTagCompound driveTag = new NBTTagCompound();
-        driveTag.setString("name", name);
-        driveTag.setString("uuid", uuid.toString());
+        CompoundTag driveTag = new CompoundTag();
+        driveTag.putString("name", name);
+        driveTag.putString("uuid", uuid.toString());
 
-        NBTTagCompound folderTag = new NBTTagCompound();
-        folderTag.setString("file_name", root.getName());
-        folderTag.setTag("data", root.toTag());
-        driveTag.setTag("root", folderTag);
+        CompoundTag folderTag = new CompoundTag();
+        folderTag.putString("file_name", root.getName());
+        folderTag.put("data", root.toTag());
+        driveTag.put("root", folderTag);
 
         return driveTag;
     }

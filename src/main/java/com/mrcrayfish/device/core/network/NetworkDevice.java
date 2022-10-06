@@ -2,11 +2,12 @@ package com.mrcrayfish.device.core.network;
 
 import com.mrcrayfish.device.core.Device;
 import com.mrcrayfish.device.tileentity.TileEntityNetworkDevice;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -28,15 +29,14 @@ public class NetworkDevice extends Device
         super(id, name);
     }
 
-    public boolean isConnected(World world)
+    public boolean isConnected(Level Level)
     {
         if(pos == null)
             return false;
 
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if(tileEntity instanceof TileEntityNetworkDevice)
+        BlockEntity tileEntity = Level.getBlockEntity(pos);
+        if(tileEntity instanceof TileEntityNetworkDevice device)
         {
-            TileEntityNetworkDevice device = (TileEntityNetworkDevice) tileEntity;
             Router router = device.getRouter();
             return router != null && router.getId().equals(router.getId());
         }
@@ -45,15 +45,14 @@ public class NetworkDevice extends Device
 
     @Nullable
     @Override
-    public TileEntityNetworkDevice getDevice(World world)
+    public TileEntityNetworkDevice getDevice(Level Level)
     {
         if(pos == null)
             return null;
 
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if(tileEntity instanceof TileEntityNetworkDevice)
+        BlockEntity tileEntity = Level.getBlockEntity(pos);
+        if(tileEntity instanceof TileEntityNetworkDevice tileEntityNetworkDevice)
         {
-            TileEntityNetworkDevice tileEntityNetworkDevice = (TileEntityNetworkDevice) tileEntity;
             if(tileEntityNetworkDevice.getId().equals(getId()))
             {
                 return tileEntityNetworkDevice;
@@ -62,24 +61,24 @@ public class NetworkDevice extends Device
         return null;
     }
 
-    public NBTTagCompound toTag(boolean includePos)
+    public CompoundTag toTag(boolean includePos)
     {
-        NBTTagCompound tag = super.toTag(includePos);
+        CompoundTag tag = super.toTag(includePos);
         if(includePos && pos != null)
         {
-            tag.setLong("pos", pos.toLong());
+            tag.putLong("pos", pos.asLong());
         }
         return tag;
     }
 
-    public static NetworkDevice fromTag(NBTTagCompound tag)
+    public static NetworkDevice fromTag(CompoundTag tag)
     {
         NetworkDevice device = new NetworkDevice();
         device.id = UUID.fromString(tag.getString("id"));
         device.name = tag.getString("name");
-        if(tag.hasKey("pos", Constants.NBT.TAG_LONG))
+        if(tag.contains("pos", Tag.TAG_LONG))
         {
-            device.pos = BlockPos.fromLong(tag.getLong("pos"));
+            device.pos = BlockPos.of(tag.getLong("pos"));
         }
         return device;
     }

@@ -1,5 +1,7 @@
 package com.mrcrayfish.device.programs.email;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.ApplicationManager;
 import com.mrcrayfish.device.api.app.*;
 import com.mrcrayfish.device.api.app.Component;
@@ -20,12 +22,12 @@ import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.programs.email.object.Contact;
 import com.mrcrayfish.device.programs.email.object.Email;
 import com.mrcrayfish.device.programs.email.task.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -117,9 +119,10 @@ public class ApplicationEmail extends Application
 	private File attachedFile;
 	
 	private List<Contact> contacts;
+	private final PoseStack poseStack = new PoseStack();
 
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		/* Loading Layout */
 		layoutInit = new Layout(40, 40);
@@ -162,7 +165,7 @@ public class ApplicationEmail extends Application
 		image.setAlpha(0.85F);
 		layoutRegisterAccount.addComponent(image);
 
-		labelEmail = new Label(TextFormatting.BOLD + "Choose your email", layoutRegisterAccount.width / 2, 30);
+		labelEmail = new Label(ChatFormatting.BOLD + "Choose your email", layoutRegisterAccount.width / 2, 30);
 		labelEmail.setAlignment(Component.ALIGN_CENTER);
 		layoutRegisterAccount.addComponent(labelEmail);
 
@@ -218,25 +221,25 @@ public class ApplicationEmail extends Application
 				TaskManager.sendTask(taskUpdateInbox);
 			}
 		});
-		layoutInbox.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+		layoutInbox.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
 		{
-			mc.getTextureManager().bindTexture(ENDER_MAIL_BACKGROUND);
-			RenderUtil.drawRectWithTexture(x, y, 0, 0, width, height, 640, 360, 640, 360);
+			Minecraft.getInstance().getTextureManager().bindForSetup(ENDER_MAIL_BACKGROUND);
+			RenderUtil.fillWithTexture(x, y, 0, 0, width, height, 640, 360, 640, 360);
 
 			Color temp = new Color(Laptop.getSystem().getSettings().getColorScheme().getBackgroundColor());
 			Color color = new Color(temp.getRed(), temp.getGreen(), temp.getBlue(), 150);
-			Gui.drawRect(x, y, x + 125, y + height, color.getRGB());
-			Gui.drawRect(x + 125, y, x + 126, y + height, color.darker().getRGB());
+			Gui.fill(poseStack,x, y, x + 125, y + height, color.getRGB());
+			Gui.fill(poseStack,x + 125, y, x + 126, y + height, color.darker().getRGB());
 
 			Email e = listEmails.getSelectedItem();
 			if(e != null)
 			{
-				Gui.drawRect(x + 130, y + 5, x + width - 5, y + 34, color.getRGB());
-				Gui.drawRect(x + 130, y + 34, x + width - 5, y + 35, color.darker().getRGB());
-				Gui.drawRect(x + 130, y + 35, x + width - 5, y + height - 5, new Color(1.0F, 1.0F, 1.0F, 0.25F).getRGB());
+				Gui.fill(poseStack, x + 130, y + 5, x + width - 5, y + 34, color.getRGB());
+				Gui.fill(poseStack,x + 130, y + 34, x + width - 5, y + 35, color.darker().getRGB());
+				Gui.fill(poseStack,x + 130, y + 35, x + width - 5, y + height - 5, new Color(1.0F, 1.0F, 1.0F, 0.25F).getRGB());
 				RenderUtil.drawStringClipped(e.getSubject(), x + 135, y + 10, 120, Color.WHITE.getRGB(), true);
 				RenderUtil.drawStringClipped(e.getAuthor() + "@endermail.com", x + 135, y + 22, 120, Color.LIGHT_GRAY.getRGB(), false);
-				Laptop.fontRenderer.drawSplitString(e.getMessage(), x + 135, y + 40, 115, Color.WHITE.getRGB());
+				Laptop.fontRenderer.drawWordWrap(e.getMessage(), x + 135, y + 40, 115, Color.WHITE.getRGB());
 			}
         });
 
@@ -244,22 +247,22 @@ public class ApplicationEmail extends Application
 		listEmails.setListItemRenderer(new ListItemRenderer<Email>(28)
 		{
 			@Override
-			public void render(Email e, Gui gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
+			public void render(PoseStack poseStack, Email e, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
 			{
-				Gui.drawRect(x, y, x + width, y + height, selected ? Color.DARK_GRAY.getRGB() : Color.GRAY.getRGB());
+				Gui.fill(poseStack, x, y, x + width, y + height, selected ? Color.DARK_GRAY.getRGB() : Color.GRAY.getRGB());
 
 				if (!e.isRead())
 				{
-					GlStateManager.color(1.0F, 1.0F, 1.0F);
+					GlStateManager._clearColor(1f, 1.0F, 1.0F, 1.0F);
 					RenderUtil.drawApplicationIcon(info, x + width - 16, y + 2);
 				}
 
 				if(e.getAttachment() != null)
 				{
-					GlStateManager.color(1.0F, 1.0F, 1.0F);
+					GlStateManager._clearColor(1f,1.0F, 1.0F, 1.0F);
 					int posX = x + (!e.isRead() ? -12 : 0) + width;
-					mc.getTextureManager().bindTexture(ENDER_MAIL_ICONS);
-					RenderUtil.drawRectWithTexture(posX, y + 16, 20, 10, 7, 10, 13, 20);
+					mc.getTextureManager().bindForSetup(ENDER_MAIL_ICONS);
+					RenderUtil.fillWithTexture(posX, y + 16, 20, 10, 7, 10, 13, 20);
 				}
 				RenderUtil.drawStringClipped(e.getSubject(), x + 5, y + 5, width - 20, Color.WHITE.getRGB(), false);
 				RenderUtil.drawStringClipped(e.getAuthor() + "@endermail.com", x + 5, y + 17, width - 20, Color.LIGHT_GRAY.getRGB(), false);
@@ -276,7 +279,7 @@ public class ApplicationEmail extends Application
                 TaskManager.sendTask(new TaskViewEmail(index));
                 Email email = listEmails.getSelectedItem();
                 email.setRead(true);
-                textMessage.setText(email.getMessage());
+                textMessage.setText(email.getMessage().getString());
                 labelViewSubject.setText(email.getSubject());
                 labelFrom.setText(email.getAuthor() + "@endermail.com");
                 attachedFile = email.getAttachment();
@@ -353,7 +356,7 @@ public class ApplicationEmail extends Application
 		/* New Email Layout */
 		
 		layoutNewEmail = new Layout(231, 148);
-		layoutNewEmail.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+		layoutNewEmail.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
 		{
 			if(attachedFile != null)
 			{
@@ -459,16 +462,16 @@ public class ApplicationEmail extends Application
 		/* View Email Layout */
 		
 		layoutViewEmail = new Layout(240, 156);
-		layoutViewEmail.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+		layoutViewEmail.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
 		{
-            Gui.drawRect(x, y + 22, x + layoutViewEmail.width, y + 50, Color.GRAY.getRGB());
-            Gui.drawRect(x, y + 22, x + layoutViewEmail.width, y + 23, Color.DARK_GRAY.getRGB());
-            Gui.drawRect(x, y + 49, x + layoutViewEmail.width, y + 50, Color.DARK_GRAY.getRGB());
-            Gui.drawRect(x, y + 50, x + layoutViewEmail.width, y + 156, COLOR_EMAIL_CONTENT_BACKGROUND.getRGB());
+            Gui.fill(poseStack, x, y + 22, x + layoutViewEmail.width, y + 50, Color.GRAY.getRGB());
+            Gui.fill(poseStack, x, y + 22, x + layoutViewEmail.width, y + 23, Color.DARK_GRAY.getRGB());
+            Gui.fill(poseStack, x, y + 49, x + layoutViewEmail.width, y + 50, Color.DARK_GRAY.getRGB());
+            Gui.fill(poseStack, x, y + 50, x + layoutViewEmail.width, y + 156, COLOR_EMAIL_CONTENT_BACKGROUND.getRGB());
 
 			if(attachedFile != null)
 			{
-				GlStateManager.color(1.0F, 1.0F, 1.0F);
+				GlStateManager._clearColor(1f,1.0F, 1.0F, 1.0F);
 				AppInfo info = ApplicationManager.getApplication(attachedFile.getOpeningApp());
 				RenderUtil.drawApplicationIcon(info, x + 204, y + 4);
 			}
@@ -556,13 +559,13 @@ public class ApplicationEmail extends Application
 	}
 
 	@Override
-	public void load(NBTTagCompound tagCompound)
+	public void load(CompoundTag tagCompound)
 	{
 		
 	}
 
 	@Override
-	public void save(NBTTagCompound tagCompound)
+	public void save(CompoundTag tagCompound)
 	{
 		
 	}

@@ -1,5 +1,8 @@
 package com.mrcrayfish.device.programs;
 
+import com.mojang.blaze3d.platform.TextureUtil;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.Reference;
 import com.mrcrayfish.device.api.app.*;
 import com.mrcrayfish.device.api.app.Component;
@@ -22,12 +25,10 @@ import com.mrcrayfish.device.object.Picture.Size;
 import com.mrcrayfish.device.programs.system.layout.StandardLayout;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -87,7 +88,7 @@ public class ApplicationPixelPainter extends Application
 	}
 
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		/* Main Menu */
 		layoutMainMenu = new StandardLayout("Main Menu", 201, 125, this, null);
@@ -97,7 +98,7 @@ public class ApplicationPixelPainter extends Application
 		pictureList.setListItemRenderer(new ListItemRenderer<Picture>(18)
 		{
 			@Override
-			public void render(Picture picture, Gui gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
+			public void render(PoseStack poseStack, Picture picture, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
 			{
 				RenderUtil.drawStringClipped("Henlo", x, y, 100, AUTHOR_TEXT.getRGB(), true);
 			}
@@ -189,11 +190,11 @@ public class ApplicationPixelPainter extends Application
 		listPictures.setListItemRenderer(new ListItemRenderer<Picture>(20)
 		{
 			@Override
-			public void render(Picture picture, Gui gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
+			public void render(PoseStack poseStack, Picture picture, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
 			{
-				Gui.drawRect(x, y, x + width, y + height, selected ? ITEM_SELECTED.getRGB() : ITEM_BACKGROUND.getRGB());
-				mc.fontRenderer.drawString(picture.getName(), x + 2, y + 2, Color.WHITE.getRGB(), false);
-				mc.fontRenderer.drawString(picture.getAuthor(), x + 2, y + 11, AUTHOR_TEXT.getRGB(), false);
+				Gui.fill(poseStack, x, y, x + width, y + height, selected ? ITEM_SELECTED.getRGB() : ITEM_BACKGROUND.getRGB());
+				mc.font.draw(poseStack, picture.getName(), x + 2, y + 2, Color.WHITE.getRGB());
+				mc.font.draw(poseStack, picture.getAuthor(), x + 2, y + 11, AUTHOR_TEXT.getRGB());
 			}
 		});
 		listPictures.setItemClickListener((picture, index, mouseButton) ->
@@ -346,7 +347,7 @@ public class ApplicationPixelPainter extends Application
 		{
 			canvas.picture.pixels = canvas.copyPixels();
 
-			NBTTagCompound pictureTag = new NBTTagCompound();
+			CompoundTag pictureTag = new CompoundTag();
 			canvas.picture.writeToNBT(pictureTag);
 
 			if(canvas.isExistingImage())
@@ -426,10 +427,10 @@ public class ApplicationPixelPainter extends Application
 		colorDisplay = new Component(158, 5)
 		{
 			@Override
-			public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+			public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 			{
-				drawRect(xPosition, yPosition, xPosition + 50, yPosition + 20, Color.DARK_GRAY.getRGB());
-				drawRect(xPosition + 1, yPosition + 1, xPosition + 49, yPosition + 19, canvas.getCurrentColor());
+				fill(poseStack, xPosition, yPosition, xPosition + 50, yPosition + 20, Color.DARK_GRAY.getRGB());
+				fill(poseStack, xPosition + 1, yPosition + 1, xPosition + 49, yPosition + 19, canvas.getCurrentColor());
 			}
 		};
 		layoutDraw.addComponent(colorDisplay);
@@ -445,13 +446,13 @@ public class ApplicationPixelPainter extends Application
 	}
 
 	@Override
-	public void load(NBTTagCompound tagCompound)
+	public void load(CompoundTag tagCompound)
 	{
 
 	}
 
 	@Override
-	public void save(NBTTagCompound tagCompound)
+	public void save(CompoundTag tagCompound)
 	{
 
 	}
@@ -519,18 +520,18 @@ public class ApplicationPixelPainter extends Application
 		}
 
 		@Override
-		public NBTTagCompound toTag()
+		public CompoundTag toTag()
 		{
-			NBTTagCompound tag = new NBTTagCompound();
-			tag.setString("name", name);
-			tag.setIntArray("pixels", pixels);
-			tag.setInteger("resolution", resolution);
-			if(cut) tag.setBoolean("cut", cut);
+			CompoundTag tag = new CompoundTag();
+			tag.putString("name", name);
+			tag.putIntArray("pixels", pixels);
+			tag.putInt("resolution", resolution);
+			if(cut) tag.putBoolean("cut", cut);
 			return tag;
 		}
 
 		@Override
-		public void fromTag(NBTTagCompound tag)
+		public void fromTag(CompoundTag tag)
 		{
 			name = tag.getString("name");
 			cut = tag.getBoolean("cut");
@@ -549,27 +550,26 @@ public class ApplicationPixelPainter extends Application
 		public static final ResourceLocation TEXTURE = new ResourceLocation(Reference.MOD_ID, "textures/model/paper.png");
 
 		@Override
-		public boolean render(NBTTagCompound data)
+		public boolean render(CompoundTag data)
 		{
-			if(data.hasKey("pixels", Constants.NBT.TAG_INT_ARRAY) && data.hasKey("resolution", Constants.NBT.TAG_INT))
+			if(data.contains("pixels", Tag.TAG_INT_ARRAY) && data.contains("resolution", Tag.TAG_INT))
 			{
 				int[] pixels = data.getIntArray("pixels");
-				int resolution = data.getInteger("resolution");
+				int resolution = data.getInt("resolution");
 				boolean cut = data.getBoolean("cut");
 
 				if(pixels.length != resolution * resolution)
 					return false;
 
-				GlStateManager.enableBlend();
-				OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-				GlStateManager.disableLighting();
-				GlStateManager.rotate(180, 0, 1, 0);
+				RenderSystem.enableBlend();
+				//OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+				//RenderSystem.rotate(180, 0, 1, 0);
 
 				// This is for the paper background
 				if (!cut)
 				{
-					Minecraft.getMinecraft().getTextureManager().bindTexture(TEXTURE);
-					RenderUtil.drawRectWithTexture(-1, 0, 0, 0, 1, 1, resolution ,resolution, resolution, resolution);
+					Minecraft.getInstance().getTextureManager().bindForSetup(TEXTURE);
+					RenderUtil.fillWithTexture(-1, 0, 0, 0, 1, 1, resolution ,resolution, resolution, resolution);
 				}
 
 				// This creates an flipped copy of the pixel array
@@ -583,17 +583,16 @@ public class ApplicationPixelPainter extends Application
 					}
 				}
 
-				int textureId = TextureUtil.glGenTextures();
-				TextureUtil.allocateTexture(textureId, resolution, resolution);
-				TextureUtil.uploadTexture(textureId, flippedPixels, resolution, resolution);
+				int textureId = TextureUtil.generateTextureId();
+				TextureUtil.prepareImage(textureId, resolution, resolution);
 
-				GlStateManager.bindTexture(textureId);
-				RenderUtil.drawRectWithTexture(-1, 0, 0, 0, 1, 1, resolution, resolution, resolution, resolution);
-				GlStateManager.deleteTexture(textureId);
+				RenderSystem.bindTexture(textureId);
+				RenderUtil.fillWithTexture(-1, 0, 0, 0, 1, 1, resolution, resolution, resolution, resolution);
+				RenderSystem.deleteTexture(textureId);
 
-				GlStateManager.disableRescaleNormal();
-				GlStateManager.disableBlend();
-				GlStateManager.enableLighting();
+				//RenderSystem.disableRescaleNormal();
+				RenderSystem.disableBlend();
+				//RenderSystem.enableLighting();
 				return true;
 			}
 			return false;

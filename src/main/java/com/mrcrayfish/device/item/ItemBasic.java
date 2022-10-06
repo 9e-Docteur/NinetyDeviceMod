@@ -1,17 +1,15 @@
 package com.mrcrayfish.device.item;
 
-import com.mrcrayfish.device.MrCrayfishDeviceMod;
-import net.minecraft.item.Item;
+import be.ninedocteur.ndm.NDMCreativeTabs;
+import net.minecraft.world.item.Item;
 
 /**
  * Author: MrCrayfish
  */
 public class ItemBasic extends Item
 {
-    public ItemBasic(String id)
-    {
-        this.setUnlocalizedName(id);
-        this.setRegistryName(id);
-        this.setCreativeTab(MrCrayfishDeviceMod.TAB_DEVICE);
+
+    public ItemBasic(Properties p_41383_) {
+        super(p_41383_.tab(NDMCreativeTabs.NDM));
     }
 }

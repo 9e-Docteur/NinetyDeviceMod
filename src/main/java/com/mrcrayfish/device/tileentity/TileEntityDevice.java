@@ -1,12 +1,12 @@
 package com.mrcrayfish.device.tileentity;
 
 import com.mrcrayfish.device.util.IColored;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -15,11 +15,15 @@ import java.util.UUID;
 /**
  * Author: MrCrayfish
  */
-public abstract class TileEntityDevice extends TileEntitySync implements ITickable
+public abstract class TileEntityDevice extends TileEntitySync
 {
-    private EnumDyeColor color = EnumDyeColor.RED;
+    private DyeColor color = DyeColor.RED;
     private UUID deviceId;
     private String name;
+
+    public TileEntityDevice(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
+        super(p_155228_, p_155229_, p_155230_);
+    }
 
     public final UUID getId()
     {
@@ -47,94 +51,90 @@ public abstract class TileEntityDevice extends TileEntitySync implements ITickab
         return !StringUtils.isEmpty(name);
     }
 
-    @Nullable
-    @Override
-    public ITextComponent getDisplayName()
-    {
-        return new TextComponentString(getCustomName());
-    }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
-    {
-        super.writeToNBT(compound);
-        compound.setString("deviceId", getId().toString());
+    public CompoundTag serializeNBT() {
+        super.serializeNBT();
+        CompoundTag compoundTag = new CompoundTag();
+        compoundTag.putString("deviceId", getId().toString());
         if(hasCustomName())
         {
-            compound.setString("name", name);
+            compoundTag.putString("name", name);
         }
-        compound.setByte("color", (byte) color.getMetadata());
-        return compound;
+        compoundTag.putByte("color", (byte) color.getId());
+        return compoundTag;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound compound)
-    {
-        super.readFromNBT(compound);
-        if(compound.hasKey("deviceId", Constants.NBT.TAG_STRING))
+    public void deserializeNBT(CompoundTag nbt) {
+        super.deserializeNBT(nbt);
+        if(nbt.getString("deviceId", Tag.TAG_STRING))
         {
-            deviceId = UUID.fromString(compound.getString("deviceId"));
+            deviceId = UUID.fromString(nbt.getString("deviceId"));
         }
-        if(compound.hasKey("name", Constants.NBT.TAG_STRING))
+        if(nbt.getString("name", Tag.TAG_STRING))
         {
-            name = compound.getString("name");
+            name = nbt.getString("name");
         }
-        if(compound.hasKey("color", Constants.NBT.TAG_BYTE))
+        if(nbt.getString("color", Tag.TAG_BYTE))
         {
-            this.color = EnumDyeColor.byMetadata(compound.getByte("color"));
+            this.color = DyeColor.byId(nbt.getByte("color"));
         }
     }
 
     @Override
-    public NBTTagCompound writeSyncTag()
+    public CompoundTag writeSyncTag()
     {
-        NBTTagCompound tag = new NBTTagCompound();
+        CompoundTag tag = new CompoundTag();
         if(hasCustomName())
         {
-            tag.setString("name", name);
+            tag.putString("name", name);
         }
-        tag.setByte("color", (byte) color.getMetadata());
+        tag.putByte("color", (byte) color.getId());
         return tag;
     }
 
     public static abstract class Colored extends TileEntityDevice implements IColored
     {
-        private EnumDyeColor color = EnumDyeColor.RED;
+        private DyeColor color = DyeColor.RED;
+
+        public Colored(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
+            super(p_155228_, p_155229_, p_155230_);
+        }
 
         @Override
-        public void readFromNBT(NBTTagCompound compound)
-        {
-            super.readFromNBT(compound);
-            if(compound.hasKey("color", Constants.NBT.TAG_BYTE))
+        public void deserializeNBT(CompoundTag nbt) {
+            super.deserializeNBT(nbt);
+            if(nbt.put("color", Tag.TAG_BYTE))
             {
-                this.color = EnumDyeColor.byMetadata(compound.getByte("color"));
+                this.color = DyeColor.byId(nbt.getByte("color"));
             }
         }
 
         @Override
-        public NBTTagCompound writeToNBT(NBTTagCompound compound)
-        {
-            super.writeToNBT(compound);
-            compound.setByte("color", (byte) color.getMetadata());
+        public CompoundTag serializeNBT() {
+            super.serializeNBT();
+            CompoundTag compound = new CompoundTag();
+            compound.putByte("color", (byte) color.getId());
             return compound;
         }
 
         @Override
-        public NBTTagCompound writeSyncTag()
+        public CompoundTag writeSyncTag()
         {
-            NBTTagCompound tag = super.writeSyncTag();
-            tag.setByte("color", (byte) color.getMetadata());
+            CompoundTag tag = super.writeSyncTag();
+            tag.putByte("color", (byte) color.getId());
             return tag;
         }
 
         @Override
-        public final void setColor(EnumDyeColor color)
+        public final void setColor(DyeColor color)
         {
             this.color = color;
         }
 
         @Override
-        public final EnumDyeColor getColor()
+        public final DyeColor getColor()
         {
             return color;
         }

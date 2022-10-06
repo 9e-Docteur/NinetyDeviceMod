@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.Reference;
 import com.mrcrayfish.device.api.ApplicationManager;
 import com.mrcrayfish.device.api.app.Component;
@@ -23,11 +24,11 @@ import com.mrcrayfish.device.programs.system.layout.LayoutAppPage;
 import com.mrcrayfish.device.programs.system.layout.LayoutSearchApps;
 import com.mrcrayfish.device.programs.system.object.AppEntry;
 import com.mrcrayfish.device.programs.system.object.RemoteEntry;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -37,7 +38,7 @@ import java.util.List;
 
 public class ApplicationAppStore extends SystemApplication
 {
-	public static final String CERTIFIED_APPS_URL = "https://raw.githubusercontent.com/MrCrayfish/DeviceMod-CertifiedApps/master";
+	public static final String CERTIFIED_APPS_URL = "https://api.docteam.tk/9e_Docteur/DeviceMod-CertifiedApps/app.json";
 
 	public static final int LAYOUT_WIDTH = 250;
 	public static final int LAYOUT_HEIGHT = 150;
@@ -45,26 +46,27 @@ public class ApplicationAppStore extends SystemApplication
 	private Layout layoutMain;
 
 	public List<AppEntry> certifiedApps = new ArrayList<>();
+	private final PoseStack poseStack = new PoseStack();
 
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		layoutMain = new Layout(LAYOUT_WIDTH, LAYOUT_HEIGHT);
 
 		ScrollableLayout homePageLayout = new ScrollableLayout(0, 0, LAYOUT_WIDTH, 368, LAYOUT_HEIGHT);
 		homePageLayout.setScrollSpeed(10);
-		homePageLayout.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+		homePageLayout.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
 		{
 			Color color = new Color(Laptop.getSystem().getSettings().getColorScheme().getBackgroundColor());
 			int offset = 60;
-			Gui.drawRect(x, y + offset, x + LAYOUT_WIDTH, y + offset + 1, color.brighter().getRGB());
-			Gui.drawRect(x, y + offset + 1, x + LAYOUT_WIDTH, y + offset + 19, color.getRGB());
-			Gui.drawRect(x, y + offset + 19, x + LAYOUT_WIDTH, y + offset + 20, color.darker().getRGB());
+			Gui.fill(poseStack, x, y + offset, x + LAYOUT_WIDTH, y + offset + 1, color.brighter().getRGB());
+			Gui.fill(poseStack,x, y + offset + 1, x + LAYOUT_WIDTH, y + offset + 19, color.getRGB());
+			Gui.fill(poseStack,x, y + offset + 19, x + LAYOUT_WIDTH, y + offset + 20, color.darker().getRGB());
 
 			offset = 172;
-			Gui.drawRect(x, y + offset, x + LAYOUT_WIDTH, y + offset + 1, color.brighter().getRGB());
-			Gui.drawRect(x, y + offset + 1, x + LAYOUT_WIDTH, y + offset + 19, color.getRGB());
-			Gui.drawRect(x, y + offset + 19, x + LAYOUT_WIDTH, y + offset + 20, color.darker().getRGB());
+			Gui.fill(poseStack,x, y + offset, x + LAYOUT_WIDTH, y + offset + 1, color.brighter().getRGB());
+			Gui.fill(poseStack,x, y + offset + 1, x + LAYOUT_WIDTH, y + offset + 19, color.getRGB());
+			Gui.fill(poseStack,x, y + offset + 19, x + LAYOUT_WIDTH, y + offset + 20, color.darker().getRGB());
         });
 
 		Image imageBanner = new Image(0, 0, LAYOUT_WIDTH, 60);
@@ -94,10 +96,10 @@ public class ApplicationAppStore extends SystemApplication
 		labelBanner.setScale(2);
 		homePageLayout.addComponent(labelBanner);
 
-		Label labelCertified = new Label(TextFormatting.WHITE + TextFormatting.BOLD.toString() + "Certified Apps", 10, 66);
+		Label labelCertified = new Label(ChatFormatting.WHITE + ChatFormatting.BOLD.toString() + "Certified Apps", 10, 66);
 		homePageLayout.addComponent(labelCertified);
 
-		Label labelCertifiedDesc = new Label(TextFormatting.GRAY + "Verified by MrCrayfish", LAYOUT_WIDTH - 10, 66);
+		Label labelCertifiedDesc = new Label(ChatFormatting.GRAY + "Verified by MrCrayfish", LAYOUT_WIDTH - 10, 66);
 		labelCertifiedDesc.setAlignment(Component.ALIGN_RIGHT);
 		labelCertifiedDesc.setScale(1.0);
 		labelCertifiedDesc.setShadow(false);
@@ -112,7 +114,7 @@ public class ApplicationAppStore extends SystemApplication
 			spinner.setVisible(false);
             if(success)
 			{
-				Minecraft.getMinecraft().addScheduledTask(() ->
+				Minecraft.getInstance().doRunTask(() ->
 				{
 					AppGrid grid = new AppGrid(0, 81, 3, 1, this);
 					certifiedApps.addAll(parseJson(response));
@@ -127,10 +129,10 @@ public class ApplicationAppStore extends SystemApplication
 			}
         });
 
-		Label labelOther = new Label(TextFormatting.WHITE + TextFormatting.BOLD.toString() + "Other Apps", 10, 178);
+		Label labelOther = new Label(ChatFormatting.WHITE + ChatFormatting.BOLD.toString() + "Other Apps", 10, 178);
 		homePageLayout.addComponent(labelOther);
 
-		Label labelOtherDesc = new Label(TextFormatting.GRAY + "Community Created", LAYOUT_WIDTH - 10, 178);
+		Label labelOtherDesc = new Label(ChatFormatting.GRAY + "Community Created", LAYOUT_WIDTH - 10, 178);
 		labelOtherDesc.setAlignment(Component.ALIGN_RIGHT);
 		labelOtherDesc.setScale(1.0);
 		labelOtherDesc.setShadow(false);
@@ -146,13 +148,13 @@ public class ApplicationAppStore extends SystemApplication
 	}
 
 	@Override
-	public void load(NBTTagCompound tagCompound) 
+	public void load(CompoundTag tagCompound) 
 	{
 		
 	}
 
 	@Override
-	public void save(NBTTagCompound tagCompound) 
+	public void save(CompoundTag tagCompound) 
 	{
 		
 	}

@@ -1,53 +1,50 @@
 package com.mrcrayfish.device.init;
 
+
+import be.ninedocteur.ndm.NDMCreativeTabs;
+import be.ninedocteur.ndm.utils.NDMUtils;
 import com.mrcrayfish.device.block.*;
-import com.mrcrayfish.device.item.ItemColoredDevice;
-import com.mrcrayfish.device.item.ItemPaper;
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemBlock;
+import com.mrcrayfish.device.core.network.Router;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Material;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
+import java.util.function.Supplier;
 
-public class DeviceBlocks 
+public class DeviceBlocks
 {
-	public static final Block LAPTOP;
-    public static final Block ROUTER;
-	public static final Block PRINTER;
-	public static final Block PAPER;
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "ndm");
 
-	public static final Block OFFICE_CHAIR;
+    public static final RegistryObject<Block> LAPTOP = registerBlock("laptop", () -> new BlockLaptop(DyeColor.WHITE));
+    public static final RegistryObject<Block> PRINTER = registerBlock("printer", () -> new BlockPrinter(DyeColor.WHITE));
+    public static final RegistryObject<Block> ROUTER = registerBlock("router", () -> new BlockRouter(DyeColor.WHITE));
+    public static final RegistryObject<Block> PAPER = registerBlock("paper", () -> new BlockPaper());
+    public static final RegistryObject<Block> CHAIR = registerBlock("chair", () -> new BlockOfficeChair(DyeColor.WHITE));
 
-	static
-	{
-		LAPTOP = new BlockLaptop();
-        ROUTER = new BlockRouter();
-		PRINTER = new BlockPrinter();
-		PAPER = new BlockPaper();
+    private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
+        RegistryObject<T> toReturn = BLOCKS.register(name, block);
+        registerBlockItem(name, toReturn);
+        return toReturn;
+    }
 
-		OFFICE_CHAIR = new BlockOfficeChair();
-	}
 
-	public static void register()
-	{
-		registerBlock(LAPTOP, new ItemColoredDevice(LAPTOP));
-        registerBlock(ROUTER, new ItemColoredDevice(ROUTER));
-		registerBlock(PRINTER, new ItemColoredDevice(PRINTER));
-		registerBlock(PAPER, new ItemPaper(PAPER));
+    private static <T extends Block> RegistryObject<T> registerBlockOnly(String name, Supplier<T> block) {
+        RegistryObject<T> toReturn = BLOCKS.register(name, block);
+        return toReturn;
+    }
 
-		registerBlock(OFFICE_CHAIR, new ItemColoredDevice(OFFICE_CHAIR));
-	}
+    private static <T extends Block> void registerBlockItem(String name, RegistryObject<T> block) {
+        DeviceItems.ITEMS.register(name, () -> new BlockItem(block.get(),
+                new Item.Properties().tab(NDMCreativeTabs.NDM)));
+    }
 
-	private static void registerBlock(Block block)
-	{
-		registerBlock(block, new ItemBlock(block));
-	}
-
-	private static void registerBlock(Block block, ItemBlock item)
-	{
-		if(block.getRegistryName() == null)
-			throw new IllegalArgumentException("A block being registered does not have a registry name and could be successfully registered.");
-
-		RegistrationHandler.Blocks.add(block);
-		item.setRegistryName(block.getRegistryName());
-		RegistrationHandler.Items.add(item);
-	}
+    public static void register(IEventBus eventBus){
+        BLOCKS.register(eventBus);
+    }
 }

@@ -1,5 +1,7 @@
 package com.mrcrayfish.device.programs.system.component;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.api.app.component.ComboBox;
@@ -9,11 +11,6 @@ import com.mrcrayfish.device.util.GLHelper;
 import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
@@ -22,7 +19,7 @@ import java.awt.*;
  */
 public class Palette extends Component
 {
-    private ComboBox.Custom<Integer> colorPicker;
+    private final ComboBox.Custom<Integer> colorPicker;
 
     private Color currentColor = Color.RED;
 
@@ -66,9 +63,9 @@ public class Palette extends Component
             {
                 currentColor = new Color(0.0F, (percentage - ((1.0F / 6.0F) * 2.0F)) * 6.0F, 1.0F);
             }
-            else if(percentage >= (1.0 / 6.0) * 1.0)
+            else if(percentage >= (1.0 / 6.0))
             {
-                currentColor = new Color(1.0F - (percentage - ((1.0F / 6.0F) * 1.0F)) * 6.0F, 0.0F, 1.0F);
+                currentColor = new Color(1.0F - (percentage - ((1.0F / 6.0F))) * 6.0F, 0.0F, 1.0F);
             }
             else if(percentage >= (1.0 / 6.0) * 0.0)
             {
@@ -79,30 +76,30 @@ public class Palette extends Component
     }
 
     @Override
-    protected void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+    protected void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
     {
-        Gui.drawRect(x, y, x + 52, y + 52, Color.DARK_GRAY.getRGB());
+        Gui.fill(poseStack, x, y, x + 52, y + 52, Color.DARK_GRAY.getRGB());
 
-        GlStateManager.disableLighting();
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.shadeModel(GL11.GL_SMOOTH);
+        //RenderSystem.disableLighting();
+        //RenderSystem.disableTexture2D();
+        RenderSystem.enableBlend();
+        //RenderSystem.disableAlpha();
+        //RenderSystem.tryBlendFuncSeparate(RenderSystem.SourceFactor.SRC_ALPHA, RenderSystem.DestFactor.ONE_MINUS_SRC_ALPHA, RenderSystem.SourceFactor.ONE, RenderSystem.DestFactor.ZERO);
+        //RenderSystem.shadeModel(GL11.GL_SMOOTH);
 
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
-        buffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        buffer.pos((double) x + 1, (double)(y + 1 + 50), 1).color(0.0F, 0.0F, 0.0F, 1.0F).endVertex();
-        buffer.pos((double)(x + 1 + 50), (double)(y + 1 + 50), 1).color(0.0F, 0.0F, 0.0F, 1.0F).endVertex();
-        buffer.pos((double)(x + 1 + 50), (double) y + 1, 1).color(currentColor.getRed() / 255F, currentColor.getGreen() / 255F, currentColor.getBlue() / 255F, 1.0F).endVertex();
-        buffer.pos((double) x + 1, (double) y + 1, 1).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-        tessellator.draw();
+        Tesselator tessellator = Tesselator.getInstance();
+        BufferBuilder buffer = tessellator.getBuilder();
+        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        buffer.vertex((double) x + 1, y + 1 + 50, 1).color(0f, 0f, 0f, 1f).endVertex();
+        buffer.vertex(x + 1 + 50, y + 1 + 50, 1).color(0f, 0f, 0f, 1f).endVertex();
+        buffer.vertex(x + 1 + 50, (double) y + 1, 1).color(currentColor.getRed() / 255f, currentColor.getGreen() / 255f, currentColor.getBlue() / 255f, 1f).endVertex();
+        buffer.vertex((double) x + 1, (double) y + 1, 1).color(1f, 1f, 1f, 1f).endVertex();
+        tessellator.end();
 
-        GlStateManager.shadeModel(GL11.GL_FLAT);
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
+        //RenderSystem.shadeModel(GL11.GL_FLAT);
+        RenderSystem.disableBlend();
+        //RenderSystem.enableAlpha();
+        //RenderSystem.enableTexture2D();
     }
 
     @Override

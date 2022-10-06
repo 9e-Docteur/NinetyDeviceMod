@@ -6,8 +6,8 @@ import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.api.app.component.*;
 import com.mrcrayfish.device.api.io.File;
 import com.mrcrayfish.device.core.io.FileSystem;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
@@ -15,8 +15,8 @@ import java.util.function.Predicate;
 public class ApplicationNoteStash extends Application
 {
 	private static final Predicate<File> PREDICATE_FILE_NOTE = file -> !file.isFolder()
-			&& file.getData().hasKey("title", Constants.NBT.TAG_STRING)
-			&& file.getData().hasKey("content", Constants.NBT.TAG_STRING);
+			&& file.getData().contains("title", Tag.TAG_STRING)
+			&& file.getData().contains("content", Tag.TAG_STRING);
 
 	/* Main */
 	private Layout layoutMain;
@@ -44,7 +44,7 @@ public class ApplicationNoteStash extends Application
 	}
 
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		/* Main */
 		
@@ -149,9 +149,9 @@ public class ApplicationNoteStash extends Application
 		btnSave.setSize(50, 20);
 		btnSave.setClickListener((mouseX, mouseY, mouseButton) ->
 		{
-            NBTTagCompound data = new NBTTagCompound();
-            data.setString("title", title.getText());
-            data.setString("content", textArea.getText());
+            CompoundTag data = new CompoundTag();
+            data.putString("title", title.getText());
+            data.putString("content", textArea.getText());
 
             Dialog.SaveFile dialog = new Dialog.SaveFile(ApplicationNoteStash.this, data);
             dialog.setFolder(getApplicationFolderPath());
@@ -196,10 +196,10 @@ public class ApplicationNoteStash extends Application
 	}
 
 	@Override
-	public void load(NBTTagCompound tagCompound) {}
+	public void load(CompoundTag tagCompound) {}
 
 	@Override
-	public void save(NBTTagCompound tagCompound) {}
+	public void save(CompoundTag tagCompound) {}
 
 	@Override
 	public void onClose()
@@ -214,7 +214,7 @@ public class ApplicationNoteStash extends Application
 		if(!PREDICATE_FILE_NOTE.test(file))
 			return false;
 
-		NBTTagCompound data = file.getData();
+		CompoundTag data = file.getData();
 		noteTitle.setText(data.getString("title"));
 		noteContent.setText(data.getString("content"));
 		setCurrentLayout(layoutViewNote);
@@ -224,8 +224,8 @@ public class ApplicationNoteStash extends Application
 	private static class Note
 	{
 		private File source;
-		private String title;
-		private String content;
+		private final String title;
+		private final String content;
 
 		public Note(String title, String content)
 		{

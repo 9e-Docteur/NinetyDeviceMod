@@ -1,11 +1,11 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.listener.ClickListener;
 import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -59,18 +59,18 @@ public class CheckBox extends Component implements RadioGroup.Item
 	}
 	
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) 
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if (this.visible)
         {
         	if(group == null)
 			{
 				Color bgColor = new Color(getColorScheme().getBackgroundColor());
-				drawRect(xPosition, yPosition, xPosition + 10, yPosition + 10, color(borderColor, bgColor.darker().darker().getRGB()));
-				drawRect(xPosition + 1, yPosition + 1, xPosition + 9, yPosition + 9, color(backgroundColor, bgColor.getRGB()));
+				fill(poseStack,xPosition, yPosition, xPosition + 10, yPosition + 10, color(borderColor, bgColor.darker().darker().getRGB()));
+				fill(poseStack,xPosition + 1, yPosition + 1, xPosition + 9, yPosition + 9, color(backgroundColor, bgColor.getRGB()));
 				if(checked)
 				{
-					drawRect(xPosition + 2, yPosition + 2, xPosition + 8, yPosition + 8, color(checkedColor, bgColor.brighter().brighter().getRGB()));
+					fill(poseStack,xPosition + 2, yPosition + 2, xPosition + 8, yPosition + 8, color(checkedColor, bgColor.brighter().brighter().getRGB()));
 				}
 			}
 			else
@@ -79,10 +79,10 @@ public class CheckBox extends Component implements RadioGroup.Item
 				float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
 				bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1.0F));
 				GL11.glColor4f(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
-				mc.getTextureManager().bindTexture(COMPONENTS_GUI);
-				drawTexturedModalRect(xPosition, yPosition, checked ? 10 : 0, 60, 10, 10);
+				mc.getTextureManager().bindForSetup(COMPONENTS_GUI);
+				blit(poseStack,xPosition, yPosition, checked ? 10 : 0, 60, 10, 10);
 			}
-			drawString(mc.fontRenderer, name, xPosition + 12, yPosition + 1, color(textColor, getColorScheme().getTextColor()));
+			drawString(poseStack, mc.font, name, xPosition + 12, yPosition + 1, color(textColor, getColorScheme().getTextColor()));
         }
 	}
 	

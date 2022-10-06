@@ -1,34 +1,30 @@
 package com.mrcrayfish.device.item;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
 
 /**
  * Author: MrCrayfish
  */
-public class ItemPaper extends ItemBlock
+public class ItemPaper extends BlockItem
 {
-    public ItemPaper(Block block)
-    {
-        super(block);
-        this.setMaxStackSize(1);
+
+
+    public ItemPaper(Block p_40565_, Properties p_40566_) {
+        super(p_40565_, p_40566_);
     }
 
-
-
-    @Nullable
     @Override
-    public NBTTagCompound getNBTShareTag(ItemStack stack)
-    {
-        NBTTagCompound tag = stack.getTagCompound();
+    public @org.jetbrains.annotations.Nullable CompoundTag getShareTag(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
         if(tag != null)
         {
-            NBTTagCompound copy = tag.copy();
-            copy.removeTag("BlockEntityTag");
+            CompoundTag copy = tag.copy();
+            copy.remove("BlockEntityTag");
             return copy;
         }
         return null;

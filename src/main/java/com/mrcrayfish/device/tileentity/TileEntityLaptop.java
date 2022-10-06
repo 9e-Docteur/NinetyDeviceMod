@@ -1,15 +1,18 @@
 package com.mrcrayfish.device.tileentity;
 
 import com.mrcrayfish.device.core.io.FileSystem;
+import com.mrcrayfish.device.init.DeviceTileEntites;
 import com.mrcrayfish.device.util.TileEntityUtil;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagString;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class TileEntityLaptop extends TileEntityNetworkDevice.Colored
 {
@@ -17,18 +20,23 @@ public class TileEntityLaptop extends TileEntityNetworkDevice.Colored
 
 	private boolean open = false;
 
-	private NBTTagCompound applicationData;
-	private NBTTagCompound systemData;
+	private CompoundTag applicationData;
+	private CompoundTag systemData;
 	private FileSystem fileSystem;
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private int rotation;
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	private int prevRotation;
 
-	@SideOnly(Side.CLIENT)
-	private EnumDyeColor externalDriveColor;
+	@OnlyIn(Dist.CLIENT)
+	private DyeColor externalDriveColor;
+	private final Level level = Minecraft.getInstance().level;
+
+	public TileEntityLaptop(BlockPos p_155229_, BlockState p_155230_) {
+		super(DeviceTileEntites.LAPTOP.get(), p_155229_, p_155230_);
+	}
 
 	@Override
 	public String getDeviceName()
@@ -36,11 +44,11 @@ public class TileEntityLaptop extends TileEntityNetworkDevice.Colored
 		return "Laptop";
 	}
 
+
 	@Override
-	public void update() 
-	{
-		super.update();
-		if(world.isRemote)
+	public void tick() {
+		super.tick();
+		if(level.isClientSide)
 		{
 			prevRotation = rotation;
 			if(!open)
@@ -59,96 +67,81 @@ public class TileEntityLaptop extends TileEntityNetworkDevice.Colored
 			}
 		}
 	}
-	
+
 	@Override
-	public void readFromNBT(NBTTagCompound compound) 
-	{
-		super.readFromNBT(compound);
-		if(compound.hasKey("open"))
-		{
-			this.open = compound.getBoolean("open");
-		}
-		if(compound.hasKey("system_data", Constants.NBT.TAG_COMPOUND))
-		{
-			this.systemData = compound.getCompoundTag("system_data");
-		}
-		if(compound.hasKey("application_data", Constants.NBT.TAG_COMPOUND))
-		{
-			this.applicationData = compound.getCompoundTag("application_data");
-		}
-		if(compound.hasKey("file_system"))
-		{
-			this.fileSystem = new FileSystem(this, compound.getCompoundTag("file_system"));
-		}
-		if(compound.hasKey("external_drive_color", Constants.NBT.TAG_BYTE))
-		{
-			this.externalDriveColor = null;
-			if(compound.getByte("external_drive_color") != -1)
-			{
-				this.externalDriveColor = EnumDyeColor.byMetadata(compound.getByte("external_drive_color"));
-			}
-		}
-	}
-	
-	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) 
-	{
-		super.writeToNBT(compound);
-		compound.setBoolean("open", open);
+	public CompoundTag serializeNBT() {
+		super.serializeNBT();
+		CompoundTag compound = new CompoundTag();
+		compound.putBoolean("open", open);
 
 		if(systemData != null)
 		{
-			compound.setTag("system_data", systemData);
+			compound.put("system_data", systemData);
 		}
 
 		if(applicationData != null)
 		{
-			compound.setTag("application_data", applicationData);
+			compound.put("application_data", applicationData);
 		}
 
 		if(fileSystem != null)
 		{
-			compound.setTag("file_system", fileSystem.toTag());
+			compound.put("file_system", fileSystem.toTag());
 		}
 		return compound;
 	}
 
 	@Override
-	public NBTTagCompound writeSyncTag()
+	public void deserializeNBT(CompoundTag compound) {
+		super.deserializeNBT(compound);
+		if(compound.contains("open"))
+		{
+			this.open = compound.getBoolean("open");
+		}
+		if(compound.contains("system_data", Tag.TAG_COMPOUND))
+		{
+			this.systemData = compound.getCompound("system_data");
+		}
+		if(compound.contains("application_data", Tag.TAG_COMPOUND))
+		{
+			this.applicationData = compound.getCompound("application_data");
+		}
+		if(compound.contains("file_system"))
+		{
+			this.fileSystem = new FileSystem(this, compound.getCompound("file_system"));
+		}
+		if(compound.contains("external_drive_color", Tag.TAG_BYTE))
+		{
+			this.externalDriveColor = null;
+			if(compound.getByte("external_drive_color") != -1)
+			{
+				this.externalDriveColor = DyeColor.byId(compound.getByte("external_drive_color"));
+			}
+		}
+	}
+	@Override
+	public CompoundTag writeSyncTag()
 	{
-		NBTTagCompound tag = super.writeSyncTag();
-		tag.setBoolean("open", open);
-		tag.setTag("system_data", getSystemData());
+		CompoundTag tag = super.writeSyncTag();
+		tag.putBoolean("open", open);
+		tag.put("system_data", getSystemData());
 
 		if(getFileSystem().getAttachedDrive() != null)
 		{
-			tag.setByte("external_drive_color", (byte) getFileSystem().getAttachedDriveColor().getMetadata());
+			tag.putByte("external_drive_color", (byte) getFileSystem().getAttachedDriveColor().getId());
 		}
 		else
 		{
-			tag.setByte("external_drive_color", (byte) -1);
+			tag.putByte("external_drive_color", (byte) -1);
 		}
 
 		return tag;
 	}
 
-	@Override
-	public double getMaxRenderDistanceSquared() 
-	{
-		return 16384;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public AxisAlignedBB getRenderBoundingBox() 
-	{
-		return INFINITE_EXTENT_AABB;
-	}
-
 	public void openClose()
 	{
 		open = !open;
-		pipeline.setBoolean("open", open);
+		pipeline.putBoolean("open", open);
 		sync();
 	}
 
@@ -157,16 +150,16 @@ public class TileEntityLaptop extends TileEntityNetworkDevice.Colored
 		return open;
 	}
 
-	public NBTTagCompound getApplicationData()
+	public CompoundTag getApplicationData()
     {
-		return applicationData != null ? applicationData : new NBTTagCompound();
+		return applicationData != null ? applicationData : new CompoundTag();
     }
 
-	public NBTTagCompound getSystemData()
+	public CompoundTag getSystemData()
 	{
 		if(systemData == null)
 		{
-			systemData = new NBTTagCompound();
+			systemData = new CompoundTag();
 		}
 		return systemData;
 	}
@@ -175,40 +168,50 @@ public class TileEntityLaptop extends TileEntityNetworkDevice.Colored
 	{
 		if(fileSystem == null)
 		{
-			fileSystem = new FileSystem(this, new NBTTagCompound());
+			fileSystem = new FileSystem(this, new CompoundTag());
 		}
 		return fileSystem;
 	}
 
-	public void setApplicationData(String appId, NBTTagCompound applicationData)
+	public void setApplicationData(String appId, CompoundTag applicationData)
 	{
 		this.applicationData = applicationData;
-		markDirty();
-		TileEntityUtil.markBlockForUpdate(world, pos);
+		setChanged();
+		setChanged(level, worldPosition, getBlockState());
 	}
 
-	public void setSystemData(NBTTagCompound systemData)
+	public void setSystemData(CompoundTag systemData)
 	{
 		this.systemData = systemData;
-		markDirty();
-		TileEntityUtil.markBlockForUpdate(world, pos);
+		setChanged();
+		setChanged(level, worldPosition, getBlockState());
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public float getScreenAngle(float partialTicks)
 	{
 		return -OPENED_ANGLE * ((prevRotation + (rotation - prevRotation) * partialTicks) / OPENED_ANGLE);
 	}
 
-	@SideOnly(Side.CLIENT)
+	@OnlyIn(Dist.CLIENT)
 	public boolean isExternalDriveAttached()
 	{
 		return externalDriveColor != null;
 	}
 
-	@SideOnly(Side.CLIENT)
-	public EnumDyeColor getExternalDriveColor()
+	@OnlyIn(Dist.CLIENT)
+	public DyeColor getExternalDriveColor()
 	{
 		return externalDriveColor;
+	}
+
+	@Override
+	public DyeColor getColor() {
+		return null;
+	}
+
+	@Override
+	public void setColor(DyeColor color) {
+
 	}
 }

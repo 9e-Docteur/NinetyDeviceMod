@@ -1,9 +1,9 @@
 package com.mrcrayfish.device.core.io;
 
 import com.mrcrayfish.device.core.io.FileSystem.Status;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -136,31 +136,31 @@ public class ServerFolder extends ServerFile
     }
 
     @Override
-    public NBTTagCompound toTag()
+    public CompoundTag toTag()
     {
-        NBTTagCompound folderTag = new NBTTagCompound();
+        CompoundTag folderTag = new CompoundTag();
 
-        NBTTagCompound fileList = new NBTTagCompound();
-        files.stream().forEach(file -> fileList.setTag(file.getName(), file.toTag()));
-        folderTag.setTag("files", fileList);
+        CompoundTag fileList = new CompoundTag();
+        files.stream().forEach(file -> fileList.put(file.getName(), file.toTag()));
+        folderTag.put("files", fileList);
 
-        if(protect) folderTag.setBoolean("protected", true);
+        if(protect) folderTag.putBoolean("protected", true);
 
         return folderTag;
     }
 
-    public static ServerFolder fromTag(String name, NBTTagCompound folderTag)
+    public static ServerFolder fromTag(String name, CompoundTag folderTag)
     {
         ServerFolder folder = new ServerFolder(name);
 
-        if(folderTag.hasKey("protected", Constants.NBT.TAG_BYTE))
+        if(folderTag.contains("protected", Tag.TAG_BYTE))
             folder.protect = folderTag.getBoolean("protected");
 
-        NBTTagCompound fileList = folderTag.getCompoundTag("files");
-        for(String fileName : fileList.getKeySet())
+        CompoundTag fileList = folderTag.getCompound("files");
+        for(String fileName : fileList.getAllKeys())
         {
-            NBTTagCompound fileTag = fileList.getCompoundTag(fileName);
-            if(fileTag.hasKey("files"))
+            CompoundTag fileTag = fileList.getCompound(fileName);
+            if(fileTag.contains("files"))
             {
                 folder.add(ServerFolder.fromTag(fileName, fileTag), false);
             }
@@ -173,7 +173,7 @@ public class ServerFolder extends ServerFile
     }
 
     @Override
-    public FileSystem.Response setData(@Nonnull NBTTagCompound data)
+    public FileSystem.Response setData(@Nonnull CompoundTag data)
     {
         return FileSystem.createResponse(Status.FILE_INVALID_DATA, "Data can not be set to a folder");
     }

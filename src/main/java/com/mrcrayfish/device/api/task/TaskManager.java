@@ -12,8 +12,8 @@ public final class TaskManager
 {
 	private static TaskManager instance = null;
 
-	private Map<String, Task> registeredRequests = new HashMap<String, Task>();
-	private Map<Integer, Task> requests = new HashMap<Integer, Task>();
+	private final Map<String, Task> registeredRequests = new HashMap<String, Task>();
+	private final Map<Integer, Task> requests = new HashMap<Integer, Task>();
 	private int currentId = 0;
 
 	private TaskManager() {}

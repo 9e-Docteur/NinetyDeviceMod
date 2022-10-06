@@ -8,11 +8,11 @@ import com.mrcrayfish.device.core.io.FileSystem;
 import com.mrcrayfish.device.core.io.action.FileAction;
 import com.mrcrayfish.device.core.io.task.TaskGetFiles;
 import com.mrcrayfish.device.programs.system.component.FileBrowser;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -290,7 +290,7 @@ public class Folder extends File
 			{
 				if(file.isFolder())
 				{
-					((Folder)file).copy();
+					file.copy();
 				}
 			}
 		});
@@ -431,7 +431,7 @@ public class Folder extends File
 	 * @param data the data to set
 	 */
 	@Override
-	public void setData(@Nonnull NBTTagCompound data) {}
+	public void setData(@Nonnull CompoundTag data) {}
 
 	/**
 	 * Sets the data for this file. This does not work on folders and will fail silently. A callback
@@ -441,7 +441,7 @@ public class Folder extends File
 	 * @param callback the response callback
 	 */
 	@Override
-	public void setData(@Nonnull NBTTagCompound data, Callback<FileSystem.Response> callback)
+	public void setData(@Nonnull CompoundTag data, Callback<FileSystem.Response> callback)
 	{
 		if(callback != null)
 		{
@@ -461,13 +461,13 @@ public class Folder extends File
 	 *
 	 * @param tagList
 	 */
-	public void syncFiles(NBTTagList tagList)
+	public void syncFiles(ListTag tagList)
 	{
 		files.removeIf(f -> !f.isFolder());
-		for(int i = 0; i < tagList.tagCount(); i++)
+		for(int i = 0; i < tagList.size(); i++)
 		{
-			NBTTagCompound fileTag = tagList.getCompoundTagAt(i);
-			File file = File.fromTag(fileTag.getString("file_name"), fileTag.getCompoundTag("data"));
+			CompoundTag fileTag = tagList.getCompound(i);
+			File file = File.fromTag(fileTag.getString("file_name"), fileTag.getCompound("data"));
 			file.drive = drive;
 			file.valid = true;
 			file.parent = this;
@@ -496,9 +496,9 @@ public class Folder extends File
 			Task task = new TaskGetFiles(this, pos);
 			task.setCallback((nbt, success) ->
 			{
-				if(success && nbt.hasKey("files", Constants.NBT.TAG_LIST))
+				if(success && nbt.contains("files", Tag.TAG_LIST))
 				{
-					NBTTagList files = nbt.getTagList("files", Constants.NBT.TAG_COMPOUND);
+					ListTag files = nbt.getList("files", Tag.TAG_COMPOUND);
 					syncFiles(files);
 					if(callback != null)
 					{
@@ -562,15 +562,15 @@ public class Folder extends File
 	 * @return the folder tag
 	 */
 	@Override
-	public NBTTagCompound toTag()
+	public CompoundTag toTag()
 	{
-		NBTTagCompound folderTag = new NBTTagCompound();
+		CompoundTag folderTag = new CompoundTag();
 
-		NBTTagCompound fileList = new NBTTagCompound();
-		files.stream().forEach(file -> fileList.setTag(file.getName(), file.toTag()));
-		folderTag.setTag("files", fileList);
+		CompoundTag fileList = new CompoundTag();
+		files.stream().forEach(file -> fileList.put(file.getName(), file.toTag()));
+		folderTag.put("files", fileList);
 
-		if(protect) folderTag.setBoolean("protected", true);
+		if(protect) folderTag.putBoolean("protected", true);
 
 		return folderTag;
 	}
@@ -582,18 +582,18 @@ public class Folder extends File
 	 * @param folderTag the tag compound from {@link #toTag()}
 	 * @return a folder instance
 	 */
-	public static Folder fromTag(String name, NBTTagCompound folderTag)
+	public static Folder fromTag(String name, CompoundTag folderTag)
 	{
 		Folder folder = new Folder(name);
 
-		if(folderTag.hasKey("protected", Constants.NBT.TAG_BYTE))
+		if(folderTag.contains("protected", Tag.TAG_BYTE))
 			folder.protect = folderTag.getBoolean("protected");
 
-		NBTTagCompound fileList = folderTag.getCompoundTag("files");
-		for(String fileName : fileList.getKeySet())
+		CompoundTag fileList = folderTag.getCompound("files");
+		for(String fileName : fileList.getAllKeys())
 		{
-			NBTTagCompound fileTag = fileList.getCompoundTag(fileName);
-			if(fileTag.hasKey("files"))
+			CompoundTag fileTag = fileList.getCompound(fileName);
+			if(fileTag.contains("files"))
 			{
 				File file = Folder.fromTag(fileName, fileTag);
 				file.parent = folder;

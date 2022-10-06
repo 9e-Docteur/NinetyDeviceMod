@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.api.io.File;
 import com.mrcrayfish.device.core.Laptop;
@@ -9,9 +10,8 @@ import com.mrcrayfish.device.core.io.FileSystem;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.util.GLHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
@@ -105,7 +105,7 @@ public abstract class Application extends Wrappable
 	 * your application window.
 	 */
 	@Override
-	public abstract void init(@Nullable NBTTagCompound intent);
+	public abstract void init(@Nullable CompoundTag intent);
 
     @Override
     public void onTick()
@@ -129,9 +129,9 @@ public abstract class Application extends Wrappable
     public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks)
     {
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
+        PoseStack poseStack = new PoseStack();
         GLHelper.pushScissor(x, y, width, height);
-        currentLayout.render(laptop, mc, x, y, mouseX, mouseY, active, partialTicks);
+        currentLayout.render(poseStack, laptop, mc, x, y, mouseX, mouseY, active, partialTicks);
         GLHelper.popScissor();
 
         if(!GLHelper.isScissorStackEmpty())
@@ -145,7 +145,7 @@ public abstract class Application extends Wrappable
         currentLayout.renderOverlay(laptop, mc, mouseX, mouseY, active);
 
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderHelper.disableStandardItemLighting();
+        //RenderHelper.disableStandardItemLighting();
     }
 
     /**
@@ -251,12 +251,12 @@ public abstract class Application extends Wrappable
     /**
      * Called when you first load up your application. Allows you to read any
      * stored data you have saved. Only called if you have saved data. This
-     * method is called after {{@link Wrappable#init(NBTTagCompound)} so you can update any
+     * method is called after {{@link Wrappable#init(CompoundTag)} so you can update any
      * Components with this data.
      *
      * @param tagCompound the tag compound where you saved data is
      */
-    public abstract void load(NBTTagCompound tagCompound);
+    public abstract void load(CompoundTag tagCompound);
 
     /**
      * Allows you to save data from your application. This is only called if
@@ -265,7 +265,7 @@ public abstract class Application extends Wrappable
      *
      * @param tagCompound the tag compound to save your data to
      */
-    public abstract void save(NBTTagCompound tagCompound);
+    public abstract void save(CompoundTag tagCompound);
 
     /**
      * Sets the defaults layout width. It should be noted that the width must be
@@ -431,9 +431,8 @@ public abstract class Application extends Wrappable
 	{
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Application))
+		if (!(obj instanceof Application app))
 			return false;
-		Application app = (Application) obj;
-		return app.info.getFormattedId().equals(this.info.getFormattedId());
+        return app.info.getFormattedId().equals(this.info.getFormattedId());
 	}
 }

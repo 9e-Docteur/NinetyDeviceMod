@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.programs.gitweb.module;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Icons;
 import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.api.app.component.Button;
@@ -7,7 +8,6 @@ import com.mrcrayfish.device.api.app.listener.ClickListener;
 import com.mrcrayfish.device.programs.gitweb.component.GitWebFrame;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -26,6 +26,7 @@ public class NavigationModule extends Module
     {
         return new String[0];
     }
+    private final PoseStack poseStack = new PoseStack();
 
     @Override
     public String[] getOptionalData()
@@ -77,9 +78,9 @@ public class NavigationModule extends Module
         }
 
         int finalColor = color;
-        layout.setBackground((gui, mc, x, y, width1, height, mouseX, mouseY, windowActive) ->
+        layout.setBackground((poseStack, gui, mc, x, y, width1, height, mouseX, mouseY, windowActive) ->
         {
-            Gui.drawRect(x, y, x + width1, y + height, finalColor);
+            Gui.fill(poseStack, x, y, x + width1, y + height, finalColor);
         });
 
         List<Button> navButtons = createNavigationButtons(frame, data);

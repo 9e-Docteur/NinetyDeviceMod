@@ -2,34 +2,34 @@ package com.mrcrayfish.device.core.io.action;
 
 import com.mrcrayfish.device.api.io.File;
 import com.mrcrayfish.device.api.io.Folder;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * Author: MrCrayfish
  */
 public class FileAction
 {
-    private Type type;
-    private NBTTagCompound data;
+    private final Type type;
+    private final CompoundTag data;
 
-    private FileAction(Type type, NBTTagCompound data)
+    private FileAction(Type type, CompoundTag data)
     {
         this.type = type;
         this.data = data;
     }
 
-    public NBTTagCompound toTag()
+    public CompoundTag toTag()
     {
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("type", type.ordinal());
-        tag.setTag("data", data);
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("type", type.ordinal());
+        tag.put("data", data);
         return tag;
     }
 
-    public static FileAction fromTag(NBTTagCompound tag)
+    public static FileAction fromTag(CompoundTag tag)
     {
-        Type type = Type.values()[tag.getInteger("type")];
-        NBTTagCompound data = tag.getCompoundTag("data");
+        Type type = Type.values()[tag.getInt("type")];
+        CompoundTag data = tag.getCompound("data");
         return new FileAction(type, data);
     }
 
@@ -38,7 +38,7 @@ public class FileAction
         return type;
     }
 
-    public NBTTagCompound getData()
+    public CompoundTag getData()
     {
         return data;
     }
@@ -52,49 +52,49 @@ public class FileAction
     {
         public static FileAction makeNew(Folder parent, File file, boolean override)
         {
-            NBTTagCompound vars = new NBTTagCompound();
-            vars.setString("directory", parent.getPath());
-            vars.setString("file_name", file.getName());
-            vars.setBoolean("override", override);
-            vars.setTag("data", file.toTag());
+            CompoundTag vars = new CompoundTag();
+            vars.putString("directory", parent.getPath());
+            vars.putString("file_name", file.getName());
+            vars.putBoolean("override", override);
+            vars.put("data", file.toTag());
             return new FileAction(Type.NEW, vars);
         }
 
         public static FileAction makeDelete(File file)
         {
-            NBTTagCompound vars = new NBTTagCompound();
-            vars.setString("directory", file.getLocation());
-            vars.setString("file_name", file.getName());
+            CompoundTag vars = new CompoundTag();
+            vars.putString("directory", file.getLocation());
+            vars.putString("file_name", file.getName());
             return new FileAction(Type.DELETE, vars);
         }
 
         public static FileAction makeRename(File file, String newFileName)
         {
-            NBTTagCompound vars = new NBTTagCompound();
-            vars.setString("directory", file.getLocation());
-            vars.setString("file_name", file.getName());
-            vars.setString("new_file_name", newFileName);
+            CompoundTag vars = new CompoundTag();
+            vars.putString("directory", file.getLocation());
+            vars.putString("file_name", file.getName());
+            vars.putString("new_file_name", newFileName);
             return new FileAction(Type.RENAME, vars);
         }
 
-        public static FileAction makeData(File file, NBTTagCompound data)
+        public static FileAction makeData(File file, CompoundTag data)
         {
-            NBTTagCompound vars = new NBTTagCompound();
-            vars.setString("directory", file.getLocation());
-            vars.setString("file_name", file.getName());
-            vars.setTag("data", data);
+            CompoundTag vars = new CompoundTag();
+            vars.putString("directory", file.getLocation());
+            vars.putString("file_name", file.getName());
+            vars.put("data", data);
             return new FileAction(Type.DATA, vars);
         }
 
         public static FileAction makeCopyCut(File source, Folder destination, boolean override, boolean cut)
         {
-            NBTTagCompound vars = new NBTTagCompound();
-            vars.setString("directory", source.getLocation());
-            vars.setString("file_name", source.getName());
-            vars.setString("destination_drive", destination.getDrive().getUUID().toString());
-            vars.setString("destination_folder", destination.getPath());
-            vars.setBoolean("override", override);
-            vars.setBoolean("cut", cut);
+            CompoundTag vars = new CompoundTag();
+            vars.putString("directory", source.getLocation());
+            vars.putString("file_name", source.getName());
+            vars.putString("destination_drive", destination.getDrive().getUUID().toString());
+            vars.putString("destination_folder", destination.getPath());
+            vars.putBoolean("override", override);
+            vars.putBoolean("cut", cut);
             return new FileAction(Type.COPY_CUT, vars);
         }
     }

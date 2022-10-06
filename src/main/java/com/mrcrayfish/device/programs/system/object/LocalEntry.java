@@ -7,7 +7,7 @@ import com.mrcrayfish.device.object.AppInfo;
  */
 public class LocalEntry implements AppEntry
 {
-    private AppInfo info;
+    private final AppInfo info;
 
     public LocalEntry(AppInfo info)
     {

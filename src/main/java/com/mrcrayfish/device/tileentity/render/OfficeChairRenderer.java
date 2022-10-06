@@ -1,68 +1,68 @@
 package com.mrcrayfish.device.tileentity.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import com.mrcrayfish.device.block.BlockOfficeChair;
 import com.mrcrayfish.device.init.DeviceBlocks;
 import com.mrcrayfish.device.tileentity.TileEntityOfficeChair;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Author: MrCrayfish
  */
-public class OfficeChairRenderer extends TileEntitySpecialRenderer<TileEntityOfficeChair>
+public class OfficeChairRenderer implements BlockEntityRenderer<TileEntityOfficeChair>
 {
-    private Minecraft mc = Minecraft.getMinecraft();
+    private final Minecraft mc = Minecraft.getInstance();
 
     @Override
-    public void render(TileEntityOfficeChair te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
+    public void render(TileEntityOfficeChair te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)
     {
-        BlockPos pos = te.getPos();
-        IBlockState tempState = te.getWorld().getBlockState(pos);
-        if(tempState.getBlock() != DeviceBlocks.OFFICE_CHAIR)
+        BlockPos pos = te.getBlockPos();
+        BlockState tempState = te.getLevel().getBlockState(pos);
+        if(tempState.getBlock() != DeviceBlocks.CHAIR.get())
         {
             return;
         }
 
-        GlStateManager.pushMatrix();
+        poseStack.pushPose();
         {
-            GlStateManager.translate(x, y, z);
+            //poseStack.translate(x, y, z);
 
-            GlStateManager.translate(0.5, 0, 0.5);
-            GlStateManager.rotate(-te.getRotation(), 0, 1, 0);
-            GlStateManager.translate(-0.5, 0, -0.5);
+            poseStack.translate(0.5, 0, 0.5);
+            poseStack.mulPose(Quaternion.fromXYZDegrees(new Vector3f(0, - te.getRotation()+180, 0)));
+            poseStack.translate(-0.5, 0, -0.5);
 
-            IBlockState state = tempState.getBlock().getActualState(tempState, te.getWorld(), pos).withProperty(BlockOfficeChair.FACING, EnumFacing.NORTH).withProperty(BlockOfficeChair.TYPE, BlockOfficeChair.Type.SEAT);
+            BlockState state = tempState.setValue(BlockOfficeChair.FACING, Direction.NORTH).setValue(BlockOfficeChair.TYPE, BlockOfficeChair.Type.SEAT);
 
-            GlStateManager.disableLighting();
-            GlStateManager.enableTexture2D();
+//            poseStack.disableLighting();
+//            poseStack.enableTexture2D();
 
-            bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+            RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
 
-            Tessellator tessellator = Tessellator.getInstance();
+//            Tessellator tessellator = Tessellator.getInstance();
+//
+//            BufferBuilder buffer = tessellator.getBuffer();
+//            buffer.begin(7, DefaultVertexFormats.BLOCK);
+//            buffer.setTranslation(-te.getPos().getX(), -te.getPos().getY(), -te.getPos().getZ());
 
-            BufferBuilder buffer = tessellator.getBuffer();
-            buffer.begin(7, DefaultVertexFormats.BLOCK);
-            buffer.setTranslation(-te.getPos().getX(), -te.getPos().getY(), -te.getPos().getZ());
+            BlockRenderDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRenderer();
+            BakedModel ibakedmodel = mc.getBlockRenderer().getBlockModel(state);
+            blockrendererdispatcher.renderSingleBlock(state, poseStack, bufferSource, packedLight, packedOverlay);
 
-            BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
-            IBakedModel ibakedmodel = mc.getBlockRendererDispatcher().getBlockModelShapes().getModelForState(state);
-            blockrendererdispatcher.getBlockModelRenderer().renderModel(getWorld(), ibakedmodel, state, te.getPos(), buffer, false);
+//            buffer.setTranslation(0.0D, 0.0D, 0.0D);
+//            tessellator.draw();
 
-            buffer.setTranslation(0.0D, 0.0D, 0.0D);
-            tessellator.draw();
-
-            GlStateManager.enableLighting();
         }
-        GlStateManager.popMatrix();
+        poseStack.popPose();
     }
 }

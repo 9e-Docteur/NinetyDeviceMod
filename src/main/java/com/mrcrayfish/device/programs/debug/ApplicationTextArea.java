@@ -8,8 +8,8 @@ import com.mrcrayfish.device.api.app.component.TextArea;
 import com.mrcrayfish.device.api.app.interfaces.IHighlight;
 import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.core.client.LaptopFontRenderer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 
@@ -21,10 +21,10 @@ public class ApplicationTextArea extends Application
     public static final IHighlight JAVA_HIGHLIGHT = text -> 
     {
         if(text.startsWith("@"))
-            return asArray(TextFormatting.YELLOW);
+            return asArray(ChatFormatting.YELLOW);
 
         if(text.startsWith("\"") && text.endsWith("\""))
-            return asArray(TextFormatting.AQUA);
+            return asArray(ChatFormatting.AQUA);
 
         switch(text)
         {
@@ -79,13 +79,13 @@ public class ApplicationTextArea extends Application
             case "super":	
             case "while":
             case "null":
-                return asArray(TextFormatting.BLUE);
+                return asArray(ChatFormatting.BLUE);
             default:
-                return asArray(TextFormatting.WHITE);
+                return asArray(ChatFormatting.WHITE);
         }
     };
     @Override
-    public void init(@Nullable NBTTagCompound intent)
+    public void init(@Nullable CompoundTag intent)
     {
         Layout layout = new Layout(250, 150);
 
@@ -137,13 +137,13 @@ public class ApplicationTextArea extends Application
     }
 
     @Override
-    public void load(NBTTagCompound tagCompound)
+    public void load(CompoundTag tagCompound)
     {
 
     }
 
     @Override
-    public void save(NBTTagCompound tagCompound)
+    public void save(CompoundTag tagCompound)
     {
 
     }

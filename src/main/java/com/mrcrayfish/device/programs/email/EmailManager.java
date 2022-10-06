@@ -4,14 +4,16 @@ import com.google.common.collect.HashBiMap;
 import com.mrcrayfish.device.api.app.Icons;
 import com.mrcrayfish.device.api.app.Notification;
 import com.mrcrayfish.device.programs.email.object.Email;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.server.dedicated.DedicatedPlayerList;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.server.ServerLifecycleHooks;
 
 import java.util.*;
 
@@ -22,11 +24,11 @@ public class EmailManager
 {
     public static final EmailManager INSTANCE = new EmailManager();
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private List<Email> inbox;
 
-    private HashBiMap<UUID, String> uuidToName = HashBiMap.create();
-    private Map<String, List<Email>> nameToInbox = new HashMap<>();
+    private final HashBiMap<UUID, String> uuidToName = HashBiMap.create();
+    private final Map<String, List<Email>> nameToInbox = new HashMap<>();
 
     public boolean addEmailToInbox(Email email, String to)
     {
@@ -39,7 +41,7 @@ public class EmailManager
         return false;
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public List<Email> getInbox()
     {
         if(inbox == null)
@@ -49,22 +51,22 @@ public class EmailManager
         return inbox;
     }
 
-    public List<Email> getEmailsForAccount(EntityPlayer player)
+    public List<Email> getEmailsForAccount(Player player)
     {
-        if (uuidToName.containsKey(player.getUniqueID()))
+        if (uuidToName.containsKey(player.getUUID()))
         {
-            return nameToInbox.get(uuidToName.get(player.getUniqueID()));
+            return nameToInbox.get(uuidToName.get(player.getUUID()));
         }
         return new ArrayList<Email>();
     }
 
-    public boolean addAccount(EntityPlayer player, String name)
+    public boolean addAccount(Player player, String name)
     {
-        if (!uuidToName.containsKey(player.getUniqueID()))
+        if (!uuidToName.containsKey(player.getUUID()))
         {
             if (!uuidToName.containsValue(name))
             {
-                uuidToName.put(player.getUniqueID(), name);
+                uuidToName.put(player.getUUID(), name);
                 nameToInbox.put(name, new ArrayList<Email>());
                 return true;
             }
@@ -77,26 +79,26 @@ public class EmailManager
         return uuidToName.containsKey(uuid);
     }
 
-    public String getName(EntityPlayer player)
+    public String getName(Player player)
     {
-        return uuidToName.get(player.getUniqueID());
+        return uuidToName.get(player.getUUID());
     }
 
-    public void readFromNBT(NBTTagCompound nbt)
+    public void readFromNBT(CompoundTag nbt)
     {
         nameToInbox.clear();
 
-        NBTTagList inboxes = (NBTTagList) nbt.getTag("Inboxes");
-        for (int i = 0; i < inboxes.tagCount(); i++)
+        ListTag inboxes = (ListTag) nbt.get("Inboxes");
+        for (int i = 0; i < inboxes.size(); i++)
         {
-            NBTTagCompound inbox = inboxes.getCompoundTagAt(i);
+            CompoundTag inbox = inboxes.getCompound(i);
             String name = inbox.getString("Name");
 
             List<Email> emails = new ArrayList<Email>();
-            NBTTagList emailTagList = (NBTTagList) inbox.getTag("Emails");
-            for (int j = 0; j < emailTagList.tagCount(); j++)
+            ListTag emailTagList = (ListTag) inbox.get("Emails");
+            for (int j = 0; j < emailTagList.size(); j++)
             {
-                NBTTagCompound emailTag = emailTagList.getCompoundTagAt(j);
+                CompoundTag emailTag = emailTagList.getCompound(j);
                 Email email = Email.readFromNBT(emailTag);
                 emails.add(email);
             }
@@ -105,46 +107,46 @@ public class EmailManager
 
         uuidToName.clear();
 
-        NBTTagList accounts = (NBTTagList) nbt.getTag("Accounts");
-        for (int i = 0; i < accounts.tagCount(); i++)
+        ListTag accounts = (ListTag) nbt.get("Accounts");
+        for (int i = 0; i < accounts.size(); i++)
         {
-            NBTTagCompound account = accounts.getCompoundTagAt(i);
+            CompoundTag account = accounts.getCompound(i);
             UUID uuid = UUID.fromString(account.getString("UUID"));
             String name = account.getString("Name");
             uuidToName.put(uuid, name);
         }
     }
 
-    public void writeToNBT(NBTTagCompound nbt)
+    public void writeToNBT(CompoundTag nbt)
     {
-        NBTTagList inboxes = new NBTTagList();
+        ListTag inboxes = new ListTag();
         for (String key : nameToInbox.keySet())
         {
-            NBTTagCompound inbox = new NBTTagCompound();
-            inbox.setString("Name", key);
+            CompoundTag inbox = new CompoundTag();
+            inbox.putString("Name", key);
 
-            NBTTagList emailTagList = new NBTTagList();
+            ListTag emailTagList = new ListTag();
             List<Email> emails = nameToInbox.get(key);
             for (Email email : emails)
             {
-                NBTTagCompound emailTag = new NBTTagCompound();
+                CompoundTag emailTag = new CompoundTag();
                 email.writeToNBT(emailTag);
-                emailTagList.appendTag(emailTag);
+                emailTagList.add(emailTag);
             }
-            inbox.setTag("Emails", emailTagList);
-            inboxes.appendTag(inbox);
+            inbox.put("Emails", emailTagList);
+            inboxes.add(inbox);
         }
-        nbt.setTag("Inboxes", inboxes);
+        nbt.put("Inboxes", inboxes);
 
-        NBTTagList accounts = new NBTTagList();
+        ListTag accounts = new ListTag();
         for (UUID key : uuidToName.keySet())
         {
-            NBTTagCompound account = new NBTTagCompound();
-            account.setString("UUID", key.toString());
-            account.setString("Name", uuidToName.get(key));
-            accounts.appendTag(account);
+            CompoundTag account = new CompoundTag();
+            account.putString("UUID", key.toString());
+            account.putString("Name", uuidToName.get(key));
+            accounts.add(account);
         }
-        nbt.setTag("Accounts", accounts);
+        nbt.put("Accounts", accounts);
     }
 
     public void clear()
@@ -156,11 +158,11 @@ public class EmailManager
 
     private void sendNotification(String name, Email email)
     {
-        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+       MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         UUID id = uuidToName.inverse().get(name);
         if(id != null)
         {
-            EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(id);
+            ServerPlayer player = server.getPlayerList().getPlayer(id);
             if(player != null)
             {
                 Notification notification = new Notification(Icons.MAIL, "New Email!", "from " + email.getAuthor());

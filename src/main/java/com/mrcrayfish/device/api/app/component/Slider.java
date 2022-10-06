@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.listener.ClickListener;
 import com.mrcrayfish.device.api.app.listener.ReleaseListener;
@@ -41,15 +42,15 @@ public class Slider extends Component
 	}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) 
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if (this.visible)
         {
 			Color bgColor = new Color(getColorScheme().getBackgroundColor());
-			drawRect(xPosition, yPosition + 4, xPosition + width, yPosition + 8, bgColor.darker().darker().getRGB());
-			drawRect(xPosition + 1, yPosition + 5, xPosition + width - 1, yPosition + 7, bgColor.getRGB());
-			drawRect(xPosition + newSliderX, yPosition, xPosition + newSliderX + 8, yPosition + 12, bgColor.darker().darker().getRGB());
-			drawRect(xPosition + newSliderX + 1, yPosition + 1, xPosition + newSliderX + 7, yPosition + 11, bgColor.brighter().brighter().getRGB());
+			fill(poseStack,xPosition, yPosition + 4, xPosition + width, yPosition + 8, bgColor.darker().darker().getRGB());
+			fill(poseStack,xPosition + 1, yPosition + 5, xPosition + width - 1, yPosition + 7, bgColor.getRGB());
+			fill(poseStack,xPosition + newSliderX, yPosition, xPosition + newSliderX + 8, yPosition + 12, bgColor.darker().darker().getRGB());
+			fill(poseStack,xPosition + newSliderX + 1, yPosition + 1, xPosition + newSliderX + 7, yPosition + 11, bgColor.brighter().brighter().getRGB());
         }
 	}
 	

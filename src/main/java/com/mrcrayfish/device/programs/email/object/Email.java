@@ -1,9 +1,9 @@
 package com.mrcrayfish.device.programs.email.object;
 
 import com.mrcrayfish.device.api.io.File;
-import com.mrcrayfish.device.programs.email.ApplicationEmail;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.FormattedText;
 
 import javax.annotation.Nullable;
 
@@ -12,8 +12,10 @@ import javax.annotation.Nullable;
  */
 public class Email
 {
-    private String subject, author, message;
-    private File attachment;
+    private final String subject;
+    private String author;
+    private final String message;
+    private final File attachment;
     private boolean read;
 
     public Email(String subject, String message, @Nullable File file)
@@ -65,29 +67,29 @@ public class Email
         this.read = read;
     }
 
-    public void writeToNBT(NBTTagCompound nbt)
+    public void writeToNBT(CompoundTag nbt)
     {
-        nbt.setString("subject", this.subject);
-        if(author != null) nbt.setString("author", this.author);
-        nbt.setString("message", this.message);
-        nbt.setBoolean("read", this.read);
+        nbt.putString("subject", this.subject);
+        if(author != null) nbt.putString("author", this.author);
+        nbt.putString("message", this.message);
+        nbt.putBoolean("read", this.read);
 
         if(attachment != null)
         {
-            NBTTagCompound fileTag = new NBTTagCompound();
-            fileTag.setString("file_name", attachment.getName());
-            fileTag.setTag("data", attachment.toTag());
-            nbt.setTag("attachment", fileTag);
+            CompoundTag fileTag = new CompoundTag();
+            fileTag.putString("file_name", attachment.getName());
+            fileTag.put("data", attachment.toTag());
+            nbt.put("attachment", fileTag);
         }
     }
 
-    public static Email readFromNBT(NBTTagCompound nbt)
+    public static Email readFromNBT(CompoundTag nbt)
     {
         File attachment = null;
-        if(nbt.hasKey("attachment", Constants.NBT.TAG_COMPOUND))
+        if(nbt.contains("attachment", Tag.TAG_COMPOUND))
         {
-            NBTTagCompound fileTag = nbt.getCompoundTag("attachment");
-            attachment = File.fromTag(fileTag.getString("file_name"), fileTag.getCompoundTag("data"));
+            CompoundTag fileTag = nbt.getCompound("attachment");
+            attachment = File.fromTag(fileTag.getString("file_name"), fileTag.getCompound("data"));
         }
         Email email = new Email(nbt.getString("subject"), nbt.getString("author"), nbt.getString("message"), attachment);
         email.setRead(nbt.getBoolean("read"));

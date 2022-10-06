@@ -3,10 +3,10 @@ package com.mrcrayfish.device.programs.email.task;
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.programs.email.object.Email;
 import com.mrcrayfish.device.programs.email.EmailManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 
@@ -20,38 +20,38 @@ public class TaskUpdateInbox extends Task
 	}
 
 	@Override
-	public void prepareRequest(NBTTagCompound nbt) {}
+	public void prepareRequest(CompoundTag nbt) {}
 
 	@Override
-	public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player) 
+	public void processRequest(CompoundTag nbt, Level Level, Player player)
 	{
 		this.emails = EmailManager.INSTANCE.getEmailsForAccount(player);
 	}
 
 	@Override
-	public void prepareResponse(NBTTagCompound nbt) 
+	public void prepareResponse(CompoundTag nbt) 
 	{
-		NBTTagList tagList = new NBTTagList();
+		ListTag tagList = new ListTag();
 		if(emails != null)
 		{
 			for(Email email : emails)
 			{
-				NBTTagCompound emailTag = new NBTTagCompound();
+				CompoundTag emailTag = new CompoundTag();
 				email.writeToNBT(emailTag);
-				tagList.appendTag(emailTag);
+				tagList.add(emailTag);
 			}
 		}
-		nbt.setTag("emails", tagList);
+		nbt.put("emails", tagList);
 	}
 
 	@Override
-	public void processResponse(NBTTagCompound nbt) 
+	public void processResponse(CompoundTag nbt) 
 	{
 		EmailManager.INSTANCE.getInbox().clear();
-		NBTTagList emails = (NBTTagList) nbt.getTag("emails");
-		for(int i = 0; i < emails.tagCount(); i++)
+		ListTag emails = (ListTag) nbt.get("emails");
+		for(int i = 0; i < emails.size(); i++)
 		{
-			NBTTagCompound emailTag = emails.getCompoundTagAt(i);
+			CompoundTag emailTag = emails.getCompound(i);
 			Email email = Email.readFromNBT(emailTag);
 			EmailManager.INSTANCE.getInbox().add(email);
 		}

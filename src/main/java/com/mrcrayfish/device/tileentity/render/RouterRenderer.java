@@ -10,7 +10,7 @@ import com.mrcrayfish.device.util.CollisionHelper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderSystem;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -29,20 +29,20 @@ public class RouterRenderer extends TileEntitySpecialRenderer<TileEntityRouter>
     @Override
     public void render(TileEntityRouter te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
     {
-        IBlockState state = te.getWorld().getBlockState(te.getPos());
+        IBlockState state = te.getLevel().getBlockState(te.getPos());
         if(state.getBlock() != DeviceBlocks.ROUTER)
             return;
 
         if(te.isDebug())
         {
-            GlStateManager.enableBlend();
+            RenderSystem.enableBlend();
             OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-            GlStateManager.disableLighting();
-            GlStateManager.disableTexture2D();
-            GlStateManager.enableAlpha();
-            GlStateManager.pushMatrix();
+            RenderSystem.disableLighting();
+            RenderSystem.disableTexture2D();
+            RenderSystem.enableAlpha();
+            RenderSystem.pushMatrix();
             {
-                GlStateManager.translate(x, y, z);
+                RenderSystem.translate(x, y, z);
                 Router router = te.getRouter();
                 BlockPos routerPos = router.getPos();
 
@@ -54,7 +54,7 @@ public class RouterRenderer extends TileEntitySpecialRenderer<TileEntityRouter>
                 Tessellator tessellator = Tessellator.getInstance();
                 BufferBuilder buffer = tessellator.getBuffer();
 
-                final Collection<NetworkDevice> DEVICES = router.getConnectedDevices(Minecraft.getMinecraft().world);
+                final Collection<NetworkDevice> DEVICES = router.getConnectedDevices(Minecraft.getMinecraft().Level);
                 DEVICES.forEach(networkDevice ->
                 {
                     BlockPos devicePos = networkDevice.getPos();
@@ -72,11 +72,11 @@ public class RouterRenderer extends TileEntitySpecialRenderer<TileEntityRouter>
                     tessellator.draw();
                 });
             }
-            GlStateManager.popMatrix();
-            GlStateManager.disableBlend();
-            GlStateManager.disableAlpha();
-            GlStateManager.enableLighting();
-            GlStateManager.enableTexture2D();
+            RenderSystem.popMatrix();
+            RenderSystem.disableBlend();
+            RenderSystem.disableAlpha();
+            RenderSystem.enableLighting();
+            RenderSystem.enableTexture2D();
         }
     }
 

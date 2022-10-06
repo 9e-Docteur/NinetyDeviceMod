@@ -4,9 +4,8 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.proxy.ClientProxy;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.util.JsonUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,9 +20,9 @@ public class AppInfo
 	public static final Comparator<AppInfo> SORT_NAME = Comparator.comparing(AppInfo::getName);
 
 	private transient final ResourceLocation APP_ID;
-	private transient int iconU = 0;
-	private transient int iconV = 0;
-	private transient boolean systemApp;
+	private final transient int iconU = 0;
+	private final transient int iconV = 0;
+	private final transient boolean systemApp;
 
 	private String name;
 	private String author;
@@ -56,7 +55,7 @@ public class AppInfo
 	 */
 	public String getFormattedId()
 	{
-		return APP_ID.getResourceDomain() + "." + APP_ID.getResourcePath();
+		return APP_ID.getNamespace() + "." + APP_ID.getPath();
 	}
 
 	/**
@@ -118,15 +117,14 @@ public class AppInfo
 	public boolean equals(Object obj)
 	{
 		if(obj == null) return false;
-		if(!(obj instanceof AppInfo)) return false;
-		AppInfo info = (AppInfo) obj;
+		if(!(obj instanceof AppInfo info)) return false;
 		return this == info || getFormattedId().equals(info.getFormattedId());
 	}
 
 	public void reload()
 	{
 		resetInfo();
-		InputStream stream = ClientProxy.class.getResourceAsStream("/assets/" + APP_ID.getResourceDomain() + "/apps/" + APP_ID.getResourcePath() + ".json");
+		InputStream stream = ClientProxy.class.getResourceAsStream("/assets/" + APP_ID.getNamespace() + "/apps/" + APP_ID.getPath() + ".json");
 
 		if(stream == null)
 			throw new RuntimeException("Missing app info json for '" + APP_ID + "'");
@@ -163,7 +161,7 @@ public class AppInfo
 	{
 		private static final Pattern LANG = Pattern.compile("\\$\\{[a-z]+}");
 
-		private AppInfo info;
+		private final AppInfo info;
 
 		public Deserializer(AppInfo info)
 		{
@@ -229,7 +227,7 @@ public class AppInfo
 			while(m.find())
 			{
 				String found = m.group();
-				s = s.replace(found, I18n.format("app." + info.getFormattedId() + "." + found.substring(2, found.length() - 1)));
+				s = s.replace(found, I18n.get("app." + info.getFormattedId() + "." + found.substring(2, found.length() - 1)));
 			}
 			return s;
 		}

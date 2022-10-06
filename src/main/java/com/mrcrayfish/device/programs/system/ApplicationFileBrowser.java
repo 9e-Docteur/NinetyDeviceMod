@@ -8,7 +8,7 @@ import com.mrcrayfish.device.core.io.FileSystem;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.object.TrayItem;
 import com.mrcrayfish.device.programs.system.component.FileBrowser;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 
@@ -23,7 +23,7 @@ public class ApplicationFileBrowser extends SystemApplication
 	}
 
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		browser = new FileBrowser(0, 0, this, FileBrowser.Mode.FULL);
 		browser.openFolder(FileSystem.DIR_HOME);
@@ -31,13 +31,13 @@ public class ApplicationFileBrowser extends SystemApplication
 	}
 
 	@Override
-	public void load(NBTTagCompound tagCompound)
+	public void load(CompoundTag tagCompound)
 	{
 
 	}
 
 	@Override
-	public void save(NBTTagCompound tagCompound) 
+	public void save(CompoundTag tagCompound) 
 	{
 		
 	}

@@ -1,12 +1,12 @@
 package com.mrcrayfish.device.item;
 
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -16,50 +16,51 @@ import java.util.List;
  */
 public class ItemMotherboard extends ItemComponent
 {
-    public ItemMotherboard()
-    {
-        super("motherboard");
+
+
+    public ItemMotherboard(Properties properties) {
+        super(properties);
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
-    {
-        NBTTagCompound tag = stack.getTagCompound();
-        if(!GuiScreen.isShiftKeyDown())
+    public void appendHoverText(ItemStack stack, @org.jetbrains.annotations.Nullable Level p_41422_, List<net.minecraft.network.chat.Component> tooltip, TooltipFlag p_41424_) {
+        super.appendHoverText(stack, p_41422_, tooltip, p_41424_);
+        CompoundTag tag = stack.getTag();
+        if(!Screen.hasShiftDown())
         {
-            tooltip.add("CPU: " + getComponentStatus(tag, "cpu"));
-            tooltip.add("RAM: " + getComponentStatus(tag, "ram"));
-            tooltip.add("GPU: " + getComponentStatus(tag, "gpu"));
-            tooltip.add("WIFI: " + getComponentStatus(tag, "wifi"));
-            tooltip.add(TextFormatting.YELLOW + "Hold shift for help");
+            tooltip.add(net.minecraft.network.chat.Component.literal("CPU: " + getComponentStatus(tag, "cpu")));
+            tooltip.add(net.minecraft.network.chat.Component.literal("RAM: " + getComponentStatus(tag, "ram")));
+            tooltip.add(net.minecraft.network.chat.Component.literal("GPU: " + getComponentStatus(tag, "gpu")));
+            tooltip.add(net.minecraft.network.chat.Component.literal("WIFI: " + getComponentStatus(tag, "wifi")));
+            tooltip.add(net.minecraft.network.chat.Component.literal(ChatFormatting.YELLOW + "Hold shift for help"));
         }
         else
         {
-            tooltip.add("To add the required components");
-            tooltip.add("place the motherboard and the");
-            tooltip.add("corresponding component into a");
-            tooltip.add("crafting table to combine them.");
+            tooltip.add(net.minecraft.network.chat.Component.literal("To add the required components"));
+            tooltip.add(net.minecraft.network.chat.Component.literal("place the motherboard and the"));
+            tooltip.add(net.minecraft.network.chat.Component.literal("corresponding component into a"));
+            tooltip.add(net.minecraft.network.chat.Component.literal("crafting table to combine them."));
         }
     }
 
-    private String getComponentStatus(NBTTagCompound tag, String component)
+    private String getComponentStatus(CompoundTag tag, String component)
     {
-        if(tag != null && tag.hasKey("components", Constants.NBT.TAG_COMPOUND))
+        if(tag != null && tag.contains("components", Tag.TAG_COMPOUND))
         {
-            NBTTagCompound components = tag.getCompoundTag("components");
-            if(components.hasKey(component, Constants.NBT.TAG_BYTE))
+            CompoundTag components = tag.getCompound("components");
+            if(components.contains(component, Tag.TAG_BYTE))
             {
-                return TextFormatting.GREEN + "Added";
+                return ChatFormatting.GREEN + "Added";
             }
         }
-        return TextFormatting.RED + "Missing";
+        return ChatFormatting.RED + "Missing";
     }
 
     public static class Component extends ItemComponent
     {
-        public Component(String id)
+        public Component(Properties properties)
         {
-            super(id);
+            super(properties);
         }
     }
 }

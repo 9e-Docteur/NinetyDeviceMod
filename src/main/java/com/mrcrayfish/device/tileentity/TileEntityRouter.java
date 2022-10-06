@@ -1,11 +1,14 @@
 package com.mrcrayfish.device.tileentity;
 
 import com.mrcrayfish.device.core.network.Router;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import com.mrcrayfish.device.init.DeviceTileEntites;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * Author: MrCrayfish
@@ -14,24 +17,28 @@ public class TileEntityRouter extends TileEntityDevice.Colored
 {
     private Router router;
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     private int debugTimer;
+
+    public TileEntityRouter(BlockPos p_155229_, BlockState p_155230_) {
+        super(DeviceTileEntites.ROUTER.get(), p_155229_, p_155230_);
+    }
 
     public Router getRouter()
     {
         if(router == null)
         {
-            router = new Router(pos);
-            markDirty();
+            router = new Router(worldPosition);
+            setChanged();
         }
         return router;
     }
 
     public void update()
     {
-        if(!world.isRemote)
+        if(!level.isClientSide)
         {
-            getRouter().update(world);
+            getRouter().update(level);
         }
         else if(debugTimer > 0)
         {
@@ -39,13 +46,13 @@ public class TileEntityRouter extends TileEntityDevice.Colored
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public boolean isDebug()
     {
         return debugTimer > 0;
     }
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void setDebug()
     {
         if(debugTimer <= 0)
@@ -63,41 +70,26 @@ public class TileEntityRouter extends TileEntityDevice.Colored
     {
         return "Router";
     }
-
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
-    {
-        super.writeToNBT(compound);
-        compound.setTag("router", getRouter().toTag(false));
+    public CompoundTag serializeNBT() {
+        super.serializeNBT();
+        CompoundTag compound = new CompoundTag();
+        compound.put("router", getRouter().toTag(false));
         return compound;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound compound)
-    {
-        super.readFromNBT(compound);
-        if(compound.hasKey("router", Constants.NBT.TAG_COMPOUND))
+    public void deserializeNBT(CompoundTag nbt) {
+        super.deserializeNBT(nbt);
+        if(nbt.contains("router", Tag.TAG_COMPOUND))
         {
-            router = Router.fromTag(pos, compound.getCompoundTag("router"));
+            router = Router.fromTag(worldPosition, nbt.getCompound("router"));
         }
     }
 
     public void syncDevicesToClient()
     {
-        pipeline.setTag("router", getRouter().toTag(true));
+        pipeline.put("router", getRouter().toTag(true));
         sync();
-    }
-
-    @Override
-    public double getMaxRenderDistanceSquared()
-    {
-        return 16384;
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox()
-    {
-        return INFINITE_EXTENT_AABB;
     }
 }

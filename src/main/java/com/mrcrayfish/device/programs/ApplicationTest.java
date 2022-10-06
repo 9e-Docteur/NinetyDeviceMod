@@ -4,7 +4,7 @@ import com.mrcrayfish.device.api.app.Application;
 import com.mrcrayfish.device.api.app.Dialog;
 import com.mrcrayfish.device.api.app.Icons;
 import com.mrcrayfish.device.api.app.component.Button;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 
@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 public class ApplicationTest extends Application
 {
     @Override
-    public void init(@Nullable NBTTagCompound intent)
+    public void init(@Nullable CompoundTag intent)
     {
         Button button = new Button(5, 5, Icons.PRINTER);
         button.setClickListener((mouseX, mouseY, mouseButton) ->
@@ -63,20 +63,20 @@ public class ApplicationTest extends Application
         {
             if(mouseButton == 0)
             {
-                openDialog(new Dialog.SaveFile(this, new NBTTagCompound()));
+                openDialog(new Dialog.SaveFile(this, new CompoundTag()));
             }
         });
         super.addComponent(button4);
     }
 
     @Override
-    public void load(NBTTagCompound tagCompound)
+    public void load(CompoundTag tagCompound)
     {
 
     }
 
     @Override
-    public void save(NBTTagCompound tagCompound)
+    public void save(CompoundTag tagCompound)
     {
 
     }

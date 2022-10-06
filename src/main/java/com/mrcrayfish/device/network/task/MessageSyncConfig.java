@@ -2,7 +2,7 @@ package com.mrcrayfish.device.network.task;
 
 import com.mrcrayfish.device.DeviceConfig;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -22,7 +22,7 @@ public class MessageSyncConfig implements IMessage, IMessageHandler<MessageSyncC
     @Override
     public void fromBytes(ByteBuf buf)
     {
-        NBTTagCompound syncTag = ByteBufUtils.readTag(buf);
+        CompoundTag syncTag = ByteBufUtils.readTag(buf);
         DeviceConfig.readSyncTag(syncTag);
     }
 

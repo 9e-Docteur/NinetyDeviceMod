@@ -1,51 +1,60 @@
 package com.mrcrayfish.device.tileentity;
 
 import com.mrcrayfish.device.util.TileEntityUtil;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Author: MrCrayfish
  */
-public abstract class TileEntitySync extends TileEntity
+public abstract class TileEntitySync extends BlockEntity
 {
-    protected NBTTagCompound pipeline = new NBTTagCompound();
+    protected CompoundTag pipeline = new CompoundTag();
+
+    public TileEntitySync(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
+        super(p_155228_, p_155229_, p_155230_);
+    }
 
     public void sync()
     {
-        TileEntityUtil.markBlockForUpdate(world, pos);
-        markDirty();
+        setChanged(level, getBlockPos(), getBlockState());
+        setChanged();
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
-    {
-        this.readFromNBT(pkt.getNbtCompound());
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        super.onDataPacket(net, pkt);
+        this.deserializeCaps(pkt.getTag());
     }
 
     @Override
-    public final NBTTagCompound getUpdateTag()
+    public final CompoundTag getUpdateTag()
     {
-        if(!pipeline.hasNoTags())
+        if(!pipeline.isEmpty())
         {
-            NBTTagCompound updateTag = super.writeToNBT(pipeline);
-            pipeline = new NBTTagCompound();
+            CompoundTag updateTag = super.serializeNBT();
+            pipeline = new CompoundTag();
             return updateTag;
         }
-        return super.writeToNBT(writeSyncTag());
+        return super.serializeNBT();
     }
 
-    public abstract NBTTagCompound writeSyncTag();
 
-    @Override
-    public SPacketUpdateTileEntity getUpdatePacket()
-    {
-        return new SPacketUpdateTileEntity(pos, 0, getUpdateTag());
-    }
 
-    public NBTTagCompound getPipeline()
+    public abstract CompoundTag writeSyncTag();
+
+//    @Override
+//    public SPacketUpdateTileEntity getUpdatePacket()
+//    {
+//        return new SPacketUpdateTileEntity(pos, 0, getUpdateTag());
+//    }
+
+    public CompoundTag getPipeline()
     {
         return pipeline;
     }

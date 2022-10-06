@@ -6,11 +6,11 @@ import com.mrcrayfish.device.core.io.FileSystem;
 import com.mrcrayfish.device.core.io.ServerFolder;
 import com.mrcrayfish.device.core.io.drive.AbstractDrive;
 import com.mrcrayfish.device.tileentity.TileEntityLaptop;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.UUID;
 
@@ -37,22 +37,21 @@ public class TaskGetStructure extends Task
     }
 
     @Override
-    public void prepareRequest(NBTTagCompound nbt)
+    public void prepareRequest(CompoundTag nbt)
     {
-        nbt.setString("uuid", uuid);
-        nbt.setLong("pos", pos.toLong());
+        nbt.putString("uuid", uuid);
+        nbt.putLong("pos", pos.asLong());
     }
 
     @Override
-    public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player)
+    public void processRequest(CompoundTag nbt, Level Level, Player player)
     {
-        TileEntity tileEntity = world.getTileEntity(BlockPos.fromLong(nbt.getLong("pos")));
-        if(tileEntity instanceof TileEntityLaptop)
+        BlockEntity tileEntity = Level.getBlockEntity(BlockPos.of(nbt.getLong("pos")));
+        if(tileEntity instanceof TileEntityLaptop laptop)
         {
-            TileEntityLaptop laptop = (TileEntityLaptop) tileEntity;
             FileSystem fileSystem = laptop.getFileSystem();
             UUID uuid = UUID.fromString(nbt.getString("uuid"));
-            AbstractDrive serverDrive = fileSystem.getAvailableDrives(world, true).get(uuid);
+            AbstractDrive serverDrive = fileSystem.getAvailableDrives(Level, true).get(uuid);
             if(serverDrive != null)
             {
                 folder = serverDrive.getDriveStructure();
@@ -62,17 +61,17 @@ public class TaskGetStructure extends Task
     }
 
     @Override
-    public void prepareResponse(NBTTagCompound nbt)
+    public void prepareResponse(CompoundTag nbt)
     {
         if(folder != null)
         {
-            nbt.setString("file_name", folder.getName());
-            nbt.setTag("structure", folder.toTag());
+            nbt.putString("file_name", folder.getName());
+            nbt.put("structure", folder.toTag());
         }
     }
 
     @Override
-    public void processResponse(NBTTagCompound nbt)
+    public void processResponse(CompoundTag nbt)
     {
 
     }

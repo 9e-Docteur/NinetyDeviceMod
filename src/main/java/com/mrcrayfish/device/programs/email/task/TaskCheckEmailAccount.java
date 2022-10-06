@@ -2,9 +2,9 @@ package com.mrcrayfish.device.programs.email.task;
 
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.programs.email.EmailManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public class TaskCheckEmailAccount extends Task 
 {
@@ -17,12 +17,12 @@ public class TaskCheckEmailAccount extends Task
 	}
 
 	@Override
-	public void prepareRequest(NBTTagCompound nbt) {}
+	public void prepareRequest(CompoundTag nbt) {}
 
 	@Override
-	public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player) 
+	public void processRequest(CompoundTag nbt, Level Level, Player player)
 	{
-		this.hasAccount = EmailManager.INSTANCE.hasAccount(player.getUniqueID());
+		this.hasAccount = EmailManager.INSTANCE.hasAccount(player.getUUID());
 		if(this.hasAccount)
 		{
 			this.name = EmailManager.INSTANCE.getName(player);
@@ -31,12 +31,12 @@ public class TaskCheckEmailAccount extends Task
 	}
 
 	@Override
-	public void prepareResponse(NBTTagCompound nbt) 
+	public void prepareResponse(CompoundTag nbt) 
 	{
-		if(this.isSucessful()) nbt.setString("Name", this.name);
+		if(this.isSucessful()) nbt.putString("Name", this.name);
 	}
 
 	@Override
-	public void processResponse(NBTTagCompound nbt) {}
+	public void processResponse(CompoundTag nbt) {}
 
 }

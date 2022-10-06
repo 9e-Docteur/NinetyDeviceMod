@@ -4,16 +4,21 @@ import com.mrcrayfish.device.DeviceConfig;
 import com.mrcrayfish.device.api.print.IPrint;
 import com.mrcrayfish.device.block.BlockPrinter;
 import com.mrcrayfish.device.init.DeviceSounds;
-import com.mrcrayfish.device.util.CollisionHelper;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Items;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.SoundCategory;
-import net.minecraftforge.common.util.Constants;
+import com.mrcrayfish.device.init.DeviceTileEntites;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -27,27 +32,32 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
 {
     private State state = IDLE;
 
-    private Deque<IPrint> printQueue = new ArrayDeque<>();
+    private final Deque<IPrint> printQueue = new ArrayDeque<>();
     private IPrint currentPrint;
 
     private int totalPrintTime;
     private int remainingPrintTime;
     private int paperCount = 0;
+    private final Level level = Minecraft.getInstance().level;
+
+    public TileEntityPrinter(BlockPos p_155229_, BlockState p_155230_) {
+        super(DeviceTileEntites.PRINTER.get(), p_155229_, p_155230_);
+    }
 
     @Override
-    public void update()
-    {
-        if(!world.isRemote)
+    public void tick() {
+        super.tick();
+        if(!level.isClientSide)
         {
             if(remainingPrintTime > 0)
             {
                 if(remainingPrintTime % 20 == 0 || state == LOADING_PAPER)
                 {
-                    pipeline.setInteger("remainingPrintTime", remainingPrintTime);
+                    pipeline.putInt("remainingPrintTime", remainingPrintTime);
                     sync();
                     if(remainingPrintTime != 0 && state == PRINTING)
                     {
-                        world.playSound(null, pos, DeviceSounds.PRINTER_PRINTING, SoundCategory.BLOCKS, 0.5F, 1.0F);
+                        level.playSound(null, worldPosition, DeviceSounds.PRINTER_PRINTING, SoundSource.BLOCKS, 0.5F, 1.0F);
                     }
                 }
                 remainingPrintTime--;
@@ -60,15 +70,14 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
 
         if(state == IDLE && remainingPrintTime == 0 && currentPrint != null)
         {
-            if(!world.isRemote)
+            if(!level.isClientSide)
             {
-                IBlockState state = world.getBlockState(pos);
-                double[] fixedPosition = CollisionHelper.fixRotation(state.getValue(BlockPrinter.FACING), 0.15, 0.5, 0.15, 0.5);
-                EntityItem entity = new EntityItem(world, pos.getX() + fixedPosition[0], pos.getY() + 0.0625, pos.getZ() + fixedPosition[1], IPrint.generateItem(currentPrint));
-                entity.motionX = 0;
-                entity.motionY = 0;
-                entity.motionZ = 0;
-                world.spawnEntity(entity);
+                BlockState state = level.getBlockState(worldPosition);
+                ItemEntity entity = new ItemEntity(level, worldPosition.getX(), worldPosition.getY() + 0.0625, worldPosition.getZ(), IPrint.generateItem(currentPrint));
+                entity.xo = 0;
+                entity.yo = 0;
+                entity.zo = 0;
+                level.addFreshEntity(entity);
             }
             currentPrint = null;
         }
@@ -85,70 +94,69 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
         return "Printer";
     }
 
-    @Override
-    public void readFromNBT(NBTTagCompound compound)
-    {
-        super.readFromNBT(compound);
-        if(compound.hasKey("currentPrint", Constants.NBT.TAG_COMPOUND))
-        {
-            currentPrint = IPrint.loadFromTag(compound.getCompoundTag("currentPrint"));
-        }
-        if(compound.hasKey("totalPrintTime", Constants.NBT.TAG_INT))
-        {
-            totalPrintTime = compound.getInteger("totalPrintTime");
-        }
-        if(compound.hasKey("remainingPrintTime", Constants.NBT.TAG_INT))
-        {
-            remainingPrintTime = compound.getInteger("remainingPrintTime");
-        }
-        if(compound.hasKey("state", Constants.NBT.TAG_INT))
-        {
-            state = State.values()[compound.getInteger("state")];
-        }
-        if(compound.hasKey("paperCount", Constants.NBT.TAG_INT))
-        {
-            paperCount = compound.getInteger("paperCount");
-        }
-        if(compound.hasKey("queue", Constants.NBT.TAG_LIST))
-        {
-            printQueue.clear();
-            NBTTagList queue = compound.getTagList("queue", Constants.NBT.TAG_COMPOUND);
-            for(int i = 0; i < queue.tagCount(); i++)
-            {
-                IPrint print = IPrint.loadFromTag(queue.getCompoundTagAt(i));
-                printQueue.offer(print);
-            }
-        }
-    }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
-    {
-        super.writeToNBT(compound);
-        compound.setInteger("totalPrintTime", totalPrintTime);
-        compound.setInteger("remainingPrintTime", remainingPrintTime);
-        compound.setInteger("state", state.ordinal());
-        compound.setInteger("paperCount", paperCount);
+    public CompoundTag serializeNBT() {
+        super.serializeNBT();
+        CompoundTag compound = new CompoundTag();
+        compound.putInt("totalPrintTime", totalPrintTime);
+        compound.putInt("remainingPrintTime", remainingPrintTime);
+        compound.putInt("state", state.ordinal());
+        compound.putInt("paperCount", paperCount);
         if(currentPrint != null)
         {
-            compound.setTag("currentPrint", IPrint.writeToTag(currentPrint));
+            compound.put("currentPrint", IPrint.writeToTag(currentPrint));
         }
         if(!printQueue.isEmpty())
         {
-            NBTTagList queue = new NBTTagList();
+            ListTag queue = new ListTag();
             printQueue.forEach(print -> {
-                queue.appendTag(IPrint.writeToTag(print));
+                queue.add(IPrint.writeToTag(print));
             });
-            compound.setTag("queue", queue);
+            compound.put("queue", queue);
         }
         return compound;
     }
 
     @Override
-    public NBTTagCompound writeSyncTag()
+    public void deserializeNBT(CompoundTag compound) {
+        super.deserializeNBT(compound);
+        if(compound.contains("currentPrint", Tag.TAG_COMPOUND))
+        {
+            currentPrint = IPrint.loadFromTag(compound.getCompound("currentPrint"));
+        }
+        if(compound.contains("totalPrintTime", Tag.TAG_INT))
+        {
+            totalPrintTime = compound.getInt("totalPrintTime");
+        }
+        if(compound.contains("remainingPrintTime", Tag.TAG_INT))
+        {
+            remainingPrintTime = compound.getInt("remainingPrintTime");
+        }
+        if(compound.contains("state", Tag.TAG_INT))
+        {
+            state = State.values()[compound.getInt("state")];
+        }
+        if(compound.contains("paperCount", Tag.TAG_INT))
+        {
+            paperCount = compound.getInt("paperCount");
+        }
+        if(compound.contains("queue", Tag.TAG_LIST))
+        {
+            printQueue.clear();
+            ListTag queue = compound.getList("queue", Tag.TAG_COMPOUND);
+            for(int i = 0; i < queue.size(); i++)
+            {
+                IPrint print = IPrint.loadFromTag((CompoundTag) queue.get(i));
+                printQueue.offer(print);
+            }
+        }
+    }
+    @Override
+    public CompoundTag writeSyncTag()
     {
-        NBTTagCompound tag = super.writeSyncTag();
-        tag.setInteger("paperCount", paperCount);
+        CompoundTag tag = super.writeSyncTag();
+        tag.putInt("paperCount", paperCount);
         return tag;
     }
 
@@ -160,9 +168,9 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
         state = newState;
         if(state == PRINTING)
         {
-            if(DeviceConfig.isOverridePrintSpeed())
+            if(DeviceConfig.OVERRIDE_PRINT_SPEED.get())
             {
-                remainingPrintTime = DeviceConfig.getCustomPrintSpeed() * 20;
+                remainingPrintTime = DeviceConfig.CUSTOM_PRINT_SPEED.get() * 20;
             }
             else
             {
@@ -175,9 +183,9 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
         }
         totalPrintTime = remainingPrintTime;
 
-        pipeline.setInteger("state", state.ordinal());
-        pipeline.setInteger("totalPrintTime", totalPrintTime);
-        pipeline.setInteger("remainingPrintTime", remainingPrintTime);
+        pipeline.putInt("state", state.ordinal());
+        pipeline.putInt("totalPrintTime", totalPrintTime);
+        pipeline.putInt("remainingPrintTime", remainingPrintTime);
         sync();
     }
 
@@ -188,14 +196,14 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
 
     private void print(IPrint print)
     {
-        world.playSound(null, pos, DeviceSounds.PRINTER_LOADING_PAPER, SoundCategory.BLOCKS, 0.5F, 1.0F);
+        level.playSound(null, worldPosition, DeviceSounds.PRINTER_LOADING_PAPER, SoundSource.BLOCKS, 0.5F, 1.0F);
 
         setState(LOADING_PAPER);
         currentPrint = print;
         paperCount--;
 
-        pipeline.setInteger("paperCount", paperCount);
-        pipeline.setTag("currentPrint", IPrint.writeToTag(currentPrint));
+        pipeline.putInt("paperCount", paperCount);
+        pipeline.put("currentPrint", IPrint.writeToTag(currentPrint));
         sync();
     }
 
@@ -221,7 +229,7 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
 
     public boolean addPaper(ItemStack stack, boolean addAll)
     {
-        if(!stack.isEmpty() && stack.getItem() == Items.PAPER && paperCount < DeviceConfig.getMaxPaperCount())
+        if(!stack.isEmpty() && stack.getItem() == Items.PAPER && paperCount < DeviceConfig.MAX_PAPER_COUNT.get())
         {
             if(!addAll)
             {
@@ -234,9 +242,9 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
                 stack.setCount(Math.max(0, paperCount - 64));
                 paperCount = Math.min(64, paperCount);
             }
-            pipeline.setInteger("paperCount", paperCount);
+            pipeline.putInt("paperCount", paperCount);
             sync();
-            world.playSound(null, pos, SoundEvents.ENTITY_ITEMFRAME_BREAK, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            level.playSound(null, worldPosition, SoundEvents.ITEM_FRAME_BREAK, SoundSource.BLOCKS, 1.0F, 1.0F);
             return true;
         }
         return false;
@@ -255,6 +263,16 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
     public IPrint getPrint()
     {
         return currentPrint;
+    }
+
+    @Override
+    public DyeColor getColor() {
+        return null;
+    }
+
+    @Override
+    public void setColor(DyeColor color) {
+        
     }
 
     public enum State

@@ -1,11 +1,10 @@
 package com.mrcrayfish.device.event;
 
 import com.mrcrayfish.device.api.utils.BankUtil;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,19 +12,18 @@ import java.io.IOException;
 public class BankEvents 
 {
 	@SubscribeEvent
-	public void load(WorldEvent.Load event)
+	public void load(LevelEvent.Load event)
 	{
-		if(event.getWorld().provider.getDimension() == 0)
 		{
 			try 
 			{
-				File data = new File(DimensionManager.getCurrentSaveRootDirectory(), "bank.dat");
+				File data = new File("bank.dat");
 				if(!data.exists())
 				{
 					return;
 				}
 				
-				NBTTagCompound nbt = CompressedStreamTools.read(data);
+				CompoundTag nbt = NbtIo.read(data);
 				if(nbt != null)
 				{
 					BankUtil.INSTANCE.load(nbt);
@@ -39,21 +37,20 @@ public class BankEvents
 	}
 	
 	@SubscribeEvent
-	public void save(WorldEvent.Save event)
+	public void save(LevelEvent.Save event)
 	{
-		if(event.getWorld().provider.getDimension() == 0)
 		{
 			try 
 			{
-				File data = new File(DimensionManager.getCurrentSaveRootDirectory(), "bank.dat");
+				File data = new File("bank.dat");
 				if(!data.exists())
 				{
 					data.createNewFile();
 				}
 				
-				NBTTagCompound nbt = new NBTTagCompound();
+				CompoundTag nbt = new CompoundTag();
 				BankUtil.INSTANCE.save(nbt);
-				CompressedStreamTools.write(nbt, data);
+				NbtIo.write(nbt, data);
 			} 
 			catch (IOException e) 
 			{

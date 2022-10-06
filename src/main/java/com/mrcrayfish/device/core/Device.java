@@ -1,11 +1,11 @@
 package com.mrcrayfish.device.core;
 
 import com.mrcrayfish.device.tileentity.TileEntityDevice;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -57,19 +57,18 @@ public class Device
     public void update(TileEntityDevice device)
     {
         name = device.getCustomName();
-        pos = device.getPos();
+        pos = device.getBlockPos();
     }
 
     @Nullable
-    public TileEntityDevice getDevice(World world)
+    public TileEntityDevice getDevice(Level Level)
     {
         if(pos == null)
             return null;
 
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if(tileEntity instanceof TileEntityDevice)
+        BlockEntity tileEntity = Level.getBlockEntity(pos);
+        if(tileEntity instanceof TileEntityDevice tileEntityDevice)
         {
-            TileEntityDevice tileEntityDevice = (TileEntityDevice) tileEntity;
             if(tileEntityDevice.getId().equals(getId()))
             {
                 return tileEntityDevice;
@@ -78,26 +77,26 @@ public class Device
         return null;
     }
 
-    public NBTTagCompound toTag(boolean includePos)
+    public CompoundTag toTag(boolean includePos)
     {
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setString("id", id.toString());
-        tag.setString("name", name);
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", id.toString());
+        tag.putString("name", name);
         if(includePos && pos != null)
         {
-            tag.setLong("pos", pos.toLong());
+            tag.putLong("pos", pos.asLong());
         }
         return tag;
     }
 
-    public static Device fromTag(NBTTagCompound tag)
+    public static Device fromTag(CompoundTag tag)
     {
         Device device = new Device();
         device.id = UUID.fromString(tag.getString("id"));
         device.name = tag.getString("name");
-        if(tag.hasKey("pos", Constants.NBT.TAG_LONG))
+        if(tag.contains("pos", Tag.TAG_LONG))
         {
-            device.pos = BlockPos.fromLong(tag.getLong("pos"));
+            device.pos = BlockPos.of(tag.getLong("pos"));
         }
         return device;
     }

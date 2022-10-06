@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.programs.gitweb.module;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Icons;
 import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.api.app.component.Button;
@@ -7,6 +8,7 @@ import com.mrcrayfish.device.api.app.listener.ClickListener;
 import com.mrcrayfish.device.api.utils.RenderUtil;
 import com.mrcrayfish.device.programs.gitweb.component.GitWebFrame;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screens.Screen;
 
 import java.awt.Color;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.Map;
  */
 public class FooterModule extends Module
 {
+    private final PoseStack poseStack = new PoseStack();
     @Override
     public String[] getRequiredData()
     {
@@ -70,9 +73,9 @@ public class FooterModule extends Module
         String title = GitWebFrame.parseFormatting(data.get("title"));
         String subTitle = GitWebFrame.parseFormatting(data.get("sub-title"));
         int finalColor = color;
-        layout.setBackground((gui, mc, x, y, width1, height, mouseX, mouseY, windowActive) ->
+        layout.setBackground((poseStack, gui, mc, x, y, width1, height, mouseX, mouseY, windowActive) ->
         {
-            Gui.drawRect(x, y, x + width1, y + height, finalColor);
+            Screen.fill(poseStack, x, y, x + width1, y + height, finalColor);
 
             RenderUtil.drawStringClipped(title, x + 5, y + 5, buttonHome.left - 10, -1, true);
             RenderUtil.drawStringClipped(subTitle, x + 5, y + 16, buttonHome.left - 10, Color.LIGHT_GRAY.getRGB(), false);

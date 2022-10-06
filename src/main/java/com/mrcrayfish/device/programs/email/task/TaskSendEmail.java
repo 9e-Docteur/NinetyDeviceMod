@@ -3,9 +3,9 @@ package com.mrcrayfish.device.programs.email.task;
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.programs.email.object.Email;
 import com.mrcrayfish.device.programs.email.EmailManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public class TaskSendEmail extends Task 
 {
@@ -25,14 +25,14 @@ public class TaskSendEmail extends Task
 	}
 
 	@Override
-	public void prepareRequest(NBTTagCompound nbt) 
+	public void prepareRequest(CompoundTag nbt) 
 	{
 		this.email.writeToNBT(nbt);
-		nbt.setString("to", this.to);
+		nbt.putString("to", this.to);
 	}
 
 	@Override
-	public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player) 
+	public void processRequest(CompoundTag nbt, Level Level, Player player)
 	{
 		String name = EmailManager.INSTANCE.getName(player);
 		if(name != null)
@@ -47,9 +47,9 @@ public class TaskSendEmail extends Task
 	}
 
 	@Override
-	public void prepareResponse(NBTTagCompound nbt) {}
+	public void prepareResponse(CompoundTag nbt) {}
 
 	@Override
-	public void processResponse(NBTTagCompound nbt) {}
+	public void processResponse(CompoundTag nbt) {}
 	
 }

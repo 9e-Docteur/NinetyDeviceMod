@@ -1,12 +1,14 @@
 package com.mrcrayfish.device.api.app;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.programs.system.object.ColorScheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.resources.ResourceLocation;
 
-public abstract class Component extends Gui
+public abstract class Component extends GuiComponent
 {
 	/**
 	 * The default components textures
@@ -59,6 +61,7 @@ public abstract class Component extends Gui
 	 */
 	public Component(int left, int top) 
 	{
+		super();
 		this.left = left;
 		this.top = top;
 	}
@@ -96,7 +99,7 @@ public abstract class Component extends Gui
 	 * @param windowActive if the window is active (at front)
 	 * @param partialTicks percentage passed in-between two ticks
 	 */
-	protected void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {}
+	protected void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {}
 	
 	/**
 	 * The overlay render loop. Renders over the top of the main render

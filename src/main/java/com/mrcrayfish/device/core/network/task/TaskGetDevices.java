@@ -4,12 +4,13 @@ import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.core.network.NetworkDevice;
 import com.mrcrayfish.device.core.network.Router;
 import com.mrcrayfish.device.tileentity.TileEntityNetworkDevice;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Collection;
 
@@ -42,19 +43,19 @@ public class TaskGetDevices extends Task
     }
 
     @Override
-    public void prepareRequest(NBTTagCompound nbt)
+    public void prepareRequest(CompoundTag nbt)
     {
-        nbt.setLong("devicePos", devicePos.toLong());
+        nbt.putLong("devicePos", devicePos.asLong());
         if(targetDeviceClass != null)
         {
-            nbt.setString("targetClass", targetDeviceClass.getName());
+            nbt.putString("targetClass", targetDeviceClass.getName());
         }
     }
 
     @Override
-    public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player)
+    public void processRequest(CompoundTag nbt, Level Level, Player player)
     {
-        BlockPos devicePos = BlockPos.fromLong(nbt.getLong("devicePos"));
+        BlockPos devicePos = BlockPos.of(nbt.getLong("devicePos"));
         Class targetDeviceClass = null;
         try
         {
@@ -69,10 +70,9 @@ public class TaskGetDevices extends Task
             e.printStackTrace();
         }
 
-        TileEntity tileEntity = world.getTileEntity(devicePos);
-        if(tileEntity instanceof TileEntityNetworkDevice)
+        BlockEntity tileEntity = Level.getBlockEntity(devicePos);
+        if(tileEntity instanceof TileEntityNetworkDevice tileEntityNetworkDevice)
         {
-            TileEntityNetworkDevice tileEntityNetworkDevice = (TileEntityNetworkDevice) tileEntity;
             if(tileEntityNetworkDevice.isConnected())
             {
                 Router router = tileEntityNetworkDevice.getRouter();
@@ -80,11 +80,11 @@ public class TaskGetDevices extends Task
                 {
                     if(targetDeviceClass != null)
                     {
-                        foundDevices = router.getConnectedDevices(world, targetDeviceClass);
+                        foundDevices = router.getConnectedDevices(Level, targetDeviceClass);
                     }
                     else
                     {
-                        foundDevices = router.getConnectedDevices(world);
+                        foundDevices = router.getConnectedDevices(Level);
                     }
                     this.setSuccessful();
                 }
@@ -93,18 +93,18 @@ public class TaskGetDevices extends Task
     }
 
     @Override
-    public void prepareResponse(NBTTagCompound nbt)
+    public void prepareResponse(CompoundTag nbt)
     {
         if(this.isSucessful())
         {
-            NBTTagList deviceList = new NBTTagList();
-            foundDevices.forEach(device -> deviceList.appendTag(device.toTag(true)));
-            nbt.setTag("network_devices", deviceList);
+            ListTag deviceList = new ListTag();
+            foundDevices.forEach(device -> deviceList.add(device.toTag(true)));
+            nbt.put("network_devices", deviceList);
         }
     }
 
     @Override
-    public void processResponse(NBTTagCompound nbt)
+    public void processResponse(CompoundTag nbt)
     {
 
     }

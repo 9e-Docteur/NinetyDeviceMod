@@ -45,10 +45,10 @@ public class GitWebFrame extends Component
         MODULES.put("download", new DownloadModule());
     }
 
-    private Application app;
-    private ScrollableLayout layout;
-    private int width;
-    private int height;
+    private final Application app;
+    private final ScrollableLayout layout;
+    private final int width;
+    private final int height;
 
     private boolean allowRemoteUrls = false;
     private boolean initialized = false;
@@ -235,7 +235,7 @@ public class GitWebFrame extends Component
 
     private void generateLayout(String websiteData, boolean dynamic)
     {
-        Minecraft.getMinecraft().addScheduledTask(() ->
+        Minecraft.getInstance().doRunTask(() ->
         {
             List<ModuleEntry> modules = parseData(websiteData);
             if(modules == null)

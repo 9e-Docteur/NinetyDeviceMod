@@ -1,5 +1,7 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.api.app.listener.ChangeListener;
@@ -8,9 +10,7 @@ import com.mrcrayfish.device.api.app.renderer.ListItemRenderer;
 import com.mrcrayfish.device.api.utils.RenderUtil;
 import com.mrcrayfish.device.core.Laptop;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
@@ -58,19 +58,19 @@ public abstract class ComboBox<T> extends Component
     @Override
     public void init(Layout layout)
     {
-        this.layout.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) -> Gui.drawRect(x, y, x + width, y + height, Color.GRAY.getRGB()));
+        this.layout.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) -> Gui.fill(x, y, x + width, y + height, Color.GRAY.getRGB()));
     }
 
     @Override
-    public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+    public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
     {
         if (this.visible)
         {
-            mc.getTextureManager().bindTexture(Component.COMPONENTS_GUI);
+            mc.getTextureManager().bindForSetup(Component.COMPONENTS_GUI);
 
-            GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-            GlStateManager.blendFunc(770, 771);
+            RenderSystem.enableBlend();
+            //RenderSystem.tryBlendFuncSeparate(770, 771, 1, 0);
+            RenderSystem.blendFunc(770, 771);
 
             Color bgColor = new Color(getColorScheme().getBackgroundColor()).brighter().brighter();
             float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
@@ -82,33 +82,33 @@ public abstract class ComboBox<T> extends Component
             int xOffset = width - height;
 
             /* Corners */
-            RenderUtil.drawRectWithTexture(xPosition + xOffset, yPosition, 96 + i * 5, 12, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(xPosition + height - 2 + xOffset, yPosition, 99 + i * 5, 12, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(xPosition + height - 2 + xOffset, yPosition + height - 2, 99 + i * 5, 15, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(xPosition + xOffset, yPosition + height - 2, 96 + i * 5, 15, 2, 2, 2, 2);
+            RenderUtil.fillWithTexture(xPosition + xOffset, yPosition, 96 + i * 5, 12, 2, 2, 2, 2);
+            RenderUtil.fillWithTexture(xPosition + height - 2 + xOffset, yPosition, 99 + i * 5, 12, 2, 2, 2, 2);
+            RenderUtil.fillWithTexture(xPosition + height - 2 + xOffset, yPosition + height - 2, 99 + i * 5, 15, 2, 2, 2, 2);
+            RenderUtil.fillWithTexture(xPosition + xOffset, yPosition + height - 2, 96 + i * 5, 15, 2, 2, 2, 2);
 
             /* Middles */
-            RenderUtil.drawRectWithTexture(xPosition + 2 + xOffset, yPosition, 98 + i * 5, 12, height - 4, 2, 1, 2);
-            RenderUtil.drawRectWithTexture(xPosition + height - 2 + xOffset, yPosition + 2, 99 + i * 5, 14, 2, height - 4, 2, 1);
-            RenderUtil.drawRectWithTexture(xPosition + 2 + xOffset, yPosition + height - 2, 98 + i * 5, 15, height - 4, 2, 1, 2);
-            RenderUtil.drawRectWithTexture(xPosition + xOffset, yPosition + 2, 96 + i * 5, 14, 2, height - 4, 2, 1);
+            RenderUtil.fillWithTexture(xPosition + 2 + xOffset, yPosition, 98 + i * 5, 12, height - 4, 2, 1, 2);
+            RenderUtil.fillWithTexture(xPosition + height - 2 + xOffset, yPosition + 2, 99 + i * 5, 14, 2, height - 4, 2, 1);
+            RenderUtil.fillWithTexture(xPosition + 2 + xOffset, yPosition + height - 2, 98 + i * 5, 15, height - 4, 2, 1, 2);
+            RenderUtil.fillWithTexture(xPosition + xOffset, yPosition + 2, 96 + i * 5, 14, 2, height - 4, 2, 1);
 
             /* Center */
-            RenderUtil.drawRectWithTexture(xPosition + 2 + xOffset, yPosition + 2, 98 + i * 5, 14, height - 4, height - 4, 1, 1);
+            RenderUtil.fillWithTexture(xPosition + 2 + xOffset, yPosition + 2, 98 + i * 5, 14, height - 4, height - 4, 1, 1);
 
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
             /* Icons */
-            RenderUtil.drawRectWithTexture(xPosition + xOffset + 3, yPosition + 5, 111, 12, 8, 5, 8, 5);
+            RenderUtil.fillWithTexture(xPosition + xOffset + 3, yPosition + 5, 111, 12, 8, 5, 8, 5);
 
             Color boxColor = new Color(getColorScheme().getBackgroundColor());
             Color borderColor = boxColor.darker().darker();
 
             /* Box */
-            drawHorizontalLine(xPosition, xPosition + xOffset, yPosition, borderColor.getRGB());
-            drawHorizontalLine(xPosition, xPosition + xOffset, yPosition + height - 1, borderColor.getRGB());
-            drawVerticalLine(xPosition, yPosition, yPosition + height - 1, borderColor.getRGB());
-            drawRect(xPosition + 1, yPosition + 1, xPosition + xOffset, yPosition + height - 1, boxColor.getRGB());
+            drawHorizontalLine(poseStack,xPosition, xPosition + xOffset, yPosition, borderColor.getRGB());
+            drawHorizontalLine(poseStack,xPosition, xPosition + xOffset, yPosition + height - 1, borderColor.getRGB());
+            drawVerticalLine(poseStack,xPosition, yPosition, yPosition + height - 1, borderColor.getRGB());
+            fill(poseStack, xPosition + 1, yPosition + 1, xPosition + xOffset, yPosition + height - 1, boxColor.getRGB());
 
             if(itemRenderer != null)
             {
@@ -119,8 +119,16 @@ public abstract class ComboBox<T> extends Component
                 RenderUtil.drawStringClipped(value.toString(), xPosition + 3, yPosition + 3, width - 15, Color.WHITE.getRGB(), true);
             }
 
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
+    }
+
+    public void drawVerticalLine(PoseStack pose, int x, int y1, int y2, int rgb) {
+        fill(pose, x, y1, x + 1, y2, rgb);
+    }
+
+    public void drawHorizontalLine(PoseStack pose, int x1, int x2, int y, int rgb) {
+        fill(pose, x1, y, x2, y + 1, rgb);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.mrcrayfish.device.core;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.api.app.Application;
 import com.mrcrayfish.device.api.utils.RenderUtil;
@@ -12,9 +14,8 @@ import com.mrcrayfish.device.programs.system.ApplicationSettings;
 import com.mrcrayfish.device.programs.system.SystemApplication;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -30,12 +31,12 @@ public class TaskBar
 	private static final int APPS_DISPLAYED = MrCrayfishDeviceMod.DEVELOPER_MODE ? 18 : 10;
 	public static final int BAR_HEIGHT = 18;
 
-	private Laptop laptop;
+	private final Laptop laptop;
 	
-	private int offset = 0;
-	private int pingTimer = 0;
+	private final int offset = 0;
+	private final int pingTimer = 0;
 
-	private List<TrayItem> trayItems = new ArrayList<>();
+	private final List<TrayItem> trayItems = new ArrayList<>();
 
 	public TaskBar(Laptop laptop)
 	{
@@ -85,11 +86,11 @@ public class TaskBar
 		trayItems.forEach(TrayItem::tick);
 	}
 	
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, float partialTicks)
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, float partialTicks)
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.75F);
-		GlStateManager.enableBlend();
-		mc.getTextureManager().bindTexture(APP_BAR_GUI);
+		RenderSystem.enableBlend();
+		mc.getTextureManager().bindForSetup(APP_BAR_GUI);
 
 		Color bgColor = new Color(laptop.getSettings().getColorScheme().getBackgroundColor()).brighter().brighter();
 		float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
@@ -97,11 +98,11 @@ public class TaskBar
 		GL11.glColor4f(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
 
 		int trayItemsWidth = trayItems.size() * 14;
-		RenderUtil.drawRectWithTexture(x, y, 0, 0, 1, 18, 1, 18);
-		RenderUtil.drawRectWithTexture(x + 1, y, 1, 0, Laptop.SCREEN_WIDTH - 36 - trayItemsWidth, 18, 1, 18);
-		RenderUtil.drawRectWithTexture(x + Laptop.SCREEN_WIDTH - 35 - trayItemsWidth, y, 2, 0, 35 + trayItemsWidth, 18, 1, 18);
+		RenderUtil.fillWithTexture(x, y, 0, 0, 1, 18, 1, 18);
+		RenderUtil.fillWithTexture(x + 1, y, 1, 0, Laptop.SCREEN_WIDTH - 36 - trayItemsWidth, 18, 1, 18);
+		RenderUtil.fillWithTexture(x + Laptop.SCREEN_WIDTH - 35 - trayItemsWidth, y, 2, 0, 35 + trayItemsWidth, 18, 1, 18);
 
-		GlStateManager.disableBlend();
+		RenderSystem.disableBlend();
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		for(int i = 0; i < APPS_DISPLAYED && i < laptop.installedApps.size(); i++)
@@ -110,12 +111,12 @@ public class TaskBar
 			RenderUtil.drawApplicationIcon(info, x + 2 + i * 16, y + 2);
 			if(laptop.isApplicationRunning(info))
 			{
-				mc.getTextureManager().bindTexture(APP_BAR_GUI);
-				laptop.drawTexturedModalRect(x + 1 + i * 16, y + 1, 35, 0, 16, 16);
+				mc.getTextureManager().bindForSetup(APP_BAR_GUI);
+				laptop.blit(poseStack, x + 1 + i * 16, y + 1, 35, 0, 16, 16);
 			}
 		}
 
-		mc.fontRenderer.drawString(timeToString(mc.player.world.getWorldTime()), x + 334, y + 5, Color.WHITE.getRGB(), true);
+		mc.font.draw(poseStack, timeToString(mc.player.level.getGameTime()), x + 334, y + 5, Color.WHITE.getRGB());
 
 		/* Settings App */
 		int startX = x + 317;
@@ -124,12 +125,12 @@ public class TaskBar
 			int posX = startX - (trayItems.size() - 1 - i) * 14;
 			if(isMouseInside(mouseX, mouseY, posX, y + 2, posX + 13, y + 15))
 			{
-				Gui.drawRect(posX, y + 2, posX + 14, y + 16, new Color(1.0F, 1.0F, 1.0F, 0.1F).getRGB());
+				Gui.fill(poseStack, posX, y + 2, posX + 14, y + 16, new Color(1.0F, 1.0F, 1.0F, 0.1F).getRGB());
 			}
 			trayItems.get(i).getIcon().draw(mc, posX + 2, y + 4);
 		}
 
-		mc.getTextureManager().bindTexture(APP_BAR_GUI);
+		mc.getTextureManager().bindForSetup(APP_BAR_GUI);
 
 		/* Other Apps */
 		if(isMouseInside(mouseX, mouseY, x + 1, y + 1, x + 236, y + 16))
@@ -137,13 +138,13 @@ public class TaskBar
 			int appIndex = (mouseX - x - 1) / 16;
 			if(appIndex >= 0 && appIndex < offset + APPS_DISPLAYED && appIndex < laptop.installedApps.size())
 			{
-				laptop.drawTexturedModalRect(x + appIndex * 16 + 1, y + 1, 35, 0, 16, 16);
-				laptop.drawHoveringText(Collections.singletonList(laptop.installedApps.get(appIndex).getName()), mouseX, mouseY);
+				laptop.blit(poseStack, x + appIndex * 16 + 1, y + 1, 35, 0, 16, 16);
+				laptop.renderTooltip(poseStack, Component.literal(Collections.singletonList(laptop.installedApps.get(appIndex).getName()).toString()), mouseX, mouseY);
 			}
 		}
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		RenderHelper.disableStandardItemLighting();
+		//RenderHelper.disableStandardItemLighting();
 	}
 	
 	public void handleClick(Laptop laptop, int x, int y, int mouseX, int mouseY, int mouseButton) 

@@ -4,9 +4,9 @@ import com.mrcrayfish.device.core.io.FileSystem;
 import com.mrcrayfish.device.core.io.ServerFile;
 import com.mrcrayfish.device.core.io.ServerFolder;
 import com.mrcrayfish.device.core.io.action.FileAction;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
@@ -46,22 +46,22 @@ public abstract class AbstractDrive
         return uuid;
     }
 
-    public ServerFolder getRoot(World world)
+    public ServerFolder getRoot(Level Level)
     {
         return root;
     }
 
-    public FileSystem.Response handleFileAction(FileSystem fileSystem, FileAction action, World world)
+    public FileSystem.Response handleFileAction(FileSystem fileSystem, FileAction action, Level Level)
     {
-        NBTTagCompound actionData = action.getData();
+        CompoundTag actionData = action.getData();
         ServerFolder folder = getFolder(actionData.getString("directory"));
         if(folder != null)
         {
-            NBTTagCompound data = actionData.getCompoundTag("data");
+            CompoundTag data = actionData.getCompound("data");
             switch(action.getType())
             {
                 case NEW:
-                    if(data.hasKey("files", Constants.NBT.TAG_COMPOUND))
+                    if(data.contains("files", Tag.TAG_COMPOUND))
                     {
                         return folder.add(ServerFolder.fromTag(actionData.getString("file_name"), data), actionData.getBoolean("override"));
                     }
@@ -79,7 +79,7 @@ public abstract class AbstractDrive
                     file = folder.getFile(actionData.getString("file_name"));
                     if(file != null)
                     {
-                        return file.setData(actionData.getCompoundTag("data"));
+                        return file.setData(actionData.getCompound("data"));
                     }
                     return FileSystem.createResponse(FileSystem.Status.FILE_INVALID, "File not found on server. Please refresh!");
                 case COPY_CUT:
@@ -87,7 +87,7 @@ public abstract class AbstractDrive
                     if(file != null)
                     {
                         UUID uuid = UUID.fromString(actionData.getString("destination_drive"));
-                        AbstractDrive drive = fileSystem.getAvailableDrives(world, true).get(uuid);
+                        AbstractDrive drive = fileSystem.getAvailableDrives(Level, true).get(uuid);
                         if(drive != null)
                         {
                             ServerFolder destination = drive.getFolder(actionData.getString("destination_folder"));
@@ -124,7 +124,7 @@ public abstract class AbstractDrive
         return FileSystem.createResponse(FileSystem.Status.DRIVE_UNAVAILABLE, "Invalid directory");
     }
 
-    public abstract NBTTagCompound toTag();
+    public abstract CompoundTag toTag();
 
     public abstract Type getType();
 
@@ -184,6 +184,6 @@ public abstract class AbstractDrive
 
     public enum Type
     {
-        INTERNAL, EXTERNAL, NETWORK;
+        INTERNAL, EXTERNAL, NETWORK
     }
 }

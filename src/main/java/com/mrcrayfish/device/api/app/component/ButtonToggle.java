@@ -2,8 +2,7 @@ package com.mrcrayfish.device.api.app.component;
 
 import com.mrcrayfish.device.api.app.IIcon;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-
+import net.minecraft.resources.ResourceLocation;
 public class ButtonToggle extends Button implements RadioGroup.Item
 {
 	protected boolean toggle = false;
@@ -86,7 +85,7 @@ public class ButtonToggle extends Button implements RadioGroup.Item
 
 		if(super.isInside(mouseX, mouseY))
 		{
-			playClickSound(Minecraft.getMinecraft().getSoundHandler());
+			playClickSound(Minecraft.getInstance().getSoundManager());
 			if(group != null)
 			{
 				group.deselect();

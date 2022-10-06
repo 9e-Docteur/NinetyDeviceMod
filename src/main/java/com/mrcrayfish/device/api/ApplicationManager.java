@@ -3,7 +3,7 @@ package com.mrcrayfish.device.api;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.api.app.Application;
 import com.mrcrayfish.device.object.AppInfo;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.*;

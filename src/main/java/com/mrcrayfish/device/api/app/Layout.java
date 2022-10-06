@@ -1,12 +1,15 @@
 package com.mrcrayfish.device.api.app;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.listener.InitListener;
 import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.core.Wrappable;
 import com.mrcrayfish.device.util.GLHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderSystem;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -18,7 +21,7 @@ import java.util.List;
  * in your application to switch interfaces during runtime.
  * <p>
  * Use {@link com.mrcrayfish.device.api.app.Application#setCurrentLayout(Layout)} 
- * inside of {@link Wrappable#init(net.minecraft.nbt.NBTTagCompound)}
+ * inside of {@link Wrappable#init(net.minecraft.nbt.CompoundTag)}
  * to set the current layout for your application.
  * <p>
  * Check out the example applications to get a better understand of
@@ -171,22 +174,22 @@ public class Layout extends Component
 	 * @param y the starting y rendering position (top most)
 	 */
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if(!this.visible)
 			return;
 
 		if(background != null)
 		{
-			background.render(laptop, mc, x, y, width, height, mouseX, mouseY, windowActive);
+			background.render(poseStack, laptop, mc, x, y, width, height, mouseX, mouseY, windowActive);
 		}
 
-		GlStateManager.color(1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderColor(1F, 1.0F, 1.0F, 1.0F);
 		for(Component c : components)
 		{
-			GlStateManager.disableDepth();
+			//RenderSystem.disableDepth();
 			GLHelper.pushScissor(x, y, width, height);
-			c.render(laptop, mc, x + c.left, y + c.top, mouseX, mouseY, windowActive, partialTicks);
+			c.render(poseStack, laptop, mc, x + c.left, y + c.top, mouseX, mouseY, windowActive, partialTicks);
 			GLHelper.popScissor();
 		}
 	}
@@ -377,7 +380,7 @@ public class Layout extends Component
 		 * @param width the width of the layout
 		 * @param height the height of the layout
 		 */
-		void render(Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive);
+		void render(PoseStack poseStack, Screen gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive);
 	}
 
 	public static class Context extends Layout
@@ -390,16 +393,24 @@ public class Layout extends Component
 		}
 
 		@Override
-		public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+		public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 		{
-			super.render(laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
+			super.render(poseStack, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
 			if(borderVisible)
 			{
-				drawHorizontalLine(x, x + width - 1, y, Color.DARK_GRAY.getRGB());
-				drawHorizontalLine(x, x + width - 1, y + height - 1, Color.DARK_GRAY.getRGB());
-				drawVerticalLine(x, y, y + height - 1, Color.DARK_GRAY.getRGB());
-				drawVerticalLine(x + width - 1, y, y + height - 1, Color.DARK_GRAY.getRGB());
+				drawHorizontalLine(poseStack, x, x + width - 1, y, Color.DARK_GRAY.getRGB());
+				drawHorizontalLine(poseStack, x, x + width - 1, y + height - 1, Color.DARK_GRAY.getRGB());
+				drawVerticalLine(poseStack, x, y, y + height - 1, Color.DARK_GRAY.getRGB());
+				drawVerticalLine(poseStack, x + width - 1, y, y + height - 1, Color.DARK_GRAY.getRGB());
 			}
+		}
+
+		public void drawVerticalLine(PoseStack poseStack, int x, int y1, int y2, int rgb) {
+			fill(poseStack,  x, y1, x + 1, y2, rgb);
+		}
+
+		public void drawHorizontalLine(PoseStack poseStack, int x1, int x2, int y, int rgb) {
+			fill(poseStack,  x1, y, x2, y + 1, rgb);
 		}
 
 		public void setBorderVisible(boolean visible)

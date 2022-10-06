@@ -1,5 +1,7 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.listener.ClickListener;
 import com.mrcrayfish.device.api.task.Task;
@@ -8,13 +10,12 @@ import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import scala.actors.threadpool.Arrays;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A component that allows you "access" to the players inventory. Now why access
@@ -41,31 +42,31 @@ public class Inventory extends Component
 	}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) 
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if (this.visible)
 		{
-			GlStateManager.color(1.0F, 1.0F, 1.0F);
-			mc.getTextureManager().bindTexture(CHEST_GUI_TEXTURE);
-			RenderUtil.drawRectWithTexture(xPosition, yPosition, 7, 139, 162, 54, 162, 54);
+			RenderSystem.setShaderColor(1F, 1.0F, 1.0F, 1.0F);
+			mc.getTextureManager().bindForSetup(CHEST_GUI_TEXTURE);
+			RenderUtil.fillWithTexture(xPosition, yPosition, 7, 139, 162, 54, 162, 54);
 
-			InventoryPlayer inventory = mc.player.inventory;
-			for(int i = 9; i < inventory.getSizeInventory() - 4; i++)
+			net.minecraft.world.entity.player.Inventory inventory = mc.player.getInventory();
+			for(int i = 9; i < inventory.getContainerSize() - 4; i++)
 			{
 				int offsetX = (i % 9) * 18;
 				int offsetY = (i / 9) * 18 - 18;
 
 				if(selected == i)
 				{
-					Gui.drawRect(xPosition + offsetX, yPosition + offsetY, xPosition + offsetX + 18, yPosition + offsetY + 18, selectedColor);
+					Gui.fill(poseStack,xPosition + offsetX, yPosition + offsetY, xPosition + offsetX + 18, yPosition + offsetY + 18, selectedColor);
 				}
 
 				if(GuiHelper.isMouseInside(mouseX, mouseY, xPosition + offsetX, yPosition + offsetY, xPosition + offsetX + 17, yPosition + offsetY + 17))
 				{
-					Gui.drawRect(xPosition + offsetX, yPosition + offsetY, xPosition + offsetX + 18, yPosition + offsetY + 18, hoverColor);
+					Gui.fill(poseStack,xPosition + offsetX, yPosition + offsetY, xPosition + offsetX + 18, yPosition + offsetY + 18, hoverColor);
 				}
 
-				ItemStack stack = inventory.getStackInSlot(i);
+				ItemStack stack = inventory.getItem(i);
 				if(!stack.isEmpty())
 				{
 					RenderUtil.renderItem(xPosition + offsetX + 1, yPosition + offsetY + 1, stack, true);
@@ -87,10 +88,11 @@ public class Inventory extends Component
 					int y = yPosition + (i * 18) - 1;
 					if(GuiHelper.isMouseInside(mouseX, mouseY, x, y, x + 18, y + 18))
 					{
-						ItemStack stack = mc.player.inventory.getStackInSlot((i * 9) + j + 9);
+						ItemStack stack = mc.player.getInventory().getItem((i * 9) + j + 9);
 						if(!stack.isEmpty())
 						{
-							laptop.drawHoveringText(Arrays.asList(new String[]{stack.getDisplayName()}), mouseX, mouseY);
+							PoseStack poseStack = new PoseStack();
+							laptop.renderTooltip(poseStack, net.minecraft.network.chat.Component.literal(String.valueOf(stack.getDisplayName())), mouseX, mouseY);
 						}
 						return;
 					}

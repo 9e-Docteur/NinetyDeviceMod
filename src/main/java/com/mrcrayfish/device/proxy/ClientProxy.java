@@ -19,7 +19,7 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -103,7 +103,7 @@ public class ClientProxy extends CommonProxy implements IResourceManagerReloadLi
 
             ResourceLocation identifier = info.getId();
             ResourceLocation iconResource = new ResourceLocation(info.getIcon());
-            String path = "/assets/" + iconResource.getResourceDomain() + "/" + iconResource.getResourcePath();
+            String path = "/assets/" + iconResource.getNamespace() + "/" + iconResource.getPath();
             try
             {
                 InputStream input = ClientProxy.class.getResourceAsStream(path);
@@ -146,7 +146,7 @@ public class ClientProxy extends CommonProxy implements IResourceManagerReloadLi
     @Override
     public Application registerApplication(ResourceLocation identifier, Class<? extends Application> clazz)
     {
-        if("minecraft".equals(identifier.getResourceDomain()))
+        if("minecraft".equals(identifier.getNamespace()))
         {
             throw new IllegalArgumentException("Invalid identifier domain");
         }
@@ -235,7 +235,7 @@ public class ClientProxy extends CommonProxy implements IResourceManagerReloadLi
     }
 
     @Override
-    public void showNotification(NBTTagCompound tag)
+    public void showNotification(CompoundTag tag)
     {
         ClientNotification notification = ClientNotification.loadFromTag(tag);
         notification.push();

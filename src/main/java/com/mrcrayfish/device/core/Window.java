@@ -1,15 +1,15 @@
 package com.mrcrayfish.device.core;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Application;
 import com.mrcrayfish.device.api.app.Dialog;
 import com.mrcrayfish.device.api.utils.RenderUtil;
 import com.mrcrayfish.device.gui.GuiButtonClose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
@@ -29,7 +29,7 @@ public class Window<T extends Wrappable>
 	Window<Dialog> dialogWindow = null;
 	Window<? extends  Wrappable> parent = null;
 	
-	protected GuiButton btnClose;
+	protected GuiButtonClose btnClose;
 	
 	public Window(T wrappable, Laptop laptop)
 	{
@@ -56,9 +56,9 @@ public class Window<T extends Wrappable>
 		}
 	}
 
-	void init(int x, int y, @Nullable NBTTagCompound intent)
+	void init(int x, int y, @Nullable CompoundTag intent)
 	{
-		btnClose = new GuiButtonClose(0, x + offsetX + width - 12, y + offsetY + 1);
+		btnClose = new GuiButtonClose(x + offsetX + width - 12, y + offsetY + 1);
 		content.init(intent);
 	}
 	
@@ -71,7 +71,7 @@ public class Window<T extends Wrappable>
 		content.onTick();
 	}
 	
-	public void render(Laptop gui, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks)
+	public void render(PoseStack poseStack, Laptop gui, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks)
 	{	
 		if(content.isPendingLayoutUpdate())
 		{
@@ -84,34 +84,34 @@ public class Window<T extends Wrappable>
 		}
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		GlStateManager.enableBlend();
-		mc.getTextureManager().bindTexture(WINDOW_GUI);
+		RenderSystem.enableBlend();
+		mc.getTextureManager().bindForSetup(WINDOW_GUI);
 
 		/* Corners */
-		gui.drawTexturedModalRect(x + offsetX, y + offsetY, 0, 0, 1, 13);
-		gui.drawTexturedModalRect(x + offsetX + width - 13, y + offsetY, 2, 0, 13, 13);
-		gui.drawTexturedModalRect(x + offsetX + width - 1, y + offsetY + height - 1, 14, 14, 1, 1);
-		gui.drawTexturedModalRect(x + offsetX, y + offsetY + height - 1, 0, 14, 1, 1);
+		gui.blit(poseStack, x + offsetX, y + offsetY, 0, 0, 1, 13);
+		gui.blit(poseStack, x + offsetX + width - 13, y + offsetY, 2, 0, 13, 13);
+		gui.blit(poseStack, x + offsetX + width - 1, y + offsetY + height - 1, 14, 14, 1, 1);
+		gui.blit(poseStack, x + offsetX, y + offsetY + height - 1, 0, 14, 1, 1);
 		
 		/* Edges */
-		RenderUtil.drawRectWithTexture(x + offsetX + 1, y + offsetY, 1, 0, width - 14, 13, 1, 13);
-		RenderUtil.drawRectWithTexture(x + offsetX + width - 1, y + offsetY + 13, 14, 13, 1, height - 14, 1, 1);
-		RenderUtil.drawRectWithTexture(x + offsetX + 1, y + offsetY + height - 1, 1, 14, width - 2, 1, 13, 1);
-		RenderUtil.drawRectWithTexture(x + offsetX, y + offsetY + 13, 0, 13, 1, height - 14, 1, 1);
+		RenderUtil.fillWithTexture(x + offsetX + 1, y + offsetY, 1, 0, width - 14, 13, 1, 13);
+		RenderUtil.fillWithTexture(x + offsetX + width - 1, y + offsetY + 13, 14, 13, 1, height - 14, 1, 1);
+		RenderUtil.fillWithTexture(x + offsetX + 1, y + offsetY + height - 1, 1, 14, width - 2, 1, 13, 1);
+		RenderUtil.fillWithTexture(x + offsetX, y + offsetY + 13, 0, 13, 1, height - 14, 1, 1);
 		
 		/* Center */
-		RenderUtil.drawRectWithTexture(x + offsetX + 1, y + offsetY + 13, 1, 13, width - 2, height - 14, 13, 1);
+		RenderUtil.fillWithTexture(x + offsetX + 1, y + offsetY + 13, 1, 13, width - 2, height - 14, 13, 1);
 
 		String windowTitle = content.getWindowTitle();
-		if(mc.fontRenderer.getStringWidth(windowTitle) > width - 2 - 13 - 3) // window width, border, close button, padding, padding
+		if(mc.font.width(windowTitle) > width - 2 - 13 - 3) // window width, border, close button, padding, padding
 		{
-			windowTitle = mc.fontRenderer.trimStringToWidth(windowTitle, width - 2 - 13 - 3);
+			windowTitle = mc.font.plainSubstrByWidth(windowTitle, width - 2 - 13 - 3);
 		}
-		mc.fontRenderer.drawString(windowTitle, x + offsetX + 3, y + offsetY + 3, Color.WHITE.getRGB(), true);
+		mc.font.draw(poseStack, windowTitle, x + offsetX + 3, y + offsetY + 3, Color.WHITE.getRGB());
 		
-		btnClose.drawButton(mc, mouseX, mouseY, partialTicks);
+		btnClose.renderButton(poseStack, mouseX, mouseY, partialTicks);
 		
-		GlStateManager.disableBlend();
+		RenderSystem.disableBlend();
 
 		/* Render content */
 		content.render(gui, mc, x + offsetX + 1, y + offsetY + 13, mouseX, mouseY, active && dialogWindow == null, partialTicks);
@@ -120,8 +120,8 @@ public class Window<T extends Wrappable>
         
 		if(dialogWindow != null)
 		{
-			Gui.drawRect(x + offsetX, y + offsetY, x + offsetX + width, y + offsetY + height, Color_WINDOW_DARK);
-			dialogWindow.render(gui, mc, x, y, mouseX, mouseY, active, partialTicks);
+			Gui.fill(poseStack, x + offsetX, y + offsetY, x + offsetX + width, y + offsetY + height, Color_WINDOW_DARK);
+			dialogWindow.render(poseStack, gui, mc, x, y, mouseX, mouseY, active, partialTicks);
 		}
 	}
 
@@ -181,7 +181,7 @@ public class Window<T extends Wrappable>
 	
 	void handleMouseClick(Laptop gui, int x, int y, int mouseX, int mouseY, int mouseButton)
 	{
-		if(btnClose.isMouseOver())
+		if(btnClose.isMouseOver(mouseX, mouseY))
 		{
 			if(content instanceof Application)
 			{

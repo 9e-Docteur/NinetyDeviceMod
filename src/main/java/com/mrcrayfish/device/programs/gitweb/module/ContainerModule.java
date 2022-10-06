@@ -1,15 +1,16 @@
 package com.mrcrayfish.device.programs.gitweb.module;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.api.app.component.Label;
 import com.mrcrayfish.device.api.app.component.Text;
 import com.mrcrayfish.device.programs.gitweb.component.container.ContainerBox;
 import com.mrcrayfish.device.programs.gitweb.component.container.CraftingBox;
 import com.mrcrayfish.device.programs.gitweb.component.GitWebFrame;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 import java.util.Map;
 
@@ -55,7 +56,7 @@ public abstract class ContainerModule extends Module
             if(data.containsKey("title"))
             {
                 String s = GitWebFrame.parseFormatting(data.get("title"));
-                Label label = new Label(TextFormatting.BOLD + s, 5, 5);
+                Label label = new Label(ChatFormatting.BOLD + s, 5, 5);
                 layout.addComponent(label);
             }
             if(data.containsKey("desc"))
@@ -84,9 +85,9 @@ public abstract class ContainerModule extends Module
         {
             try
             {
-                return new ItemStack(JsonToNBT.getTagFromJson(data.get(key)));
+                return new ItemStack((ItemLike) TagParser.parseTag(data.get(key)));
             }
-            catch(NBTException e)
+            catch(CommandSyntaxException e)
             {
                 return ItemStack.EMPTY;
             }

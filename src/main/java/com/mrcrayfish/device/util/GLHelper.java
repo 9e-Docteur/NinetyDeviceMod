@@ -27,7 +27,7 @@ public class GLHelper
             height = y + height > scissor.y + scissor.height ? scissor.y + scissor.height - y : height;
         }
 
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         ScaledResolution resolution = new ScaledResolution(mc);
         int scale = resolution.getScaleFactor();
         GL11.glScissor(x * scale, mc.displayHeight - y * scale - height * scale, Math.max(0, width * scale), Math.max(0, height * scale));

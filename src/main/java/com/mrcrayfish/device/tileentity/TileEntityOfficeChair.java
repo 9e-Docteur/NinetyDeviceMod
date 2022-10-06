@@ -1,14 +1,15 @@
 package com.mrcrayfish.device.tileentity;
 
-import com.mrcrayfish.device.entity.EntitySeat;
+import com.mrcrayfish.device.init.DeviceTileEntites;
 import com.mrcrayfish.device.util.IColored;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 
@@ -17,65 +18,67 @@ import java.util.List;
  */
 public class TileEntityOfficeChair extends TileEntitySync implements IColored
 {
-    private EnumDyeColor color = EnumDyeColor.RED;
+    private DyeColor color = DyeColor.RED;
+
+    public TileEntityOfficeChair(BlockPos p_155229_, BlockState p_155230_) {
+        super(DeviceTileEntites.CHAIR.get(), p_155229_, p_155230_);
+    }
 
     @Override
-    public EnumDyeColor getColor()
+    public DyeColor getColor()
     {
         return color;
     }
 
     @Override
-    public void setColor(EnumDyeColor color)
+    public void setColor(DyeColor color)
     {
         this.color = color;
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound compound)
-    {
-        super.readFromNBT(compound);
-        if(compound.hasKey("color", Constants.NBT.TAG_BYTE))
+    public void deserializeNBT(CompoundTag nbt) {
+        super.deserializeNBT(nbt);
+        if(nbt.contains("color", Tag.TAG_BYTE))
         {
-            color = EnumDyeColor.byMetadata(compound.getByte("color"));
+            color = DyeColor.byFireworkColor(nbt.getByte("color"));
         }
     }
 
     @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
-    {
-        super.writeToNBT(compound);
-        compound.setByte("color", (byte) color.getMetadata());
-        return compound;
+    public CompoundTag serializeNBT() {
+        CompoundTag compoundTag = new CompoundTag();
+        compoundTag.putByte("color", (byte) color.getId());
+        return compoundTag;
     }
 
     @Override
-    public NBTTagCompound writeSyncTag()
+    public CompoundTag writeSyncTag()
     {
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setByte("color", (byte) color.getMetadata());
+        CompoundTag tag = new CompoundTag();
+        tag.putByte("color", (byte) color.getId());
         return tag;
     }
 
-    @SideOnly(Side.CLIENT)
-    public float getRotation()
-    {
-        List<EntitySeat> seats = world.getEntitiesWithinAABB(EntitySeat.class, new AxisAlignedBB(pos));
-        if(!seats.isEmpty())
-        {
-            EntitySeat seat = seats.get(0);
-            if(seat.getControllingPassenger() != null)
-            {
-                if(seat.getControllingPassenger() instanceof EntityLivingBase)
-                {
-                    EntityLivingBase living = (EntityLivingBase) seat.getControllingPassenger();
-                    living.renderYawOffset = living.rotationYaw;
-                    living.prevRenderYawOffset = living.rotationYaw;
-                    return living.rotationYaw;
-                }
-                return seat.getControllingPassenger().rotationYaw;
-            }
-        }
-        return getBlockMetadata() * 90F + 180F;
-    }
+//    @OnlyIn(Dist.CLIENT)
+//    public float getRotation()
+//    {
+//        List<EntitySeat> seats = Level.getEntitiesWithinAABB(EntitySeat.class, new AxisAlignedBB(pos));
+//        if(!seats.isEmpty())
+//        {
+//            EntitySeat seat = seats.get(0);
+//            if(seat.getControllingPassenger() != null)
+//            {
+//                if(seat.getControllingPassenger() instanceof EntityLivingBase)
+//                {
+//                    EntityLivingBase living = (EntityLivingBase) seat.getControllingPassenger();
+//                    living.renderYawOffset = living.rotationYaw;
+//                    living.prevRenderYawOffset = living.rotationYaw;
+//                    return living.rotationYaw;
+//                }
+//                return seat.getControllingPassenger().rotationYaw;
+//            }
+//        }
+//        return getBlockMetadata() * 90F + 180F;
+//    }
 }

@@ -1,13 +1,12 @@
 package com.mrcrayfish.device.programs.system.object;
 
-import net.minecraft.util.ResourceLocation;
-
+import net.minecraft.resources.ResourceLocation;
 /**
  * Author: MrCrayfish
  */
 public class ImageEntry
 {
-    private Type type;
+    private final Type type;
     private ResourceLocation resource;
     private String url;
 
@@ -40,6 +39,6 @@ public class ImageEntry
 
     public enum Type
     {
-        LOCAL, REMOTE;
+        LOCAL, REMOTE
     }
 }

@@ -1,7 +1,7 @@
 package com.mrcrayfish.device.item;
 
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Author: MrCrayfish

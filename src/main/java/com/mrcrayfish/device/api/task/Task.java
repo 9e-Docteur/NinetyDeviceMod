@@ -1,8 +1,8 @@
 package com.mrcrayfish.device.api.task;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 /**
  * <p>A Task is simple implementation that allows you to make calls to the
@@ -10,8 +10,8 @@ import net.minecraft.world.World;
  * client-server like applications, e.g. Emails, Instant Messaging, etc</p> 
  * 
  * <p>Any global variables that are initialized in this class, wont be on the server side.
- * To initialize them, first store the data in the NBT tag provided in {@link #prepareRequest(NBTTagCompound)},
- * then once your Task gets to the server, use {@link #processRequest(NBTTagCompound, World, EntityPlayer)} to
+ * To initialize them, first store the data in the NBT tag provided in {@link #prepareRequest(CompoundTag)},
+ * then once your Task gets to the server, use {@link #processRequest(CompoundTag, Level, Player)} to
  * get the data from the NBT tag parameter. Initialize the variables as normal.
  * 
  * <p>Please check out the example applications to get a better understanding 
@@ -21,8 +21,8 @@ import net.minecraft.world.World;
  */
 public abstract class Task 
 {
-	private String name;
-	private Callback<NBTTagCompound> callback = null;
+	private final String name;
+	private Callback<CompoundTag> callback = null;
 	private boolean success = false;
 	
 	public Task(String name)
@@ -38,7 +38,7 @@ public abstract class Task
 	 * 
 	 * @return this Task instance
 	 */
-	public final Task setCallback(Callback<NBTTagCompound> callback)
+	public final Task setCallback(Callback<CompoundTag> callback)
 	{
 		this.callback = callback;
 		return this;
@@ -49,7 +49,7 @@ public abstract class Task
 	 * 
 	 * @param nbt the response data
 	 */
-	public final void callback(NBTTagCompound nbt)
+	public final void callback(CompoundTag nbt)
 	{
 		if(callback != null)
 		{
@@ -60,7 +60,7 @@ public abstract class Task
 	/**
 	 * Sets that this Task was successful. Should be called
 	 * if your Task produced the correct results, preferably in
-	 * {@link #processRequest(NBTTagCompound, World, EntityPlayer)}
+	 * {@link #processRequest(CompoundTag, Level, Player)}
 	 */
 	public final void setSuccessful()
 	{
@@ -102,16 +102,16 @@ public abstract class Task
 	 * 
 	 * @param nbt The NBT to be sent to the server
 	 */
-	public abstract void prepareRequest(NBTTagCompound nbt);
+	public abstract void prepareRequest(CompoundTag nbt);
 	
 	/**
 	 * Called when the request arrives to the server. Here you can perform actions
-	 * with your request. Data attached to the NBT from {@link Task#prepareRequest(NBTTagCompound nbt)}
+	 * with your request. Data attached to the NBT from {@link Task#prepareRequest(CompoundTag nbt)}
 	 * can be accessed from the NBT tag parameter.
 	 * 
 	 * @param nbt The NBT Tag received from the client
 	 */
-	public abstract void processRequest(NBTTagCompound nbt, World world, EntityPlayer player);
+	public abstract void processRequest(CompoundTag nbt, Level Level, Player player);
 	
 	/**
 	 * Called before the response is sent back to the client. 
@@ -119,7 +119,7 @@ public abstract class Task
 	 * 
 	 * @param nbt The NBT to be sent back to the client
 	 */
-	public abstract void prepareResponse(NBTTagCompound nbt);
+	public abstract void prepareResponse(CompoundTag nbt);
 	
 	/**
 	 * Called when the response arrives to the client. Here you can update data
@@ -128,5 +128,5 @@ public abstract class Task
 	 * 
 	 * @param nbt The NBT Tag received from the server
 	 */
-	public abstract void processResponse(NBTTagCompound nbt);
+	public abstract void processResponse(CompoundTag nbt);
 }

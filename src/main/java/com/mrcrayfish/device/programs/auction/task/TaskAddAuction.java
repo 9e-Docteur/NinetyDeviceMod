@@ -3,10 +3,10 @@ package com.mrcrayfish.device.programs.auction.task;
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.programs.auction.AuctionManager;
 import com.mrcrayfish.device.programs.auction.object.AuctionItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class TaskAddAuction extends Task
 {
@@ -32,25 +32,25 @@ public class TaskAddAuction extends Task
 	}
 
 	@Override
-	public void prepareRequest(NBTTagCompound nbt) 
+	public void prepareRequest(CompoundTag nbt) 
 	{
-		nbt.setInteger("slot", slot);
-		nbt.setInteger("amount", amount);
-		nbt.setInteger("price", price);
-		nbt.setInteger("duration", duration);
+		nbt.putInt("slot", slot);
+		nbt.putInt("amount", amount);
+		nbt.putInt("price", price);
+		nbt.putInt("duration", duration);
 	}
 
 	@Override
-	public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player) 
+	public void processRequest(CompoundTag nbt, Level Level, Player player)
 	{
-		int slot = nbt.getInteger("slot");
-		int amount = nbt.getInteger("amount");
-		int price = nbt.getInteger("price");
-		int duration = nbt.getInteger("duration");
+		int slot = nbt.getInt("slot");
+		int amount = nbt.getInt("amount");
+		int price = nbt.getInt("price");
+		int duration = nbt.getInt("duration");
 		
-		if(slot >= 0 && price >= 0 && slot < player.inventory.getSizeInventory())
+		if(slot >= 0 && price >= 0 && slot < player.getInventory().getContainerSize())
 		{
-			ItemStack real = player.inventory.getStackInSlot(slot);
+			ItemStack real = player.getInventory().getItem(slot);
 			if(real != null)
 			{
 				ItemStack stack = real.copy();
@@ -58,7 +58,7 @@ public class TaskAddAuction extends Task
 				real.shrink(amount);
 				//TODO Test this
 				
-				item = new AuctionItem(stack, price, duration, player.getUniqueID());
+				item = new AuctionItem(stack, price, duration, player.getUUID());
 				
 				AuctionManager.INSTANCE.addItem(item);
 				
@@ -68,7 +68,7 @@ public class TaskAddAuction extends Task
 	}
 
 	@Override
-	public void prepareResponse(NBTTagCompound nbt)
+	public void prepareResponse(CompoundTag nbt)
 	{
 		if(isSucessful())
 		{
@@ -77,7 +77,7 @@ public class TaskAddAuction extends Task
 	}
 
 	@Override
-	public void processResponse(NBTTagCompound nbt) 
+	public void processResponse(CompoundTag nbt) 
 	{
 		if(isSucessful())
 		{

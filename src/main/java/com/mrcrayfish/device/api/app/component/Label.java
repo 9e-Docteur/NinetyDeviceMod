@@ -1,9 +1,9 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.core.Laptop;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 
 import java.awt.*;
 
@@ -12,7 +12,7 @@ public class Label extends Component {
 	protected String text;
 	protected int width;
 	protected boolean shadow = true;
-	protected double scale = 1;
+	protected float scale = 1;
 	protected int alignment = ALIGN_LEFT;
 
 	protected int textColor = Color.WHITE.getRGB();
@@ -31,21 +31,21 @@ public class Label extends Component {
 	}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) 
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if (this.visible)
         {
-			GlStateManager.pushMatrix();
+			poseStack.pushPose();
 			{
-				GlStateManager.translate(xPosition, yPosition, 0);
-				GlStateManager.scale(scale, scale, scale);
+				poseStack.translate(xPosition, yPosition, 0);
+				poseStack.scale(scale, scale, scale);
 				if(alignment == ALIGN_RIGHT)
-					GlStateManager.translate((int) -(mc.fontRenderer.getStringWidth(text) * scale), 0, 0);
+					poseStack.translate((int) -(mc.font.width(text) * scale), 0, 0);
 				if(alignment == ALIGN_CENTER)
-					GlStateManager.translate((int) -(mc.fontRenderer.getStringWidth(text) * scale) / (int) (2 * scale), 0, 0);
-				Laptop.fontRenderer.drawString(text, 0, 0, textColor, shadow);
+					poseStack.translate((int) -(mc.font.width(text) * scale) / (int) (2 * scale), 0, 0);
+				Laptop.fontRenderer.draw(poseStack, text, 0, 0, textColor);
 			}
-			GlStateManager.popMatrix();
+			poseStack.popPose();
         }
 	}
 	
@@ -87,7 +87,7 @@ public class Label extends Component {
 	 */
 	public void setScale(double scale)
 	{
-		this.scale = scale;
+		this.scale = (float) scale;
 	}
 	
 	/**

@@ -3,10 +3,10 @@ package com.mrcrayfish.device.programs.auction.task;
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.programs.auction.AuctionManager;
 import com.mrcrayfish.device.programs.auction.object.AuctionItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,36 +27,36 @@ public class TaskGetAuctions extends Task
 	}
 
 	@Override
-	public void prepareRequest(NBTTagCompound nbt)
+	public void prepareRequest(CompoundTag nbt)
 	{
 		if(seller != null)
 		{
-			nbt.setString("seller", seller.toString());
+			nbt.putString("seller", seller.toString());
 		}
 	}
 
 	@Override
-	public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player)
+	public void processRequest(CompoundTag nbt, Level Level, Player player)
 	{
-		if(nbt.hasKey("seller"))
+		if(nbt.contains("seller"))
 		{
 			seller = UUID.fromString(nbt.getString("seller"));
 		}
 	}
 
 	@Override
-	public void prepareResponse(NBTTagCompound nbt)
+	public void prepareResponse(CompoundTag nbt)
 	{
 		if(seller != null)
 		{
 			List<AuctionItem> items = AuctionManager.INSTANCE.getItemsForSeller(seller);
-			NBTTagList tagList = new NBTTagList();
+			ListTag tagList = new ListTag();
 			items.forEach(i -> {
-				NBTTagCompound itemTag = new NBTTagCompound();
+				CompoundTag itemTag = new CompoundTag();
 				i.writeToNBT(itemTag);
-				tagList.appendTag(itemTag);
+				tagList.add(itemTag);
 			});
-			nbt.setTag("auctionItems", tagList);
+			nbt.put("auctionItems", tagList);
 		}
 		else
 		{
@@ -66,7 +66,7 @@ public class TaskGetAuctions extends Task
 	}
 
 	@Override
-	public void processResponse(NBTTagCompound nbt) {
+	public void processResponse(CompoundTag nbt) {
 		AuctionManager.INSTANCE.readFromNBT(nbt);
 	}
 }

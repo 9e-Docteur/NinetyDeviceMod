@@ -2,8 +2,8 @@ package com.mrcrayfish.device.api.app;
 
 import com.mrcrayfish.device.network.PacketHandler;
 import com.mrcrayfish.device.network.task.MessageNotification;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -20,8 +20,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Notification
 {
-    private IIcon icon;
-    private String title;
+    private final IIcon icon;
+    private final String title;
     private String subTitle;
 
     /**
@@ -54,21 +54,21 @@ public class Notification
      *
      * @return the notification tag
      */
-    public NBTTagCompound toTag()
+    public CompoundTag toTag()
     {
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setString("title", title);
+        CompoundTag tag = new CompoundTag();
+        tag.putString("title", title);
 
         if(!StringUtils.isEmpty(subTitle))
         {
-            tag.setString("subTitle", subTitle);
+            tag.putString("subTitle", subTitle);
         }
 
-        NBTTagCompound tagIcon = new NBTTagCompound();
-        tagIcon.setInteger("ordinal", icon.getOrdinal());
-        tagIcon.setString("className", icon.getClass().getName());
+        CompoundTag tagIcon = new CompoundTag();
+        tagIcon.putInt("ordinal", icon.getOrdinal());
+        tagIcon.putString("className", icon.getClass().getName());
 
-        tag.setTag("icon", tagIcon);
+        tag.put("icon", tagIcon);
 
         return tag;
     }
@@ -78,7 +78,7 @@ public class Notification
      *
      * @param player the target player
      */
-    public void pushTo(EntityPlayerMP player)
+    public void pushTo(ServerPlayer player)
     {
         PacketHandler.INSTANCE.sendTo(new MessageNotification(this), player);
     }

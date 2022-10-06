@@ -1,7 +1,7 @@
 package com.mrcrayfish.device.programs.system.object;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
 import java.awt.*;
 
@@ -104,49 +104,49 @@ public class ColorScheme
         itemHighlightColor = Color.decode("0x757575").getRGB();
     }
 
-    public NBTTagCompound toTag()
+    public CompoundTag toTag()
     {
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("textColor", textColor);
-        tag.setInteger("textSecondaryColor", textSecondaryColor);
-        tag.setInteger("headerColor", headerColor);
-        tag.setInteger("backgroundColor", backgroundColor);
-        tag.setInteger("backgroundSecondaryColor", backgroundSecondaryColor);
-        tag.setInteger("itemBackgroundColor", itemBackgroundColor);
-        tag.setInteger("itemHighlightColor", itemHighlightColor);
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("textColor", textColor);
+        tag.putInt("textSecondaryColor", textSecondaryColor);
+        tag.putInt("headerColor", headerColor);
+        tag.putInt("backgroundColor", backgroundColor);
+        tag.putInt("backgroundSecondaryColor", backgroundSecondaryColor);
+        tag.putInt("itemBackgroundColor", itemBackgroundColor);
+        tag.putInt("itemHighlightColor", itemHighlightColor);
         return tag;
     }
 
-    public static ColorScheme fromTag(NBTTagCompound tag)
+    public static ColorScheme fromTag(CompoundTag tag)
     {
         ColorScheme scheme = new ColorScheme();
-        if(tag.hasKey("textColor", Constants.NBT.TAG_INT))
+        if(tag.contains("textColor", Tag.TAG_INT))
         {
-            scheme.textColor = tag.getInteger("textColor");
+            scheme.textColor = tag.getInt("textColor");
         }
-        if(tag.hasKey("textSecondaryColor", Constants.NBT.TAG_INT))
+        if(tag.contains("textSecondaryColor", Tag.TAG_INT))
         {
-            scheme.textSecondaryColor = tag.getInteger("textSecondaryColor");
+            scheme.textSecondaryColor = tag.getInt("textSecondaryColor");
         }
-        if(tag.hasKey("headerColor", Constants.NBT.TAG_INT))
+        if(tag.contains("headerColor", Tag.TAG_INT))
         {
-            scheme.headerColor = tag.getInteger("headerColor");
+            scheme.headerColor = tag.getInt("headerColor");
         }
-        if(tag.hasKey("backgroundColor", Constants.NBT.TAG_INT))
+        if(tag.contains("backgroundColor", Tag.TAG_INT))
         {
-            scheme.backgroundColor = tag.getInteger("backgroundColor");
+            scheme.backgroundColor = tag.getInt("backgroundColor");
         }
-        if(tag.hasKey("backgroundSecondaryColor", Constants.NBT.TAG_INT))
+        if(tag.contains("backgroundSecondaryColor", Tag.TAG_INT))
         {
-            scheme.backgroundSecondaryColor = tag.getInteger("backgroundSecondaryColor");
+            scheme.backgroundSecondaryColor = tag.getInt("backgroundSecondaryColor");
         }
-        if(tag.hasKey("itemBackgroundColor", Constants.NBT.TAG_INT))
+        if(tag.contains("itemBackgroundColor", Tag.TAG_INT))
         {
-            scheme.itemBackgroundColor = tag.getInteger("itemBackgroundColor");
+            scheme.itemBackgroundColor = tag.getInt("itemBackgroundColor");
         }
-        if(tag.hasKey("itemHighlightColor", Constants.NBT.TAG_INT))
+        if(tag.contains("itemHighlightColor", Tag.TAG_INT))
         {
-            scheme.itemHighlightColor = tag.getInteger("itemHighlightColor");
+            scheme.itemHighlightColor = tag.getInt("itemHighlightColor");
         }
         return scheme;
     }

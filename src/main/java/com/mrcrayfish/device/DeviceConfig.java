@@ -1,10 +1,8 @@
 package com.mrcrayfish.device;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.io.File;
 
@@ -14,125 +12,68 @@ import java.io.File;
  */
 public class DeviceConfig
 {
-    private static final String CATEGORY_LAPTOP = "laptop-settings";
-    private static int pingRate;
+    private static final String CATEGORY_LAPTOP = "laptopSettings";
+    public static final ForgeConfigSpec.IntValue PING_RATE;
 
-    private static final String CATEGORY_ROUTER = "router-settings";
-    private static int signalRange;
-    private static int beaconInterval;
-    private static int maxDevices;
+    private static final String CATEGORY_ROUTER = "routerSettings";
+    public static final ForgeConfigSpec.IntValue SIGNAL_RANGE;
+    public static final ForgeConfigSpec.IntValue BEACON_INTERVAL;
+    public static final ForgeConfigSpec.IntValue MAX_DEVICES;
 
-    private static final String CATEGORY_PRINTING = "printer-settings";
-    private static boolean overridePrintSpeed;
-    private static int customPrintSpeed;
-    private static int maxPaperCount;
+    private static final String CATEGORY_PRINTING = "printerSettings";
+    public static final ForgeConfigSpec.BooleanValue OVERRIDE_PRINT_SPEED;
+    public static final ForgeConfigSpec.IntValue CUSTOM_PRINT_SPEED;
+    public static final ForgeConfigSpec.IntValue MAX_PAPER_COUNT;
 
-    private static final String CATEGORY_PIXEL_PAINTER = "pixel-painter";
-    private static boolean pixelPainterEnable;
-    private static boolean renderPrinted3D;
+    private static final String CATEGORY_PIXEL_PAINTER = "pixelPainter";
+    public static final ForgeConfigSpec.BooleanValue PIXEL_PAINTER_ENABLE;
+    public static final ForgeConfigSpec.BooleanValue RENDER_PRINTED_3D;
 
-    private static Configuration config;
+    public static final ForgeConfigSpec CONFIG;
 
-    public static void load(File file)
-    {
-        config = new Configuration(file);
-        init();
+    static {
+        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        PING_RATE = builder.comment("The amount of ticks the laptop waits until sending another ping to it's connected router.").defineInRange(CATEGORY_LAPTOP + ".pingRate", 20, 1, 200);
+        SIGNAL_RANGE = builder.comment("The range that routers can produce a signal to devices. This is the radius in blocks. Be careful when increasing this value, the performance is O(n^3) and larger numbers will have a bigger impact on the server").defineInRange(CATEGORY_ROUTER + ".signalRange", 20, 10, 100);
+        BEACON_INTERVAL = builder.comment("The amount of ticks the router waits before sending out a beacon signal. Higher number will increase performance but devices won't know as quick if they lost connection.").defineInRange(CATEGORY_ROUTER + ".beaconInterval", 20, 1, 200);
+        MAX_DEVICES = builder.comment("The maximum amount of devices that can be connected to the router.").defineInRange(CATEGORY_ROUTER + ".maxDevices", 16, 1, 64);
+        OVERRIDE_PRINT_SPEED = builder.comment("If enable, overrides all printing times with customPrintSpeed property").define(CATEGORY_PRINTING + ".overridePrintSpeed", false);
+        CUSTOM_PRINT_SPEED = builder.comment("The amount of seconds it takes to print a page. This is overridden if overridePrintSpeed is enabled.").defineInRange(CATEGORY_PRINTING + ".customPrintSpeed", 20, 1, 600);
+        MAX_PAPER_COUNT = builder.comment("The maximum amount of paper that can be used in the printer.").defineInRange(CATEGORY_PRINTING + ".maxPaperCount", 64, 0, 99);
+        PIXEL_PAINTER_ENABLE = builder.comment("Enable or disable the Pixel Painter app.").define(CATEGORY_PIXEL_PAINTER + ".enabled", true);
+        RENDER_PRINTED_3D = builder.comment("Should the pixels on printed pictures be render in 3D? Warning, this will decrease the performance of the game. You shouldn't enable it if you have a slow computer.").define(CATEGORY_PIXEL_PAINTER + ".renderPrintedIn3d", false);
+
+
+        CONFIG = builder.build();
     }
 
-    private static void init()
-    {
-        pingRate = config.get(CATEGORY_LAPTOP, "pingRate", 20, "The amount of ticks the laptop waits until sending another ping to it's connected router.", 1, 200).getInt();
+    // TODO *** Add read/write of synchronization tags of the config file if needed ***
 
-        signalRange = config.get(CATEGORY_ROUTER, "signalRange", 20, "The range that routers can produce a signal to devices. This is the radius in blocks. Be careful when increasing this value, the performance is O(n^3) and larger numbers will have a bigger impact on the server", 10, 100).getInt();
-        beaconInterval = config.get(CATEGORY_ROUTER, "beaconInterval", 20, "The amount of ticks the router waits before sending out a beacon signal. Higher number will increase performance but devices won't know as quick if they lost connection.", 1, 200).getInt();
-        maxDevices = config.get(CATEGORY_ROUTER, "maxDevices", 16, "The maximum amount of devices that can be connected to the router.", 1, 64).getInt();
-
-        overridePrintSpeed = config.get(CATEGORY_PRINTING, "overridePrintSpeed", false, "If enable, overrides all printing times with customPrintSpeed property").getBoolean();
-        customPrintSpeed = config.get(CATEGORY_PRINTING, "customPrintSpeed", 20, "The amount of seconds it should take for the printer to addToQueue a document", 1, 600).getInt();
-        maxPaperCount = config.get(CATEGORY_PRINTING, "maxPaperCount", 64, "The amount of paper that can be loaded into the printer", 0, 99).getInt();
-
-        pixelPainterEnable = config.get(CATEGORY_PIXEL_PAINTER, "enabled", true, "Enable or disable this app").getBoolean();
-        renderPrinted3D = config.get(CATEGORY_PIXEL_PAINTER, "render-printed-in-3d", false, "Should the pixels on printed pictures render in 3D. Warning, this will decrease the performance of the game. You should not enable if you have a slow computer!").getBoolean();
-
-        config.save();
+    public static void readSyncTag(CompoundTag tag) {
+        if (tag.contains("pingRate", Tag.TAG_INT)) PING_RATE.set(tag.getInt("pingRate"));
+        if (tag.contains("signalRange", Tag.TAG_INT)) SIGNAL_RANGE.set(tag.getInt("signalRange"));
     }
 
-    public static void readSyncTag(NBTTagCompound tag)
-    {
-        if(tag.hasKey("pingRate", Constants.NBT.TAG_INT))
-        {
-            pingRate = tag.getInteger("pingRate");
-        }
-        if(tag.hasKey("signalRange", Constants.NBT.TAG_INT))
-        {
-            signalRange = tag.getInteger("signalRange");
-        }
-    }
-
-    public static NBTTagCompound writeSyncTag()
-    {
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setInteger("pingRate", pingRate);
-        tag.setInteger("signalRange", signalRange);
+    public static CompoundTag writeSyncTag() {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("pingRate", PING_RATE.get());
+        tag.putInt("signalRange", SIGNAL_RANGE.get());
         return tag;
     }
 
-    public static void restore()
-    {
-        init();
+    public static void init() {
+
     }
 
-    @SubscribeEvent
-    public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent event)
-    {
-        if(event.getModID().equals(Reference.MOD_ID))
-        {
-            init();
-        }
+    public static void register(Object context) {
+        throw new AssertionError();
+    }
+    public static void restore() {
+        // NO-OP
     }
 
-    public static int getPingRate()
-    {
-        return pingRate;
+    public void save() {
+        CONFIG.save();
     }
 
-    public static int getSignalRange()
-    {
-        return signalRange;
-    }
-
-    public static int getBeaconInterval()
-    {
-        return beaconInterval;
-    }
-
-    public static int getMaxDevices()
-    {
-        return maxDevices;
-    }
-
-    public static boolean isOverridePrintSpeed()
-    {
-        return overridePrintSpeed;
-    }
-
-    public static int getCustomPrintSpeed()
-    {
-        return customPrintSpeed;
-    }
-
-    public static int getMaxPaperCount()
-    {
-        return maxPaperCount;
-    }
-
-    public static boolean isPixelPainterEnable()
-    {
-        return pixelPainterEnable;
-    }
-
-    public static boolean isRenderPrinted3D()
-    {
-        return renderPrinted3D;
-    }
 }

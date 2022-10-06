@@ -1,17 +1,18 @@
 package com.mrcrayfish.device.programs.auction.object;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 import java.util.UUID;
 
 public class AuctionItem
 {
-	private UUID id;
-	private ItemStack stack;
-	private int price;
+	private final UUID id;
+	private final ItemStack stack;
+	private final int price;
 	private long timeLeft;
-	private UUID sellerId;
+	private final UUID sellerId;
 	
 	public AuctionItem(ItemStack stack, int price, long timeLeft, UUID sellerId)
 	{
@@ -74,23 +75,23 @@ public class AuctionItem
 		this.timeLeft = 0;
 	}
 	
-	public void writeToNBT(NBTTagCompound tag)
+	public void writeToNBT(CompoundTag tag)
 	{
-		tag.setString("id", id.toString());
-		NBTTagCompound item = new NBTTagCompound();
-		stack.writeToNBT(item);
-		tag.setTag("item", item);
-		tag.setInteger("price", price);
-		tag.setLong("time", timeLeft);
-		tag.setString("seller", sellerId.toString());
+		tag.putString("id", id.toString());
+		CompoundTag item = new CompoundTag();
+		stack.save(item);
+		tag.put("item", item);
+		tag.putInt("price", price);
+		tag.putLong("time", timeLeft);
+		tag.putString("seller", sellerId.toString());
 	}
 	
-	public static AuctionItem readFromNBT(NBTTagCompound tag)
+	public static AuctionItem readFromNBT(CompoundTag tag)
 	{
 		UUID id = UUID.fromString(tag.getString("id"));
-		NBTTagCompound item = tag.getCompoundTag("item");
-		ItemStack stack = new ItemStack(item);
-		int price = tag.getInteger("price");
+		CompoundTag item = tag.getCompound("item");
+		ItemStack stack = new ItemStack((ItemLike) item);
+		int price = tag.getInt("price");
 		long timeLeft = tag.getLong("time");
 		UUID sellerId = UUID.fromString(tag.getString("seller"));
 		return new AuctionItem(id, stack, price, timeLeft, sellerId);

@@ -4,7 +4,7 @@ import com.mrcrayfish.device.tileentity.TileEntityRouter;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.Level.Level;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -38,11 +38,10 @@ public class MessageSyncBlock implements IMessage, IMessageHandler<MessageSyncBl
     @Override
     public MessageSyncBlock onMessage(MessageSyncBlock message, MessageContext ctx)
     {
-        World world = ctx.getServerHandler().player.world;
-        TileEntity tileEntity = world.getTileEntity(message.routerPos);
-        if(tileEntity instanceof TileEntityRouter)
+        Level Level = ctx.getServerHandler().player.Level;
+        TileEntity tileEntity = Level.getBlockEntity(message.routerPos);
+        if(tileEntity instanceof TileEntityRouter tileEntityRouter)
         {
-            TileEntityRouter tileEntityRouter = (TileEntityRouter) tileEntity;
             tileEntityRouter.syncDevicesToClient();
         }
         return null;

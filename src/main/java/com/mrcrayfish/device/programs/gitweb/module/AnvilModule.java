@@ -2,7 +2,7 @@ package com.mrcrayfish.device.programs.gitweb.module;
 
 import com.mrcrayfish.device.programs.gitweb.component.container.AnvilBox;
 import com.mrcrayfish.device.programs.gitweb.component.container.ContainerBox;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;

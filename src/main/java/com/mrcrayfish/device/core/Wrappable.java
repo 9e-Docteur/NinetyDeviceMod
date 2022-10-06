@@ -2,7 +2,7 @@ package com.mrcrayfish.device.core;
 
 import com.mrcrayfish.device.api.app.Dialog;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 
@@ -17,7 +17,7 @@ public abstract class Wrappable
 	 * <code>super.init()</code>
 	 * @param intent
 	 */
-	public abstract void init(@Nullable NBTTagCompound intent);
+	public abstract void init(@Nullable CompoundTag intent);
 
 	/**
 	 * When the games ticks. Note if you override, make sure you call this super

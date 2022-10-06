@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.programs.gitweb.module;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.programs.gitweb.component.GitWebFrame;
 import net.minecraft.client.Minecraft;
@@ -12,6 +13,7 @@ import java.util.Map;
  */
 public class DividerModule extends Module
 {
+    private final PoseStack poseStack = new PoseStack();
     @Override
     public String[] getRequiredData()
     {
@@ -36,9 +38,9 @@ public class DividerModule extends Module
         if(data.containsKey("color"))
         {
             int color = Integer.parseInt(data.get("color"));
-            layout.setBackground((gui, mc, x, y, width1, height, mouseX, mouseY, windowActive) ->
+            layout.setBackground((poseStack, gui, mc, x, y, width1, height, mouseX, mouseY, windowActive) ->
             {
-                Gui.drawRect(x, y, x + width1, y + height, color);
+                Gui.fill(poseStack, x, y, x + width1, y + height, color);
             });
         }
     }

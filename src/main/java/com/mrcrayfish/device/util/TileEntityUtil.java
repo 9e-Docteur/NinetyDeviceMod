@@ -1,12 +1,15 @@
 package com.mrcrayfish.device.util;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.texture.Tickable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
 
-public class TileEntityUtil 
+public class TileEntityUtil
 {
-	public static void markBlockForUpdate(World world, BlockPos pos)
+	public static void markBlockForUpdate(Level level, BlockPos pos)
 	{
-		world.notifyBlockUpdate(pos, world.getBlockState(pos), world.getBlockState(pos), 3);
+		level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), 3);
 	}
 }

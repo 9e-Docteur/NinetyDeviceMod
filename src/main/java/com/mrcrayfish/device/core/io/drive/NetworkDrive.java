@@ -3,10 +3,10 @@ package com.mrcrayfish.device.core.io.drive;
 import com.mrcrayfish.device.core.io.FileSystem;
 import com.mrcrayfish.device.core.io.ServerFolder;
 import com.mrcrayfish.device.core.io.action.FileAction;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 
@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
  */
 public final class NetworkDrive extends AbstractDrive
 {
-    private BlockPos pos;
+    private final BlockPos pos;
 
     public NetworkDrive(String name, BlockPos pos)
     {
@@ -26,32 +26,30 @@ public final class NetworkDrive extends AbstractDrive
 
     @Nullable
     @Override
-    public ServerFolder getRoot(World world)
+    public ServerFolder getRoot(Level Level)
     {
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if(tileEntity instanceof Interface)
+        BlockEntity tileEntity = Level.getBlockEntity(pos);
+        if(tileEntity instanceof Interface impl)
         {
-            Interface impl = (Interface) tileEntity;
             AbstractDrive drive = impl.getDrive();
             if(drive != null)
             {
-                return drive.getRoot(world);
+                return drive.getRoot(Level);
             }
         }
         return null;
     }
 
     @Override
-    public FileSystem.Response handleFileAction(FileSystem fileSystem, FileAction action, World world)
+    public FileSystem.Response handleFileAction(FileSystem fileSystem, FileAction action, Level Level)
     {
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if(tileEntity instanceof Interface)
+        BlockEntity tileEntity = Level.getBlockEntity(pos);
+        if(tileEntity instanceof Interface impl)
         {
-            Interface impl = (Interface) tileEntity;
             AbstractDrive drive = impl.getDrive();
-            if(drive.handleFileAction(fileSystem, action, world).getStatus() == FileSystem.Status.SUCCESSFUL)
+            if(drive.handleFileAction(fileSystem, action, Level).getStatus() == FileSystem.Status.SUCCESSFUL)
             {
-                tileEntity.markDirty();
+                tileEntity.setChanged();
                 return FileSystem.createSuccessResponse();
             }
         }
@@ -72,7 +70,7 @@ public final class NetworkDrive extends AbstractDrive
     }
 
     @Override
-    public NBTTagCompound toTag()
+    public CompoundTag toTag()
     {
         return null;
     }

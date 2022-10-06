@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.programs.system.component;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.ApplicationManager;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.Icons;
@@ -16,7 +17,7 @@ import com.mrcrayfish.device.programs.system.object.RemoteEntry;
 import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -27,14 +28,14 @@ import java.util.List;
  */
 public class AppGrid extends Component
 {
-    private int padding = 5;
-    private int horizontalItems;
-    private int verticalItems;
-    private List<AppEntry> entries = new ArrayList<>();
-    private ApplicationAppStore store;
+    private final int padding = 5;
+    private final int horizontalItems;
+    private final int verticalItems;
+    private final List<AppEntry> entries = new ArrayList<>();
+    private final ApplicationAppStore store;
 
-    private int itemWidth;
-    private int itemHeight;
+    private final int itemWidth;
+    private final int itemHeight;
 
     private long lastClick = 0;
     private int clickedIndex;
@@ -67,7 +68,7 @@ public class AppGrid extends Component
     }
 
     @Override
-    protected void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+    protected void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
     {
         int size = Math.min(entries.size(), verticalItems * horizontalItems);
         for(int i = 0; i < size; i++)
@@ -76,8 +77,8 @@ public class AppGrid extends Component
             int itemY = y + (i / horizontalItems) * (itemHeight + padding) + padding;
             if(GuiHelper.isMouseWithin(mouseX, mouseY, itemX, itemY, itemWidth, itemHeight))
             {
-                Gui.drawRect(itemX, itemY, itemX + itemWidth, itemY + itemHeight, Color.GRAY.getRGB());
-                Gui.drawRect(itemX + 1, itemY + 1, itemX + itemWidth - 1, itemY + itemHeight - 1, Laptop.getSystem().getSettings().getColorScheme().getItemBackgroundColor());
+                Gui.fill(poseStack, itemX, itemY, itemX + itemWidth, itemY + itemHeight, Color.GRAY.getRGB());
+                Gui.fill(poseStack, itemX + 1, itemY + 1, itemX + itemWidth - 1, itemY + itemHeight - 1, Laptop.getSystem().getSettings().getColorScheme().getItemBackgroundColor());
             }
         }
     }
@@ -131,17 +132,15 @@ public class AppGrid extends Component
         Layout layout = new Layout(left, top, itemWidth, itemHeight);
 
         int iconOffset = (itemWidth - 14 * 3) / 2;
-        if(entry instanceof LocalEntry)
+        if(entry instanceof LocalEntry localEntry)
         {
-            LocalEntry localEntry = (LocalEntry) entry;
             Image image = new Image(iconOffset, padding, 14 * 3, 14 * 3, localEntry.getInfo().getIconU(), localEntry.getInfo().getIconV(), 14, 14, 224, 224, Laptop.ICON_TEXTURES);
             layout.addComponent(image);
         }
-        else if(entry instanceof RemoteEntry)
+        else if(entry instanceof RemoteEntry remoteEntry)
         {
-            RemoteEntry remoteEntry = (RemoteEntry) entry;
             ResourceLocation resource = new ResourceLocation(remoteEntry.getId());
-            Image image = new Image(iconOffset, padding, 14 * 3, 14 * 3, ApplicationAppStore.CERTIFIED_APPS_URL + "/assets/" + resource.getResourceDomain() + "/" + resource.getResourcePath() + "/icon.png");
+            Image image = new Image(iconOffset, padding, 14 * 3, 14 * 3, ApplicationAppStore.CERTIFIED_APPS_URL + "/assets/" + resource.getNamespace() + "/" + resource.getPath() + "/icon.png");
             layout.addComponent(image);
         }
 

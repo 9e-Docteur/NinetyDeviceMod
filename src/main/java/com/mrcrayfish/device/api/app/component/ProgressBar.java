@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.core.Laptop;
 import net.minecraft.client.Minecraft;
@@ -32,14 +33,14 @@ public class ProgressBar extends Component
 	}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if (this.visible)
         {
 			Color bgColor = new Color(getColorScheme().getBackgroundColor());
-			drawRect(xPosition, yPosition, xPosition + width, yPosition + height, bgColor.darker().darker().getRGB());
-			drawRect(xPosition + 1, yPosition + 1, xPosition + width - 1, yPosition + height - 1, bgColor.getRGB());
-			drawRect(xPosition + 2, yPosition + 2, xPosition + 2 + getProgressScaled(), yPosition + height - 2, bgColor.brighter().brighter().getRGB());
+			fill(poseStack,xPosition, yPosition, xPosition + width, yPosition + height, bgColor.darker().darker().getRGB());
+			fill(poseStack,xPosition + 1, yPosition + 1, xPosition + width - 1, yPosition + height - 1, bgColor.getRGB());
+			fill(poseStack,xPosition + 2, yPosition + 2, xPosition + 2 + getProgressScaled(), yPosition + height - 2, bgColor.brighter().brighter().getRGB());
         }
 	}
 	

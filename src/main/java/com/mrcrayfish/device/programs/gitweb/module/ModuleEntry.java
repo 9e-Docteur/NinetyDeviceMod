@@ -7,8 +7,8 @@ import java.util.Map;
  */
 public class ModuleEntry
 {
-    private Module module;
-    private Map<String, String> data;
+    private final Module module;
+    private final Map<String, String> data;
 
     public ModuleEntry(Module module, Map<String, String> data)
     {

@@ -1,10 +1,11 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.IIcon;
 import com.mrcrayfish.device.core.Laptop;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
 
 import java.awt.*;
 
@@ -27,17 +28,17 @@ public class TextField extends TextArea
 	}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if(icon != null)
 		{
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			Color bgColor = new Color(color(backgroundColor, getColorScheme().getBackgroundColor()));
-			Gui.drawRect(x, y, x + 15, y + 16, bgColor.darker().darker().getRGB());
-			Gui.drawRect(x + 1, y + 1, x + 15, y + 15, bgColor.brighter().getRGB());
+			Gui.fill(poseStack, x, y, x + 15, y + 16, bgColor.darker().darker().getRGB());
+			Gui.fill(poseStack,x + 1, y + 1, x + 15, y + 15, bgColor.brighter().getRGB());
 			icon.draw(mc, x + 3, y + 3);
 		}
-		super.render(laptop, mc, x + (icon != null ? 15 : 0), y, mouseX, mouseY, windowActive, partialTicks);
+		super.render(poseStack, laptop, mc, x + (icon != null ? 15 : 0), y, mouseX, mouseY, windowActive, partialTicks);
 	}
 
 	@Override

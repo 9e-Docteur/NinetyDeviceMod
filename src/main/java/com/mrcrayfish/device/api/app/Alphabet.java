@@ -1,7 +1,7 @@
 package com.mrcrayfish.device.api.app;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;

@@ -1,10 +1,10 @@
 package com.mrcrayfish.device.api.print;
 
 import com.mrcrayfish.device.init.DeviceBlocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
@@ -33,28 +33,28 @@ public interface IPrint
      * Converts print into an NBT tag compound. Used for the renderer.
      * @return nbt form of print
      */
-    NBTTagCompound toTag();
+    CompoundTag toTag();
 
-    void fromTag(NBTTagCompound tag);
+    void fromTag(CompoundTag tag);
 
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     Class<? extends Renderer> getRenderer();
 
-    static NBTTagCompound writeToTag(IPrint print)
+    static CompoundTag writeToTag(IPrint print)
     {
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setString("type", PrintingManager.getPrintIdentifier(print));
-        tag.setTag("data", print.toTag());
+        CompoundTag tag = new CompoundTag();
+        tag.putString("type", PrintingManager.getPrintIdentifier(print));
+        tag.put("data", print.toTag());
         return tag;
     }
 
     @Nullable
-    static IPrint loadFromTag(NBTTagCompound tag)
+    static IPrint loadFromTag(CompoundTag tag)
     {
         IPrint print = PrintingManager.getPrint(tag.getString("type"));
         if(print != null)
         {
-            print.fromTag(tag.getCompoundTag("data"));
+            print.fromTag(tag.getCompound("data"));
             return print;
         }
         return null;
@@ -62,24 +62,24 @@ public interface IPrint
 
     static ItemStack generateItem(IPrint print)
     {
-        NBTTagCompound blockEntityTag = new NBTTagCompound();
-        blockEntityTag.setTag("print", writeToTag(print));
+        CompoundTag blockEntityTag = new CompoundTag();
+        blockEntityTag.put("print", writeToTag(print));
 
-        NBTTagCompound itemTag = new NBTTagCompound();
-        itemTag.setTag("BlockEntityTag", blockEntityTag);
+        CompoundTag itemTag = new CompoundTag();
+        itemTag.put("BlockEntityTag", blockEntityTag);
 
         ItemStack stack = new ItemStack(DeviceBlocks.PAPER);
-        stack.setTagCompound(itemTag);
+        stack.put(itemTag);
 
         if(print.getName() != null && !print.getName().isEmpty())
         {
-            stack.setStackDisplayName(print.getName());
+            stack.setHoverName(print.getName());
         }
         return stack;
     }
 
     interface Renderer
     {
-        boolean render(NBTTagCompound data);
+        boolean render(CompoundTag data);
     }
 }

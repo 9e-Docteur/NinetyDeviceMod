@@ -2,11 +2,12 @@ package com.mrcrayfish.device.core.network.task;
 
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.tileentity.TileEntityNetworkDevice;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * Author: MrCrayfish
@@ -28,18 +29,17 @@ public class TaskPing extends Task
     }
 
     @Override
-    public void prepareRequest(NBTTagCompound nbt)
+    public void prepareRequest(CompoundTag nbt)
     {
-        nbt.setLong("sourceDevicePos", sourceDevicePos.toLong());
+        nbt.putLong("sourceDevicePos", sourceDevicePos.asLong());
     }
 
     @Override
-    public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player)
+    public void processRequest(CompoundTag nbt, Level Level, Player player)
     {
-        TileEntity tileEntity = world.getTileEntity(BlockPos.fromLong(nbt.getLong("sourceDevicePos")));
-        if(tileEntity instanceof TileEntityNetworkDevice)
+        BlockEntity tileEntity = Level.getBlockEntity(BlockPos.of(nbt.getLong("sourceDevicePos")));
+        if(tileEntity instanceof TileEntityNetworkDevice tileEntityNetworkDevice)
         {
-            TileEntityNetworkDevice tileEntityNetworkDevice = (TileEntityNetworkDevice) tileEntity;
             if(tileEntityNetworkDevice.isConnected())
             {
                 this.strength = tileEntityNetworkDevice.getSignalStrength();
@@ -49,16 +49,16 @@ public class TaskPing extends Task
     }
 
     @Override
-    public void prepareResponse(NBTTagCompound nbt)
+    public void prepareResponse(CompoundTag nbt)
     {
         if(this.isSucessful())
         {
-            nbt.setInteger("strength", strength);
+            nbt.putInt("strength", strength);
         }
     }
 
     @Override
-    public void processResponse(NBTTagCompound nbt)
+    public void processResponse(CompoundTag nbt)
     {
 
     }

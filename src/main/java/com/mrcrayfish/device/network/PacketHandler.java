@@ -2,17 +2,19 @@ package com.mrcrayfish.device.network;
 
 import com.mrcrayfish.device.Reference;
 import com.mrcrayfish.device.network.task.*;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 public class PacketHandler
 {
-	public static final SimpleNetworkWrapper INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(Reference.MOD_ID);
+	public static final SimpleChannel simpleChannel;
 
 	public static void init()
 	{
-		INSTANCE.registerMessage(MessageRequest.class, MessageRequest.class, 1, Side.SERVER);
+		SimpleChannel INSTANCE = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(Reference.MOD_ID, "messages")).networkProtocolVersion(() -> "1.0").clientAcceptedVersions(s -> true).serverAcceptedVersions(s -> true).simpleChannel();
+		INSTANCE = simpleChannel;
+		INSTANCE.registerMessage(1, MessageRequest.class, MessageRequest::toBytes, MessageRequest::new, MessageRequest::onMessage);
 		INSTANCE.registerMessage(MessageResponse.class, MessageResponse.class, 2, Side.CLIENT);
 		INSTANCE.registerMessage(MessageSyncApplications.class, MessageSyncApplications.class, 3, Side.CLIENT);
 		INSTANCE.registerMessage(MessageSyncConfig.class, MessageSyncConfig.class, 4, Side.CLIENT);

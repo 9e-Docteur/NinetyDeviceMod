@@ -3,12 +3,10 @@ package com.mrcrayfish.device.programs.example.task;
 import com.mrcrayfish.device.api.app.Icons;
 import com.mrcrayfish.device.api.app.Notification;
 import com.mrcrayfish.device.api.task.Task;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 
@@ -23,30 +21,30 @@ public class TaskNotificationTest extends Task
     }
 
     @Override
-    public void prepareRequest(NBTTagCompound nbt)
+    public void prepareRequest(CompoundTag nbt)
     {
 
     }
 
     @Override
-    public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player)
+    public void processRequest(CompoundTag nbt, Level Level, Player player)
     {
         Notification notification = new Notification(Icons.MAIL, "New Email!", "Check your inbox");
-        notification.pushTo((EntityPlayerMP) player);
+        notification.pushTo((ServerPlayer) player);
 
        /* MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
-        List<EntityPlayerMP> players = server.getPlayerList().getPlayers();
+        List<PlayerMP> players = server.getPlayerList().getPlayers();
         players.forEach(notification::pushTo);*/
     }
 
     @Override
-    public void prepareResponse(NBTTagCompound nbt)
+    public void prepareResponse(CompoundTag nbt)
     {
 
     }
 
     @Override
-    public void processResponse(NBTTagCompound nbt)
+    public void processResponse(CompoundTag nbt)
     {
 
     }

@@ -1,5 +1,7 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.interfaces.IHighlight;
 import com.mrcrayfish.device.api.app.listener.KeyListener;
@@ -7,16 +9,11 @@ import com.mrcrayfish.device.api.utils.RenderUtil;
 import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.util.GLHelper;
 import com.mrcrayfish.device.util.GuiHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Font;;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ChatAllowedCharacters;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextFormatting;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -36,10 +33,10 @@ public class TextArea extends Component
 		{
 			joiner.add(s);
 		}
-		SPLIT_REGEX = String.format(UNFORMATTED_SPLIT, "(" + joiner.toString() + ")");
+		SPLIT_REGEX = String.format(UNFORMATTED_SPLIT, "(" + joiner + ")");
 	}
 
-	protected FontRenderer fontRenderer;
+	protected Font fontRenderer;
 
 	protected String text = "";
 	protected String placeholder = null;
@@ -88,7 +85,7 @@ public class TextArea extends Component
 		this.fontRenderer = Laptop.fontRenderer;
 		this.width = width;
 		this.height = height;
-		this.visibleLines = (int) Math.floor((height - padding * 2 + 1) / fontRenderer.FONT_HEIGHT);
+		this.visibleLines = (int) Math.floor((height - padding * 2 + 1) / fontRenderer.lineHeight);
 		this.lines.add("");
 	}
 
@@ -99,19 +96,19 @@ public class TextArea extends Component
 	}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if (this.visible)
 		{
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
 			Color bgColor = new Color(color(backgroundColor, getColorScheme().getBackgroundColor()));
-			Gui.drawRect(x, y, x + width, y + height, bgColor.darker().darker().getRGB());
-			Gui.drawRect(x + 1, y + 1, x + width - 1, y + height - 1, bgColor.getRGB());
+			Gui.fill(poseStack, x, y, x + width, y + height, bgColor.darker().darker().getRGB());
+			Gui.fill(poseStack, x + 1, y + 1, x + width - 1, y + height - 1, bgColor.getRGB());
 
 			if(!isFocused && placeholder != null && (lines.isEmpty() || (lines.size() == 1 && lines.get(0).isEmpty())))
 			{
-				GlStateManager.enableBlend();
+				RenderSystem.enableBlend();
 				RenderUtil.drawStringClipped(placeholder, x + padding, y + padding, width - padding * 2, placeholderColor, false);
 			}
 
@@ -120,28 +117,28 @@ public class TextArea extends Component
 			{
 				float scrollPercentage = (verticalScroll + verticalOffset) / (float) (lines.size() - visibleLines);
 				float pixelsPerUnit = (float) maxLineWidth / (float) (width - padding * 2);
-				int scrollX = MathHelper.clamp(horizontalScroll + (int)(horizontalOffset * pixelsPerUnit), 0, Math.max(0, maxLineWidth - (width - padding * 2)));
+				int scrollX = Mth.clamp(horizontalScroll + (int)(horizontalOffset * pixelsPerUnit), 0, Math.max(0, maxLineWidth - (width - padding * 2)));
 				int scrollY = (int) ((lines.size() - visibleLines) * (scrollPercentage));
-				int lineY = i + MathHelper.clamp(scrollY, 0, Math.max(0, lines.size() - visibleLines));
+				int lineY = i + Mth.clamp(scrollY, 0, Math.max(0, lines.size() - visibleLines));
 				if(highlight != null)
 				{
 					String[] words = lines.get(lineY).split(SPLIT_REGEX);
 					StringBuilder builder = new StringBuilder();
 					for(String word : words)
 					{
-						TextFormatting[] formatting = highlight.getKeywordFormatting(word);
-						for(TextFormatting format : formatting)
+						ChatFormatting[] formatting = highlight.getKeywordFormatting(word);
+						for(ChatFormatting format : formatting)
 						{
 							builder.append(format);
 						}
 						builder.append(word);
-						builder.append(TextFormatting.RESET);
+						builder.append(ChatFormatting.RESET);
 					}
-					fontRenderer.drawString(builder.toString(), x + padding - scrollX, y + padding + i * fontRenderer.FONT_HEIGHT, -1);
+					fontRenderer.draw(poseStack, builder.toString(), x + padding - scrollX, y + padding + i * fontRenderer.lineHeight, -1);
 				}
 				else
 				{
-					fontRenderer.drawString(lines.get(lineY), x + padding - scrollX, y + padding + i * fontRenderer.FONT_HEIGHT, color(textColor, getColorScheme().getTextColor()));
+					fontRenderer.draw(poseStack, lines.get(lineY), x + padding - scrollX, y + padding + i * fontRenderer.lineHeight, color(textColor, getColorScheme().getTextColor()));
 				}
 			}
 			GLHelper.popScissor();
@@ -150,7 +147,7 @@ public class TextArea extends Component
 			if(editable && isFocused)
 			{
 				float linesPerUnit = (float) lines.size() / (float) visibleLines;
-				int scroll = MathHelper.clamp(verticalScroll + verticalOffset * (int) linesPerUnit, 0, Math.max(0, lines.size() - visibleLines));
+				int scroll = Mth.clamp(verticalScroll + verticalOffset * (int) linesPerUnit, 0, Math.max(0, lines.size() - visibleLines));
 				if(this.isFocused && cursorY >= scroll && cursorY < scroll + visibleLines)
 				{
 					if((this.cursorTick / 10) % 2 == 0)
@@ -158,10 +155,10 @@ public class TextArea extends Component
 						String subString = getActiveLine().substring(0, cursorX);
 						int visibleWidth = width - padding * 2;
 						float pixelsPerUnit = (float) maxLineWidth / (float) (width - padding * 2);
-						int stringWidth = fontRenderer.getStringWidth(subString);
-						int posX = x + padding + stringWidth - MathHelper.clamp(horizontalScroll + (int) (horizontalOffset * pixelsPerUnit), 0, Math.max(0, maxLineWidth - visibleWidth));
-						int posY = y + padding + (cursorY - scroll) * fontRenderer.FONT_HEIGHT;
-						Gui.drawRect(posX, posY - 1, posX + 1, posY + fontRenderer.FONT_HEIGHT, Color.WHITE.getRGB());
+						int stringWidth = fontRenderer.width(subString);
+						int posX = x + padding + stringWidth - Mth.clamp(horizontalScroll + (int) (horizontalOffset * pixelsPerUnit), 0, Math.max(0, maxLineWidth - visibleWidth));
+						int posY = y + padding + (cursorY - scroll) * fontRenderer.lineHeight;
+						Gui.fill(poseStack, posX, posY - 1, posX + 1, posY + fontRenderer.lineHeight, Color.WHITE.getRGB());
 					}
 				}
 			}
@@ -173,10 +170,10 @@ public class TextArea extends Component
 				{
 					int visibleScrollBarHeight = height - 4;
 					int scrollBarHeight = Math.max(20, (int) ((float) visibleLines / (float) lines.size() * (float) visibleScrollBarHeight));
-					float scrollPercentage = MathHelper.clamp((verticalScroll + verticalOffset) / (float) (lines.size() - visibleLines), 0.0F, 1.0F);
+					float scrollPercentage = Mth.clamp((verticalScroll + verticalOffset) / (float) (lines.size() - visibleLines), 0.0F, 1.0F);
 					int scrollBarY = (int) ((visibleScrollBarHeight - scrollBarHeight) * scrollPercentage);
 					int scrollY = yPosition + 2 + scrollBarY;
-					Gui.drawRect(x + width - 2 - scrollBarSize, scrollY, x + width - 2, scrollY + scrollBarHeight, placeholderColor);
+					Gui.fill(poseStack, x + width - 2 - scrollBarSize, scrollY, x + width - 2, scrollY + scrollBarHeight, placeholderColor);
 				}
 
 				if(!wrapText && maxLineWidth >= width - padding * 2)
@@ -186,8 +183,8 @@ public class TextArea extends Component
 					float scrollPercentage = (float) (horizontalScroll + 1) / (float) (maxLineWidth - visibleWidth + 1);
 					int scrollBarWidth = Math.max(20, (int) ((float) visibleWidth / (float) maxLineWidth * (float) visibleScrollBarWidth));
 					int relativeScrollX = (int) (scrollPercentage * (visibleScrollBarWidth - scrollBarWidth));
-					int scrollX = xPosition + 2 + MathHelper.clamp(relativeScrollX + horizontalOffset, 0, visibleScrollBarWidth - scrollBarWidth);
-					Gui.drawRect(scrollX, y + height - scrollBarSize - 2, scrollX + scrollBarWidth, y + height - 2, placeholderColor);
+					int scrollX = xPosition + 2 + Mth.clamp(relativeScrollX + horizontalOffset, 0, visibleScrollBarWidth - scrollBarWidth);
+					Gui.fill(poseStack, scrollX, y + height - scrollBarSize - 2, scrollX + scrollBarWidth, y + height - 2, placeholderColor);
 				}
 			}
 		}
@@ -223,7 +220,7 @@ public class TextArea extends Component
 		if(GuiHelper.isMouseWithin(mouseX, mouseY, xPosition + padding, yPosition + padding, width - padding * 2, height - padding * 2))
 		{
 			int lineX = mouseX - xPosition - padding + horizontalScroll;
-			int lineY = (mouseY - yPosition - padding) / fontRenderer.FONT_HEIGHT + verticalScroll;
+			int lineY = (mouseY - yPosition - padding) / fontRenderer.lineHeight + verticalScroll;
 			if(lineY >= lines.size())
 			{
 				cursorX = lines.get(Math.max(0, lines.size() - 1)).length();
@@ -231,7 +228,7 @@ public class TextArea extends Component
 			}
 			else
 			{
-				cursorX = getClosestLineIndex(lineX, MathHelper.clamp(lineY, 0, lines.size() - 1));
+				cursorX = getClosestLineIndex(lineX, Mth.clamp(lineY, 0, lines.size() - 1));
 				cursorY = lineY;
 			}
 			cursorTick = 0;
@@ -269,12 +266,12 @@ public class TextArea extends Component
 				case HORIZONTAL:
 				{
 					float scrollPercentage = (float) maxLineWidth / (float) (width - padding * 2);
-					horizontalScroll = MathHelper.clamp(horizontalScroll + (int)(horizontalOffset * scrollPercentage), 0, maxLineWidth - (width - padding * 2));
+					horizontalScroll = Mth.clamp(horizontalScroll + (int)(horizontalOffset * scrollPercentage), 0, maxLineWidth - (width - padding * 2));
 					break;
 				}
 				case VERTICAL:
 				{
-					float scrollPercentage = MathHelper.clamp((verticalScroll + verticalOffset) / (float) (lines.size() - visibleLines), 0.0F, 1.0F);
+					float scrollPercentage = Mth.clamp((verticalScroll + verticalOffset) / (float) (lines.size() - visibleLines), 0.0F, 1.0F);
 					verticalScroll = (int) ((lines.size() - visibleLines) * (scrollPercentage));
 					break;
 				}
@@ -362,7 +359,7 @@ public class TextArea extends Component
 			int scrollBarHeight = Math.max(20, (int) ((float) visibleLines / (float) lines.size() * (float) visibleScrollBarHeight));
 			int relativeScrollY = (int) (scrollPercentage * (visibleScrollBarHeight - scrollBarHeight));
 			int posX = xPosition + width - 2 - scrollBarSize;
-			int posY = yPosition + 2 + MathHelper.clamp(relativeScrollY + verticalOffset, 0, visibleScrollBarHeight - scrollBarHeight);
+			int posY = yPosition + 2 + Mth.clamp(relativeScrollY + verticalOffset, 0, visibleScrollBarHeight - scrollBarHeight);
 			if(GuiHelper.isMouseInside(mouseX, mouseY, posX, posY, posX + scrollBarSize, posY + scrollBarHeight))
 			{
 				return ScrollBar.VERTICAL;
@@ -376,7 +373,7 @@ public class TextArea extends Component
 			float scrollPercentage = (float) horizontalScroll / (float) (maxLineWidth - visibleWidth + 1);
 			int scrollBarWidth = Math.max(20, (int) ((float) visibleWidth / (float) maxLineWidth * (float) visibleScrollBarWidth));
 			int relativeScrollX = (int) (scrollPercentage * (visibleScrollBarWidth - scrollBarWidth));
-			int posX = xPosition + 2 + MathHelper.clamp(relativeScrollX, 0, visibleScrollBarWidth - scrollBarWidth);
+			int posX = xPosition + 2 + Mth.clamp(relativeScrollX, 0, visibleScrollBarWidth - scrollBarWidth);
 			int posY = yPosition + height - 2 - scrollBarSize;
 			if(GuiHelper.isMouseInside(mouseX, mouseY, posX, posY, posX + scrollBarWidth, posY + scrollBarSize))
 			{
@@ -411,7 +408,7 @@ public class TextArea extends Component
 				String result = activeLine + lines.remove(cursorY + 1);
 				if(fontRenderer.getStringWidth(result) > width - padding * 2)
 				{
-					String trimmed = fontRenderer.trimStringToWidth(result, width - padding * 2);
+					String trimmed = fontRenderer.plainSubstrByWidth(result, width - padding * 2);
 					lines.set(cursorY, trimmed);
 					if(trimmed.charAt(trimmed.length() - 1) != '\n')
 					{
@@ -574,7 +571,7 @@ public class TextArea extends Component
 				String result = head + text;
 				if(fontRenderer.getStringWidth(result) > width - padding * 2)
 				{
-					String trimmed = fontRenderer.trimStringToWidth(result, width - padding * 2);
+					String trimmed = fontRenderer.plainSubstrByWidth(result, width - padding * 2);
 					lines.set(cursorY, trimmed);
 					prependToLine(cursorY + 1, result.substring(trimmed.length()));
 				}
@@ -589,7 +586,7 @@ public class TextArea extends Component
 				String result = head + text + tail;
 				if(fontRenderer.getStringWidth(result) > width - padding * 2)
 				{
-					String trimmed = fontRenderer.trimStringToWidth(result, width - padding * 2);
+					String trimmed = fontRenderer.plainSubstrByWidth(result, width - padding * 2);
 					lines.set(cursorY, trimmed);
 					prependToLine(cursorY + 1, result.substring(trimmed.length()));
 				}
@@ -633,7 +630,7 @@ public class TextArea extends Component
 			String result = text + lines.get(lineIndex);
 			if(fontRenderer.getStringWidth(result) > width - padding * 2)
 			{
-				String trimmed = fontRenderer.trimStringToWidth(result, width - padding * 2);
+				String trimmed = fontRenderer.plainSubstrByWidth(result, width - padding * 2);
 				lines.set(lineIndex, trimmed);
 				prependToLine(lineIndex + 1, result.substring(trimmed.length()));
 			}
@@ -920,8 +917,8 @@ public class TextArea extends Component
 	private int getClosestLineIndex(int lineX, int lineY)
 	{
 		String line = lines.get(lineY);
-		int clickedCharX = fontRenderer.trimStringToWidth(line, lineX).length();
-		int nextCharX = MathHelper.clamp(clickedCharX + 1, 0, Math.max(0, line.length()));
+		int clickedCharX = fontRenderer.plainSubstrByWidth(line, lineX).length();
+		int nextCharX = Mth.clamp(clickedCharX + 1, 0, Math.max(0, line.length()));
 		int clickedCharWidth = fontRenderer.getStringWidth(line.substring(0, clickedCharX));
 		int nextCharWidth = fontRenderer.getStringWidth(line.substring(0, nextCharX));
 		int clickedDistanceX = Math.abs(clickedCharWidth - lineX);
@@ -1060,7 +1057,7 @@ public class TextArea extends Component
 	public void setPadding(int padding)
 	{
 		this.padding = padding;
-		this.visibleLines = (int) Math.floor((height - padding * 2) / fontRenderer.FONT_HEIGHT);
+		this.visibleLines = (int) Math.floor((height - padding * 2) / fontRenderer.lineHeight);
 	}
 
 	/**

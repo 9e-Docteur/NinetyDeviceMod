@@ -1,5 +1,7 @@
 package com.mrcrayfish.device.object;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.Icons;
 import com.mrcrayfish.device.api.app.Layout;
@@ -12,7 +14,6 @@ import com.mrcrayfish.device.object.tiles.Tile;
 import com.mrcrayfish.device.object.tiles.Tile.Category;
 import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -25,8 +26,8 @@ public class TileGrid extends Component
 	private Button btnPrevCategory;
 	
 	private int currentCategory;
-	private List<Tile> tabTiles;
-	private Game game;
+	private final List<Tile> tabTiles;
+	private final Game game;
 	
 	public TileGrid(int left, int top, Game game)
 	{
@@ -78,26 +79,26 @@ public class TileGrid extends Component
 	}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) 
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
-		drawRect(xPosition, yPosition + 15, xPosition + 93, yPosition + 100, Color.DARK_GRAY.getRGB());
-		drawRect(xPosition + 1, yPosition + 16, xPosition + 92, yPosition + 99, Color.GRAY.getRGB());
+		fill(poseStack, xPosition, yPosition + 15, xPosition + 93, yPosition + 100, Color.DARK_GRAY.getRGB());
+		fill(poseStack, xPosition + 1, yPosition + 16, xPosition + 92, yPosition + 99, Color.GRAY.getRGB());
 		
 
-		mc.getTextureManager().bindTexture(Game.ICONS);
+		mc.getTextureManager().bindForSetup(Game.ICONS);
 		for(int i = 0; i < tabTiles.size(); i++)
 		{
 			Tile tile = tabTiles.get(i);
 			int tileX = i % 6 * 15 + xPosition + 3;
 			int tileY = i / 6 * 15 + yPosition + 18;
 			if(GuiHelper.isMouseInside(mouseX, mouseY, tileX - 1, tileY - 1, tileX + 12, tileY + 12) || game.getCurrentTile() == tile)
-				drawRect(tileX - 1, tileY - 1, tileX + 13, tileY + 13, Color.WHITE.getRGB());
+				fill(poseStack, tileX - 1, tileY - 1, tileX + 13, tileY + 13, Color.WHITE.getRGB());
 			else
-				drawRect(tileX - 1, tileY - 1, tileX + 13, tileY + 13, Color.LIGHT_GRAY.getRGB());
-			GlStateManager.pushAttrib();
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			RenderUtil.drawRectWithTexture(tileX, tileY, tile.x * 16, tile.y * 16, 12, 12, 16, 16);
-			GlStateManager.popAttrib();
+				fill(poseStack, tileX - 1, tileY - 1, tileX + 13, tileY + 13, Color.LIGHT_GRAY.getRGB());
+			poseStack.pushPose();
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderUtil.fillWithTexture(tileX, tileY, tile.x * 16, tile.y * 16, 12, 12, 16, 16);
+			poseStack.popPose();
 		}
 
 		if(GuiHelper.isMouseInside(mouseX, mouseX, xPosition, yPosition, xPosition + 60, yPosition + 60))
@@ -108,7 +109,7 @@ public class TileGrid extends Component
 				int tileY = i / 6 * 15 + yPosition + 17;
 				if(GuiHelper.isMouseInside(mouseX, mouseY, tileX, tileY, tileX + 14, tileY + 14))
 				{
-					drawRect(tileX - 1, tileY - 1, tileX + 13, tileY + 13, Color.WHITE.getRGB());
+					fill(poseStack, tileX - 1, tileY - 1, tileX + 13, tileY + 13, Color.WHITE.getRGB());
 				}
 			}
 		}

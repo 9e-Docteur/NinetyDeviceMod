@@ -1,7 +1,7 @@
 package com.mrcrayfish.device.api.io;
 
 import com.mrcrayfish.device.core.io.FileSystem;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -11,14 +11,14 @@ import java.util.UUID;
  */
 public class Drive
 {
-    private String name;
-    private UUID uuid;
-    private Type type;
+    private final String name;
+    private final UUID uuid;
+    private final Type type;
     private Folder root;
 
     private boolean synced = false;
 
-    public Drive(NBTTagCompound driveTag)
+    public Drive(CompoundTag driveTag)
     {
         this.name = driveTag.getString("name");
         this.uuid = UUID.fromString(driveTag.getString("uuid"));

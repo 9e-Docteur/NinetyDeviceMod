@@ -23,7 +23,7 @@ public class OnlineRequest
 	private final Queue<RequestWrapper> requests;
 
 	private Thread thread;
-	private boolean running = true;
+	private final boolean running = true;
 
 	private OnlineRequest() 
 	{

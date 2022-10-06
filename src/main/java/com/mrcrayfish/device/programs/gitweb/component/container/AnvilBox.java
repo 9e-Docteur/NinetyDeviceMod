@@ -1,7 +1,7 @@
 package com.mrcrayfish.device.programs.gitweb.component.container;
 
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Author: MrCrayfish

@@ -1,20 +1,21 @@
 package com.mrcrayfish.device.core.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.IIcon;
 import com.mrcrayfish.device.api.utils.RenderUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.toasts.GuiToast;
-import net.minecraft.client.gui.toasts.IToast;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Author: MrCrayfish
  */
-public class ClientNotification implements IToast
+public class ClientNotification implements Toast
 {
     private static final ResourceLocation TEXTURE_TOASTS = new ResourceLocation("cdm:textures/gui/toast.png");
 
@@ -25,34 +26,34 @@ public class ClientNotification implements IToast
     private ClientNotification() {}
 
     @Override
-    public Visibility draw(GuiToast toastGui, long delta)
+    public Visibility render(PoseStack poseStack, ToastComponent toastGui, long delta)
     {
-        GlStateManager.color(1.0F, 1.0F, 1.0F);
-        toastGui.getMinecraft().getTextureManager().bindTexture(TEXTURE_TOASTS);
-        toastGui.drawTexturedModalRect(0, 0, 0, 0, 160, 32);
+        RenderSystem.setShaderColor(1F, 1.0F, 1.0F, 1.0F);
+        toastGui.getMinecraft().getTextureManager().bindForSetup(TEXTURE_TOASTS);
+        toastGui.blit(poseStack, 0, 0, 0, 0, 160, 32);
 
         if(subTitle == null)
         {
-            toastGui.getMinecraft().fontRenderer.drawString(RenderUtil.clipStringToWidth(I18n.format(title), 118), 38, 12, -1, true);
+            toastGui.getMinecraft().font.draw(poseStack, RenderUtil.clipStringToWidth(I18n.get(title), 118), 38, 12, -1);
         }
         else
         {
-            toastGui.getMinecraft().fontRenderer.drawString(RenderUtil.clipStringToWidth(I18n.format(title), 118), 38, 7, -1, true);
-            toastGui.getMinecraft().fontRenderer.drawString(RenderUtil.clipStringToWidth(I18n.format(subTitle), 118), 38, 18, -1);
+            toastGui.getMinecraft().font.draw(poseStack, RenderUtil.clipStringToWidth(I18n.get(title), 118), 38, 7, -1);
+            toastGui.getMinecraft().font.draw(poseStack, RenderUtil.clipStringToWidth(I18n.get(subTitle), 118), 38, 18, -1);
         }
 
-        toastGui.getMinecraft().getTextureManager().bindTexture(icon.getIconAsset());
-        RenderUtil.drawRectWithTexture(6, 6, icon.getU(), icon.getV(), icon.getGridWidth(), icon.getGridHeight(), icon.getIconSize(), icon.getIconSize(), icon.getSourceWidth(), icon.getSourceHeight());
+        toastGui.getMinecraft().getTextureManager().bindForSetup(icon.getIconAsset());
+        RenderUtil.fillWithTexture(6, 6, icon.getU(), icon.getV(), icon.getGridWidth(), icon.getGridHeight(), icon.getIconSize(), icon.getIconSize(), icon.getSourceWidth(), icon.getSourceHeight());
 
-        return delta >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
+        return delta >= 5000L ? Toast.Visibility.HIDE : Toast.Visibility.SHOW;
     }
 
-    public static ClientNotification loadFromTag(NBTTagCompound tag)
+    public static ClientNotification loadFromTag(CompoundTag tag)
     {
         ClientNotification notification = new ClientNotification();
 
-        int ordinal = tag.getCompoundTag("icon").getInteger("ordinal");
-        String className = tag.getCompoundTag("icon").getString("className");
+        int ordinal = tag.getCompound("icon").getInt("ordinal");
+        String className = tag.getCompound("icon").getString("className");
 
         try
         {
@@ -64,7 +65,7 @@ public class ClientNotification implements IToast
         }
 
         notification.title = tag.getString("title");
-        if(tag.hasKey("subTitle", Constants.NBT.TAG_STRING))
+        if(tag.contains("subTitle", Tag.TAG_STRING))
         {
             notification.subTitle = tag.getString("subTitle");
         }
@@ -74,6 +75,6 @@ public class ClientNotification implements IToast
 
     public void push()
     {
-        Minecraft.getMinecraft().getToastGui().add(this);
+        Minecraft.getInstance().getToasts().addToast(this);
     }
 }

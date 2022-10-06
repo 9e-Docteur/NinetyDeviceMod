@@ -5,7 +5,7 @@ import com.mrcrayfish.device.api.task.Callback;
 import com.mrcrayfish.device.core.io.FileSystem;
 import com.mrcrayfish.device.core.io.action.FileAction;
 import com.mrcrayfish.device.programs.system.component.FileBrowser;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -26,7 +26,7 @@ public class File
 	protected Folder parent;
 	protected String name;
 	protected String openingApp;
-	protected NBTTagCompound data;
+	protected CompoundTag data;
 	protected boolean protect = false;
 	protected boolean valid = false;
 
@@ -39,7 +39,7 @@ public class File
 	 * @param app
 	 * @param data
 	 */
-	public File(String name, Application app, NBTTagCompound data) 
+	public File(String name, Application app, CompoundTag data) 
 	{
 		this(name, app.getInfo().getFormattedId(), data, false);
 	}
@@ -53,12 +53,12 @@ public class File
 	 * @param openingAppId
 	 * @param data
 	 */
-	public File(String name, String openingAppId, NBTTagCompound data)
+	public File(String name, String openingAppId, CompoundTag data)
 	{
 		this(name, openingAppId, data, false);
 	}
 
-	private File(String name, String openingAppId, NBTTagCompound data, boolean protect)
+	private File(String name, String openingAppId, CompoundTag data, boolean protect)
 	{
 		this.name = name;
 		this.openingApp = openingAppId;
@@ -196,7 +196,7 @@ public class File
 	 *
 	 * @param data
 	 */
-	public void setData(NBTTagCompound data)
+	public void setData(CompoundTag data)
 	{
 		setData(data, null);
 	}
@@ -209,7 +209,7 @@ public class File
 	 * @param data
 	 * @param callback
 	 */
-	public void setData(NBTTagCompound data, @Nullable Callback<FileSystem.Response> callback)
+	public void setData(CompoundTag data, @Nullable Callback<FileSystem.Response> callback)
 	{
 		if(!valid)
 			throw new IllegalStateException("File must be added to the system before you can rename it");
@@ -247,12 +247,12 @@ public class File
 
 	/**
 	 * Gets the data of this file. The data you receive is a copied version. If you want to update
-	 * it, use {@link #setData(NBTTagCompound, Callback)} to do so.
+	 * it, use {@link #setData(CompoundTag, Callback)} to do so.
 	 *
 	 * @return the file's data
 	 */
 	@Nullable
-	public NBTTagCompound getData() 
+	public CompoundTag getData() 
 	{
 		return data.copy();
 	}
@@ -512,11 +512,11 @@ public class File
 	 *
 	 * @return the file tag
 	 */
-	public NBTTagCompound toTag() 
+	public CompoundTag toTag() 
 	{
-		NBTTagCompound tag = new NBTTagCompound();
-		tag.setString("openingApp", openingApp);
-		tag.setTag("data", data);
+		CompoundTag tag = new CompoundTag();
+		tag.putString("openingApp", openingApp);
+		tag.put("data", data);
 		return tag;
 	}
 
@@ -527,9 +527,9 @@ public class File
 	 * @param tag the tag compound from {@link #toTag()}
 	 * @return a file instance
 	 */
-	public static File fromTag(String name, NBTTagCompound tag)
+	public static File fromTag(String name, CompoundTag tag)
 	{
-		return new File(name, tag.getString("openingApp"), tag.getCompoundTag("data"));
+		return new File(name, tag.getString("openingApp"), tag.getCompound("data"));
 	}
 	
 	@Override
@@ -537,9 +537,8 @@ public class File
 	{
 		if(obj == null)
 			return false;
-		if(!(obj instanceof File))
+		if(!(obj instanceof File file))
 			return false;
-		File file = (File) obj;
 		return parent == file.parent && name.equalsIgnoreCase(file.name);
 	}
 

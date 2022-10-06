@@ -1,5 +1,8 @@
 package com.mrcrayfish.device.programs.system;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.ApplicationManager;
 import com.mrcrayfish.device.api.app.Dialog;
 import com.mrcrayfish.device.api.app.Icons;
@@ -17,9 +20,9 @@ import com.mrcrayfish.device.programs.system.component.Palette;
 import com.mrcrayfish.device.programs.system.object.ColorScheme;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -42,10 +45,11 @@ public class ApplicationSettings extends SystemApplication
 	private Layout layoutColorScheme;
 	private Button buttonColorSchemeApply;
 
-	private Stack<Layout> predecessor = new Stack<>();
+	private final Stack<Layout> predecessor = new Stack<>();
+	private final PoseStack poseStack = new PoseStack();
 
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		buttonPrevious = new Button(2, 2, Icons.ARROW_LEFT);
 		buttonPrevious.setVisible(false);
@@ -93,16 +97,16 @@ public class ApplicationSettings extends SystemApplication
 
 		layoutPersonalise = new Menu("Personalise");
 		layoutPersonalise.addComponent(buttonPrevious);
-		layoutPersonalise.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+		layoutPersonalise.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
 		{
 			int wallpaperX = 7;
 			int wallpaperY = 28;
-			Gui.drawRect(x + wallpaperX - 1, y + wallpaperY - 1, x + wallpaperX - 1 + 122, y + wallpaperY - 1 + 70, getLaptop().getSettings().getColorScheme().getHeaderColor());
-			GlStateManager.color(1.0F, 1.0F, 1.0F);
+			Screen.fill(poseStack, x + wallpaperX - 1, y + wallpaperY - 1, x + wallpaperX - 1 + 122, y + wallpaperY - 1 + 70, getLaptop().getSettings().getColorScheme().getHeaderColor());
+			GlStateManager._clearColor(1F, 1.0F, 1.0F, 1.0F);
 			List<ResourceLocation> wallpapers = getLaptop().getWallapapers();
-			mc.getTextureManager().bindTexture(wallpapers.get(getLaptop().getCurrentWallpaper()));
-			RenderUtil.drawRectWithFullTexture(x + wallpaperX, y + wallpaperY, 0, 0, 120, 68);
-			mc.fontRenderer.drawString("Wallpaper", x + wallpaperX + 3, y + wallpaperY + 3, getLaptop().getSettings().getColorScheme().getTextColor(), true);
+			Minecraft.getInstance().getTextureManager().bindForSetup(wallpapers.get(getLaptop().getCurrentWallpaper()));
+			RenderUtil.fillWithFullTexture(x + wallpaperX, y + wallpaperY, 0, 0, 120, 68);
+			Minecraft.getInstance().font.draw(poseStack, "Wallpaper", x + wallpaperX + 3, y + wallpaperY + 3, getLaptop().getSettings().getColorScheme().getTextColor());
 		});
 
 		buttonWallpaperLeft = new Button(135, 27, Icons.ARROW_LEFT);
@@ -199,13 +203,13 @@ public class ApplicationSettings extends SystemApplication
 	}
 
 	@Override
-	public void load(NBTTagCompound tagCompound)
+	public void load(CompoundTag tagCompound)
 	{
 
 	}
 
 	@Override
-	public void save(NBTTagCompound tagCompound)
+	public void save(CompoundTag tagCompound)
 	{
 
 	}
@@ -226,7 +230,7 @@ public class ApplicationSettings extends SystemApplication
 
 	private static class Menu extends Layout
 	{
-		private String title;
+		private final String title;
 
 		public Menu(String title)
 		{
@@ -235,13 +239,13 @@ public class ApplicationSettings extends SystemApplication
 		}
 
 		@Override
-		public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+		public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 		{
 			Color color = new Color(Laptop.getSystem().getSettings().getColorScheme().getHeaderColor());
-			Gui.drawRect(x, y, x + width, y + 20, color.getRGB());
-			Gui.drawRect(x, y + 20, x + width, y + 21, color.darker().getRGB());
-			mc.fontRenderer.drawString(title, x + 22, y + 6, Color.WHITE.getRGB(), true);
-			super.render(laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
+			Gui.fill(poseStack, x, y, x + width, y + 20, color.getRGB());
+			Gui.fill(poseStack, x, y + 20, x + width, y + 21, color.darker().getRGB());
+			mc.font.draw(poseStack, title, x + 22, y + 6, Color.WHITE.getRGB());
+			super.render(poseStack, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
 		}
 	}
 
@@ -252,11 +256,11 @@ public class ApplicationSettings extends SystemApplication
 		colorPicker.setItemRenderer(new ItemRenderer<Integer>()
 		{
 			@Override
-			public void render(Integer integer, Gui gui, Minecraft mc, int x, int y, int width, int height)
+			public void render(PoseStack poseStack, Integer integer, Screen gui, Minecraft mc, int x, int y, int width, int height)
 			{
 				if(integer != null)
 				{
-					Gui.drawRect(x, y, x + width, y + height, integer);
+					Gui.fill(poseStack, x, y, x + width, y + height, integer);
 				}
 			}
 		});

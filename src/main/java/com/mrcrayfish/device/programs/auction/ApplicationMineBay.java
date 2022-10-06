@@ -1,5 +1,7 @@
 package com.mrcrayfish.device.programs.auction;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Application;
 import com.mrcrayfish.device.api.app.Dialog;
 import com.mrcrayfish.device.api.app.Layout;
@@ -19,11 +21,11 @@ import com.mrcrayfish.device.programs.auction.task.TaskGetAuctions;
 import com.mrcrayfish.device.util.TimeUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -37,7 +39,7 @@ public class ApplicationMineBay extends Application
 	
 	private static final ItemStack EMERALD = new ItemStack(Items.EMERALD);
 	
-	private String[] categories = { "Building", "Combat", "Tools", "Food", "Materials", "Redstone", "Alchemy", "Rare", "Misc" };
+	private final String[] categories = { "Building", "Combat", "Tools", "Food", "Materials", "Redstone", "Alchemy", "Rare", "Misc" };
 
 	private Layout layoutMyAuctions;
 	private ItemList<AuctionItem> items;
@@ -83,21 +85,21 @@ public class ApplicationMineBay extends Application
 	}
 	
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		getCurrentLayout().setBackground(new Background()
 		{
 			@Override
-			public void render(Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
+			public void render(PoseStack poseStack, Screen gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
 			{
-				Gui.drawRect(x, y, x + width, y + 25, Color.GRAY.getRGB());
-				Gui.drawRect(x, y + 24, x + width, y + 25, Color.DARK_GRAY.getRGB());
-				Gui.drawRect(x, y + 25, x + 95, y + height, Color.LIGHT_GRAY.getRGB());
-				Gui.drawRect(x + 94, y + 25, x + 95, y + height, Color.GRAY.getRGB());
+				Gui.fill(poseStack,x, y, x + width, y + 25, Color.GRAY.getRGB());
+				Gui.fill(poseStack,x, y + 24, x + width, y + 25, Color.DARK_GRAY.getRGB());
+				Gui.fill(poseStack,x, y + 25, x + 95, y + height, Color.LIGHT_GRAY.getRGB());
+				Gui.fill(poseStack,x + 94, y + 25, x + 95, y + height, Color.GRAY.getRGB());
 				
-				mc.getTextureManager().bindTexture(MINEBAY_ASSESTS);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				RenderUtil.drawRectWithTexture(x + 5, y + 6, 0, 0, 61, 11, 61, 12);
+				mc.getTextureManager().bindForSetup(MINEBAY_ASSESTS);
+				GlStateManager._clearColor(1.0F, 1.0F, 1.0F, 1.0F);
+				RenderUtil.fillWithTexture(x + 5, y + 6, 0, 0, 61, 11, 61, 12);
 			}
 		});
 		
@@ -109,7 +111,7 @@ public class ApplicationMineBay extends Application
 		Button btnViewItem = new Button(135, 5, "Your Auctions");
 		btnViewItem.setSize(80, 15);
 		btnViewItem.setClickListener((mouseX, mouseY, mouseButton) -> {
-			TaskGetAuctions task = new TaskGetAuctions(Minecraft.getMinecraft().player.getUniqueID());
+			TaskGetAuctions task = new TaskGetAuctions(Minecraft.getInstance().player.getUUID());
 			task.setCallback((nbt, success) -> {
                 items.removeAll();
                 for(AuctionItem item : AuctionManager.INSTANCE.getItems()) {
@@ -148,30 +150,30 @@ public class ApplicationMineBay extends Application
 		items.setListItemRenderer(new ListItemRenderer<AuctionItem>(20)
 		{
 			@Override
-			public void render(AuctionItem e, Gui gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
+			public void render(PoseStack poseStack, AuctionItem e, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
 			{
 				if(selected) 
 				{
-					Gui.drawRect(x, y, x + width, y + height, Color.DARK_GRAY.getRGB());
+					Gui.fill(poseStack, x, y, x + width, y + height, Color.DARK_GRAY.getRGB());
 				} 
 				else 
 				{
-					Gui.drawRect(x, y, x + width, y + height, Color.GRAY.getRGB());
+					Gui.fill(poseStack, x, y, x + width, y + height, Color.GRAY.getRGB());
 				}
 				
 				RenderUtil.renderItem(x + 2, y + 2, e.getStack(), true);
-				
-				GlStateManager.pushMatrix();
+
+				poseStack.pushPose();
 				{
-					GlStateManager.translate(x + 24, y + 4, 0);
-					GlStateManager.scale(0.666, 0.666, 0);
-					mc.fontRenderer.drawString(e.getStack().getDisplayName(), 0, 0, Color.WHITE.getRGB(), false);
-					mc.fontRenderer.drawString(TimeUtil.getTotalRealTime(e.getTimeLeft()), 0, 11, Color.LIGHT_GRAY.getRGB(), false);
+					poseStack.translate(x + 24, y + 4, 0);
+					poseStack.scale(0.666f, 0.666f, 0f);
+					mc.font.draw(poseStack, e.getStack().getDisplayName(), 0, 0, Color.WHITE.getRGB());
+					mc.font.draw(poseStack, TimeUtil.getTotalRealTime(e.getTimeLeft()), 0, 11, Color.LIGHT_GRAY.getRGB());
 				}
-				GlStateManager.popMatrix();
+				poseStack.popPose();
 				
 				String price = "$" + e.getPrice();
-				mc.fontRenderer.drawString(price, x - mc.fontRenderer.getStringWidth(price) + width - 5, y + 6, Color.YELLOW.getRGB());
+				mc.font.draw(poseStack, price, x - mc.font.width(price) + width - 5, y + 6, Color.YELLOW.getRGB());
 			}
 		});
 		super.addComponent(items);
@@ -213,11 +215,11 @@ public class ApplicationMineBay extends Application
 		layoutSelectItem.setBackground(new Background()
 		{
 			@Override
-			public void render(Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
+			public void render(PoseStack poseStack, Screen gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
 			{
-				Gui.drawRect(x, y, x + width, y + 22, Color.LIGHT_GRAY.getRGB());
-				Gui.drawRect(x, y + 22, x + width, y + 23, Color.DARK_GRAY.getRGB());
-				mc.fontRenderer.drawString("Select an Item...", x + 5, y + 7, Color.WHITE.getRGB(), true);
+				Gui.fill(poseStack, x, y, x + width, y + 22, Color.LIGHT_GRAY.getRGB());
+				Gui.fill(poseStack, x, y + 22, x + width, y + 23, Color.DARK_GRAY.getRGB());
+				mc.font.draw(poseStack, "Select an Item...", x + 5, y + 7, Color.WHITE.getRGB());
 			}
 		});
 		
@@ -226,7 +228,7 @@ public class ApplicationMineBay extends Application
 		{
             if(inventory.getSelectedSlotIndex() != -1)
             {
-                ItemStack stack = Minecraft.getMinecraft().player.inventory.getStackInSlot(inventory.getSelectedSlotIndex());
+                ItemStack stack = Minecraft.getInstance().player.getInventory().getItem(inventory.getSelectedSlotIndex());
                 if(!stack.isEmpty())
                 {
                     buttonAddNext.setEnabled(true);
@@ -265,43 +267,43 @@ public class ApplicationMineBay extends Application
 		layoutAmountAndPrice.setBackground(new Background()
 		{
 			@Override
-			public void render(Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
+			public void render(PoseStack poseStack, Screen gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
 			{
-				Gui.drawRect(x, y, x + width, y + 22, Color.LIGHT_GRAY.getRGB());
-				Gui.drawRect(x, y + 22, x + width, y + 23, Color.DARK_GRAY.getRGB());
-				mc.fontRenderer.drawString("Set amount and price...", x + 5, y + 7, Color.WHITE.getRGB(), true);
+				Gui.fill(poseStack, x, y, x + width, y + 22, Color.LIGHT_GRAY.getRGB());
+				Gui.fill(poseStack, x, y + 22, x + width, y + 23, Color.DARK_GRAY.getRGB());
+				mc.font.draw(poseStack, "Set amount and price...", x + 5, y + 7, Color.WHITE.getRGB());
 				
 				int offsetX = 14;
 				int offsetY = 40;
-				Gui.drawRect(x + offsetX, y + offsetY, x + offsetX + 38, y + offsetY + 38, Color.BLACK.getRGB());
-				Gui.drawRect(x + offsetX + 1, y + offsetY + 1, x + offsetX + 37, y + offsetY + 37, Color.DARK_GRAY.getRGB());
+				Gui.fill(poseStack,x + offsetX, y + offsetY, x + offsetX + 38, y + offsetY + 38, Color.BLACK.getRGB());
+				Gui.fill(poseStack,x + offsetX + 1, y + offsetY + 1, x + offsetX + 37, y + offsetY + 37, Color.DARK_GRAY.getRGB());
 				
 				offsetX = 90;
-				Gui.drawRect(x + offsetX, y + offsetY, x + offsetX + 38, y + offsetY + 38, Color.BLACK.getRGB());
-				Gui.drawRect(x + offsetX + 1, y + offsetY + 1, x + offsetX + 37, y + offsetY + 37, Color.DARK_GRAY.getRGB());
+				Gui.fill(poseStack,x + offsetX, y + offsetY, x + offsetX + 38, y + offsetY + 38, Color.BLACK.getRGB());
+				Gui.fill(poseStack,x + offsetX + 1, y + offsetY + 1, x + offsetX + 37, y + offsetY + 37, Color.DARK_GRAY.getRGB());
 				
 				if(inventory.getSelectedSlotIndex() != -1)
 				{
-					ItemStack stack = mc.player.inventory.getStackInSlot(inventory.getSelectedSlotIndex());
+					ItemStack stack = mc.player.getInventory().getItem(inventory.getSelectedSlotIndex());
 					if(!stack.isEmpty())
 					{
-						GlStateManager.pushMatrix();
+						poseStack.pushPose();
 						{
-							GlStateManager.translate(x + 17, y + 43, 0);
-							GlStateManager.scale(2, 2, 0);
+							poseStack.translate(x + 17, y + 43, 0);
+							poseStack.scale(2, 2, 0);
 							RenderUtil.renderItem(0, 0, stack, false);
 						}
-						GlStateManager.popMatrix();
+						poseStack.popPose();
 					}
 				}
 				
-				GlStateManager.pushMatrix();
+				poseStack.pushPose();
 				{
-					GlStateManager.translate(x + 92, y + 43, 0);
-					GlStateManager.scale(2, 2, 0);
+					poseStack.translate(x + 92, y + 43, 0);
+					poseStack.scale(2, 2, 0);
 					RenderUtil.renderItem(0, 0, EMERALD, false);
 				}
-				GlStateManager.popMatrix();
+				poseStack.popPose();
 			}
 		});
 		
@@ -338,11 +340,11 @@ public class ApplicationMineBay extends Application
 		layoutDuration.setBackground(new Background()
 		{
 			@Override
-			public void render(Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
+			public void render(PoseStack poseStack, Screen gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
 			{
-				Gui.drawRect(x, y, x + width, y + 22, Color.LIGHT_GRAY.getRGB());
-				Gui.drawRect(x, y + 22, x + width, y + 23, Color.DARK_GRAY.getRGB());
-				mc.fontRenderer.drawString("Set duration...", x + 5, y + 7, Color.WHITE.getRGB(), true);
+				Gui.fill(poseStack, x, y, x + width, y + 22, Color.LIGHT_GRAY.getRGB());
+				Gui.fill(poseStack, x, y + 22, x + width, y + 23, Color.DARK_GRAY.getRGB());
+				mc.font.draw(poseStack, "Set duration...", x + 5, y + 7, Color.WHITE.getRGB());
 			}
 		});
 		
@@ -420,7 +422,7 @@ restoreDefaultLayout();
 		{
             if(success)
             {
-                labelMoney.setText("$" + nbt.getInteger("balance"));
+                labelMoney.setText("$" + nbt.getInt("balance"));
             }
         });
 		
@@ -437,13 +439,13 @@ restoreDefaultLayout();
 	}
 
 	@Override
-	public void load(NBTTagCompound tagCompound)
+	public void load(CompoundTag tagCompound)
 	{
 
 	}
 
 	@Override
-	public void save(NBTTagCompound tagCompound)
+	public void save(CompoundTag tagCompound)
 	{
 
 	}

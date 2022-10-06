@@ -1,8 +1,8 @@
 package com.mrcrayfish.device.programs.auction;
 
 import com.mrcrayfish.device.programs.auction.object.AuctionItem;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class AuctionManager
 {
 	public static final AuctionManager INSTANCE = new AuctionManager();
 	
-	private List<AuctionItem> items;
+	private final List<AuctionItem> items;
 	
 	private AuctionManager() 
 	{
@@ -77,25 +77,25 @@ public class AuctionManager
 		}
 	}
 	
-	public void writeToNBT(NBTTagCompound tag)
+	public void writeToNBT(CompoundTag tag)
 	{
-		NBTTagList tagList = new NBTTagList();
+		ListTag tagList = new ListTag();
 		items.stream().filter(i -> i.isValid()).forEach(i -> {
-			NBTTagCompound itemTag = new NBTTagCompound();
+			CompoundTag itemTag = new CompoundTag();
 			i.writeToNBT(itemTag);
-			tagList.appendTag(itemTag);
+			tagList.add(itemTag);
 		});
-		tag.setTag("auctionItems", tagList);
+		tag.put("auctionItems", tagList);
 	}
 	
-	public void readFromNBT(NBTTagCompound tag)
+	public void readFromNBT(CompoundTag tag)
 	{
 		items.clear();
 		
-		NBTTagList tagList = (NBTTagList) tag.getTag("auctionItems");
-		for(int i = 0; i < tagList.tagCount(); i++)
+		ListTag tagList = (ListTag) tag.get("auctionItems");
+		for(int i = 0; i < tagList.size(); i++)
 		{
-			NBTTagCompound itemTag = tagList.getCompoundTagAt(i);
+			CompoundTag itemTag = tagList.getCompound(i);
 			AuctionItem item = AuctionItem.readFromNBT(itemTag);
 			items.add(item);
 		}

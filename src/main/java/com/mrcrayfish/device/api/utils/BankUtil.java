@@ -7,9 +7,9 @@ import com.mrcrayfish.device.programs.system.task.TaskAdd;
 import com.mrcrayfish.device.programs.system.task.TaskGetBalance;
 import com.mrcrayfish.device.programs.system.task.TaskPay;
 import com.mrcrayfish.device.programs.system.task.TaskRemove;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ public class BankUtil
 {
 	public static final BankUtil INSTANCE = new BankUtil();
 	
-	private Map<UUID, Account> uuidToAccount = new HashMap<UUID, Account>();
+	private final Map<UUID, Account> uuidToAccount = new HashMap<UUID, Account>();
 	
 	private BankUtil() {}
 	
@@ -41,7 +41,7 @@ public class BankUtil
 	 * 
 	 * @param callback he callback object to processing the response
 	 */
-	public static void getBalance(Callback<NBTTagCompound> callback)
+	public static void getBalance(Callback<CompoundTag> callback)
 	{
 		TaskManager.sendTask(new TaskGetBalance().setCallback(callback));
 	}
@@ -55,7 +55,7 @@ public class BankUtil
 	 * @param amount the amount to pay 
 	 * @param callback the callback object to processing the response
 	 */
-	public static void pay(String uuid, int amount, Callback<NBTTagCompound> callback)
+	public static void pay(String uuid, int amount, Callback<CompoundTag> callback)
 	{
 		TaskManager.sendTask(new TaskPay().setCallback(callback));
 	}
@@ -67,7 +67,7 @@ public class BankUtil
 	 * 
 	 * @param callback he callback object to processing the response
 	 */
-	public static void add(int amount, Callback<NBTTagCompound> callback)
+	public static void add(int amount, Callback<CompoundTag> callback)
 	{
 		TaskManager.sendTask(new TaskAdd(amount).setCallback(callback));
 	}
@@ -79,20 +79,20 @@ public class BankUtil
 	 * 
 	 * @param callback he callback object to processing the response
 	 */
-	public static void remove(int amount, Callback<NBTTagCompound> callback)
+	public static void remove(int amount, Callback<CompoundTag> callback)
 	{
 		TaskManager.sendTask(new TaskRemove(amount).setCallback(callback));
 	}
 	
 	//TODO: Make private. Only the bank application should have access to these.
 	
-	public Account getAccount(EntityPlayer player)
+	public Account getAccount(Player player)
 	{
-		if(!uuidToAccount.containsKey(player.getUniqueID()))
+		if(!uuidToAccount.containsKey(player.getUUID()))
 		{
-			uuidToAccount.put(player.getUniqueID(), new Account(0));
+			uuidToAccount.put(player.getUUID(), new Account(0));
 		}
-		return uuidToAccount.get(player.getUniqueID());
+		return uuidToAccount.get(player.getUUID());
 	}
 	
 	public Account getAccount(UUID uuid)
@@ -100,28 +100,28 @@ public class BankUtil
 		return uuidToAccount.get(uuid);
 	}
 	
-	public void save(NBTTagCompound tag) 
+	public void save(CompoundTag tag)
 	{
-		NBTTagList accountList = new NBTTagList();
+		ListTag accountList = new ListTag();
 		for(UUID uuid : uuidToAccount.keySet())
 		{
-			NBTTagCompound accountTag = new NBTTagCompound();
+			CompoundTag accountTag = new CompoundTag();
 			Account account = uuidToAccount.get(uuid);
-			accountTag.setString("uuid", uuid.toString());
-			accountTag.setInteger("balance", account.getBalance());
-			accountList.appendTag(accountTag);
+			accountTag.putString("uuid", uuid.toString());
+			accountTag.putInt("balance", account.getBalance());
+			accountList.add(accountTag);
 		}
-		tag.setTag("accounts", accountList);
+		tag.put("accounts", accountList);
 	}
 	
-	public void load(NBTTagCompound tag) 
+	public void load(CompoundTag tag)
 	{
-		NBTTagList accountList = (NBTTagList) tag.getTag("accounts");
-		for(int i = 0; i < accountList.tagCount(); i++)
+		ListTag accountList = (ListTag) tag.get("accounts");
+		for(int i = 0; i < accountList.size(); i++)
 		{
-			NBTTagCompound accountTag = accountList.getCompoundTagAt(i);
+			CompoundTag accountTag = accountList.getCompound(i);
 			UUID uuid = UUID.fromString(accountTag.getString("uuid"));
-			Account account = new Account(accountTag.getInteger("balance"));
+			Account account = new Account(accountTag.getInt("balance"));
 			uuidToAccount.put(uuid, account);
 		}
 	}

@@ -1,5 +1,7 @@
 package com.mrcrayfish.device.object;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
 import com.mrcrayfish.device.object.Game.Layer;
 import com.mrcrayfish.device.object.tiles.Tile;
 import com.mrcrayfish.device.util.Vec2d;
@@ -7,39 +9,43 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBoat;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderSystem;
+import net.minecraft.client.renderer.entity.BoatRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.vehicle.Boat;
 import org.lwjgl.input.Keyboard;
+
+import java.util.Objects;
 
 public class Player
 {
 	private static final ResourceLocation boatTextures = new ResourceLocation("textures/entity/boat.png");
 	
-	private Game game;
+	private final Game game;
 	
 	private double posX, posY;
 	private double posXPrev, posYPrev;
 	private double speed;
 	private int rotation, rotationPrev;
-	private Vec2d direction;
-	private Vec2d velocity;
-	
-	private ModelBoat boatModel;
-	private ModelDummyPlayer playerModel;
+	private final Vec2d direction;
+	private final Vec2d velocity;
+
+	private final Boat boatModel = new Boat(Objects.requireNonNull(Minecraft.getInstance().level), 0, 0, 0);
+	private final ModelDummyPlayer playerModel;
 	
 	boolean canMove = false;
+	private final BoatRenderer boatRenderer;
 	
 	public Player(Game game)
 	{
 		this.game = game;
 		this.direction = new Vec2d(0, 0);
 		this.velocity = new Vec2d(0, 0);
-		this.boatModel = new ModelBoat();
-		boolean slim = Minecraft.getMinecraft().player.getSkinType().equals("slim");
+		boolean slim = Minecraft.getInstance().player.getModelName().equals("slim");
 		this.playerModel = new ModelDummyPlayer(0F, slim);
-		this.playerModel.isRiding = true;
-		this.playerModel.isChild = false;
+		this.boatRenderer = new BoatRenderer(createEntityRendererContext()); assert Minecraft.getInstance().player != null; boolean isSlim = Minecraft.getInstance().player.getModelName().equals("slim");
 	}
 	
 	public void tick()
@@ -102,8 +108,7 @@ public class Player
 		if(posX + velocity.x <= 0) return false;
 		if(posY + velocity.y <= 0) return false;
 		if(posX + velocity.x >= game.mapWidth * Tile.WIDTH) return false;
-		if(posY + velocity.y >= game.mapHeight * Tile.HEIGHT) return false;
-		return true;
+		return !(posY + velocity.y >= game.mapHeight * Tile.HEIGHT);
 	}
 	
 	public int getPosX()
@@ -122,32 +127,32 @@ public class Player
 		double px = x + posXPrev + (posX - posXPrev) * partialTicks;
 		double py = y + posYPrev + (posY - posYPrev) * partialTicks;
         float rot = rotationPrev + (rotation - rotationPrev) * partialTicks;
-        
-        GlStateManager.pushMatrix();
-		GlStateManager.translate((float) px, (float) py, 3.0F);
-		GlStateManager.scale((float) (-scale), (float) -scale, (float) -scale);
-		GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F); //Flips boat up
-		GlStateManager.rotate(90F, 1, 0, 0);
-		GlStateManager.translate(0.0F, -3F, 0.0F);
-		GlStateManager.rotate(-20F, 1.0F, 0.0F, 0.0F);
-		GlStateManager.rotate(rot, 0.0F, 1.0F, 0.0F);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(boatTextures);
-		boatModel.render((Entity) null, 0F, 0F, 0F, 0F, 0F, 1F);
-		GlStateManager.popMatrix();
+		PoseStack poseStack = new PoseStack();
+		poseStack.pushPose();
+		poseStack.translate((float) px, (float) py, 3.0F);
+		poseStack.scale(-scale, -scale, -scale);
+		poseStack.mulPose(new Quaternion(180.0F, 0.0F, 0.0F, 1.0F)); //Flips boat up
+		poseStack.mulPose(new Quaternion(90F, 1, 0, 0));
+		poseStack.translate(0.0F, -3F, 0.0F);
+		poseStack.mulPose(new Quaternion(-20F, 1.0F, 0.0F, 0.0F));
+		poseStack.mulPose(new Quaternion(rot, 0.0F, 1.0F, 0.0F));
+		Minecraft.getInstance().getTextureManager().bindForSetup(boatTextures);
+		boatRenderer.render(null, 0F, 0F, 0F, 0F, 0F, 1F);
+		poseStack.popPose();
 		
-		GlStateManager.pushMatrix();
-		GlStateManager.translate((float) px, (float) py, 3.0F);
-		GlStateManager.scale((float) (-scale), (float) scale, (float) scale);
+		poseStack.pushPose();
+		poseStack.translate((float) px, (float) py, 3.0F);
+		poseStack.scale(-scale, scale, scale);
 		// //Flips boat up
-		GlStateManager.rotate(90F, 1, 0, 0);
-		GlStateManager.translate(0.0F, 5.0F, 0.0F);
-		GlStateManager.rotate(20F, 1.0F, 0.0F, 0.0F);
-		GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
-		GlStateManager.rotate(rot - 90F, 0.0F, 1.0F, 0.0F);
-		GlStateManager.translate(0F, -12F, 5F);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(Minecraft.getMinecraft().player.getLocationSkin());
-		playerModel.render((Entity) null, 0F, 0F, 0F, 0F, 0F, 1F);
-		GlStateManager.popMatrix();
+		poseStack.mulPose(new Quaternion(90F, 1, 0, 0));
+		poseStack.translate(0.0F, 5.0F, 0.0F);
+		poseStack.mulPose(new Quaternion(20F, 1.0F, 0.0F, 0.0F));
+		poseStack.mulPose(new Quaternion(180.0F, 0.0F, 0.0F, 1.0F));
+		poseStack.mulPose(new Quaternion(rot - 90F, 0.0F, 1.0F, 0.0F));
+		poseStack.translate(0F, -12F, 5F))
+		Minecraft.getInstance().getTextureManager().bindForSetup(Minecraft.getInstance().player.getSkinTextureLocation());
+		playerModel.render(null, 0F, 0F, 0F, 0F, 0F, 1F);
+		poseStack.popPose();
 	}
 	
 	public static class ModelDummyPlayer extends ModelBiped
@@ -157,9 +162,9 @@ public class Player
 		public ModelRenderer bipedLeftLegwear;
 		public ModelRenderer bipedRightLegwear;
 		public ModelRenderer bipedBodyWear;
-		private ModelRenderer bipedCape;
-		private ModelRenderer bipedDeadmau5Head;
-		private boolean smallArms;
+		private final ModelRenderer bipedCape;
+		private final ModelRenderer bipedDeadmau5Head;
+		private final boolean smallArms;
 
 		public ModelDummyPlayer(float scale, boolean slim)
 		{
@@ -216,7 +221,7 @@ public class Player
 		public void render(Entity entityIn, float p_78088_2_, float p_78088_3_, float p_78088_4_, float p_78088_5_, float p_78088_6_, float scale)
 		{
 			this.setRotationAngles(p_78088_2_, p_78088_3_, p_78088_4_, p_78088_5_, p_78088_6_, scale, entityIn);
-			GlStateManager.pushMatrix();
+			RenderSystem.pushMatrix();
 
 			this.bipedHead.render(scale);
             this.bipedBody.render(scale);
@@ -231,7 +236,7 @@ public class Player
 			this.bipedRightArmwear.render(scale);
 			this.bipedBodyWear.render(scale);
 
-			GlStateManager.popMatrix();
+			RenderSystem.popMatrix();
 		}
 		
 		public void setRotationAngles(float p_78087_1_, float p_78087_2_, float p_78087_3_, float p_78087_4_, float p_78087_5_, float p_78087_6_, Entity entityIn)

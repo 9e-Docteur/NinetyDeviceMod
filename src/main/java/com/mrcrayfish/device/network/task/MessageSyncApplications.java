@@ -6,63 +6,60 @@ import com.mrcrayfish.device.api.ApplicationManager;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.proxy.CommonProxy;
 import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraft.network.Connection;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
 
 import java.util.List;
 
 /**
  * Author: MrCrayfish
  */
-public class MessageSyncApplications implements IMessage, IMessageHandler<MessageSyncApplications, MessageSyncApplications>
-{
+public class MessageSyncApplications implements PacketListener, Packet<MessageSyncApplications> {
     private List<AppInfo> allowedApps;
 
-    public MessageSyncApplications() {}
+    public MessageSyncApplications(FriendlyByteBuf buf) {
+        int size = buf.readInt();
+        ImmutableList.Builder<AppInfo> builder = ImmutableList.builder();
+        for (int i = 0; i < size; i++) {
+            String appId = buf.readUtf();
+            AppInfo info = ApplicationManager.getApplication(appId);
+            if (info != null) {
+                builder.add(info);
+            } else {
+                //Devices.LOGGER.error("Missing application '" + appId + "'");
+            }
+        }
 
-    public MessageSyncApplications(List<AppInfo> allowedApps)
-    {
+        allowedApps = builder.build();
+    }
+
+    public MessageSyncApplications(List<AppInfo> allowedApps) {
         this.allowedApps = allowedApps;
     }
 
     @Override
-    public void toBytes(ByteBuf buf)
-    {
-        buf.writeInt(allowedApps.size());
-        for(AppInfo appInfo : allowedApps)
-        {
-            ByteBufUtils.writeUTF8String(buf, appInfo.getId().toString());
+    public void write(FriendlyByteBuf p_131343_) {
+        p_131343_.writeInt(allowedApps.size());
+        for (AppInfo appInfo : allowedApps) {
+            p_131343_.writeResourceLocation(appInfo.getId());
         }
     }
 
     @Override
-    public void fromBytes(ByteBuf buf)
-    {
-        int size = buf.readInt();
-        ImmutableList.Builder<AppInfo> builder = new ImmutableList.Builder<>();
-        for(int i = 0; i < size; i++)
-        {
-            String appId = ByteBufUtils.readUTF8String(buf);
-            AppInfo info = ApplicationManager.getApplication(appId);
-            if(info != null)
-            {
-                builder.add(info);
-            }
-            else
-            {
-                MrCrayfishDeviceMod.getLogger().error("Missing application '" + appId + "'");
-            }
-        }
-        allowedApps = builder.build();
+    public void handle(MessageSyncApplications p_131342_) {
+        //Devices.setAllowedApps(allowedApps);
     }
 
     @Override
-    public MessageSyncApplications onMessage(MessageSyncApplications message, MessageContext ctx)
-    {
-        ReflectionHelper.setPrivateValue(CommonProxy.class, MrCrayfishDeviceMod.proxy, message.allowedApps, "allowedApps");
+    public void onDisconnect(Component p_130552_) {
+
+    }
+
+    @Override
+    public Connection getConnection() {
         return null;
     }
 }

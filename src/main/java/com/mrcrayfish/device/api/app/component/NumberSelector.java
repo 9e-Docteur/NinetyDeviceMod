@@ -1,10 +1,10 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.core.Laptop;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.input.Mouse;
 
 import java.text.DecimalFormat;
 
@@ -77,12 +77,12 @@ public class NumberSelector extends Component
 	}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {}
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) {}
 	
 	@Override
 	public void handleTick()
 	{
-		if(Mouse.isButtonDown(0))
+		if(Minecraft.getInstance().mouseHandler.isLeftPressed())
 		{
 			if(holding)
 			{

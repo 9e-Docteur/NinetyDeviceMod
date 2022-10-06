@@ -4,12 +4,12 @@ import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.core.io.FileSystem;
 import com.mrcrayfish.device.core.io.drive.AbstractDrive;
 import com.mrcrayfish.device.tileentity.TileEntityLaptop;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.Map;
 import java.util.UUID;
@@ -38,58 +38,57 @@ public class TaskSetupFileBrowser extends Task
     }
 
     @Override
-    public void prepareRequest(NBTTagCompound nbt)
+    public void prepareRequest(CompoundTag nbt)
     {
-        nbt.setLong("pos", pos.toLong());
-        nbt.setBoolean("include_main", includeMain);
+        nbt.putLong("pos", pos.asLong());
+        nbt.putBoolean("include_main", includeMain);
     }
 
     @Override
-    public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player)
+    public void processRequest(CompoundTag nbt, Level Level, Player player)
     {
-        TileEntity tileEntity = world.getTileEntity(BlockPos.fromLong(nbt.getLong("pos")));
-        if(tileEntity instanceof TileEntityLaptop)
+        BlockEntity tileEntity = Level.getBlockEntity(BlockPos.of(nbt.getLong("pos")));
+        if(tileEntity instanceof TileEntityLaptop laptop)
         {
-            TileEntityLaptop laptop = (TileEntityLaptop) tileEntity;
             FileSystem fileSystem = laptop.getFileSystem();
             if(nbt.getBoolean("include_main"))
             {
                 mainDrive = fileSystem.getMainDrive();
             }
-            availableDrives = fileSystem.getAvailableDrives(world, false);
+            availableDrives = fileSystem.getAvailableDrives(Level, false);
             this.setSuccessful();
         }
     }
 
     @Override
-    public void prepareResponse(NBTTagCompound nbt)
+    public void prepareResponse(CompoundTag nbt)
     {
         if(this.isSucessful())
         {
             if(mainDrive != null)
             {
-                NBTTagCompound mainDriveTag = new NBTTagCompound();
-                mainDriveTag.setString("name", mainDrive.getName());
-                mainDriveTag.setString("uuid", mainDrive.getUUID().toString());
-                mainDriveTag.setString("type", mainDrive.getType().toString());
-                nbt.setTag("main_drive", mainDriveTag);
-                nbt.setTag("structure", mainDrive.getDriveStructure().toTag());
+                CompoundTag mainDriveTag = new CompoundTag();
+                mainDriveTag.putString("name", mainDrive.getName());
+                mainDriveTag.putString("uuid", mainDrive.getUUID().toString());
+                mainDriveTag.putString("type", mainDrive.getType().toString());
+                nbt.put("main_drive", mainDriveTag);
+                nbt.put("structure", mainDrive.getDriveStructure().toTag());
             }
 
-            NBTTagList driveList = new NBTTagList();
+            ListTag driveList = new ListTag();
             availableDrives.forEach((k, v) -> {
-                NBTTagCompound driveTag = new NBTTagCompound();
-                driveTag.setString("name", v.getName());
-                driveTag.setString("uuid", v.getUUID().toString());
-                driveTag.setString("type", v.getType().toString());
-                driveList.appendTag(driveTag);
+                CompoundTag driveTag = new CompoundTag();
+                driveTag.putString("name", v.getName());
+                driveTag.putString("uuid", v.getUUID().toString());
+                driveTag.putString("type", v.getType().toString());
+                driveList.add(driveTag);
             });
-            nbt.setTag("available_drives", driveList);
+            nbt.put("available_drives", driveList);
         }
     }
 
     @Override
-    public void processResponse(NBTTagCompound nbt)
+    public void processResponse(CompoundTag nbt)
     {
 
     }

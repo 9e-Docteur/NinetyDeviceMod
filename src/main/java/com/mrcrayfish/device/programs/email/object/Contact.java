@@ -5,8 +5,8 @@ package com.mrcrayfish.device.programs.email.object;
  */
 public class Contact
 {
-    private String nickname;
-    private String email;
+    private final String nickname;
+    private final String email;
 
     public Contact(String nickname, String email)
     {

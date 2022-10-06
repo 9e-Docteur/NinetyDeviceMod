@@ -2,130 +2,115 @@ package com.mrcrayfish.device.block;
 
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.network.PacketHandler;
-import com.mrcrayfish.device.network.task.MessageSyncBlock;
-import com.mrcrayfish.device.object.Bounds;
 import com.mrcrayfish.device.tileentity.TileEntityRouter;
-import com.mrcrayfish.device.util.IColored;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockColored;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
+
+import static net.minecraft.world.level.block.HopperBlock.FACING;
+import static net.minecraft.world.phys.shapes.Shapes.box;
 
 /**
  * Author: MrCrayfish
  */
 public class BlockRouter extends BlockDevice.Colored
 {
-    public static final PropertyBool VERTICAL = PropertyBool.create("vertical");
+    public static final BooleanProperty VERTICAL = BooleanProperty.create("vertical");
 
-    private static final AxisAlignedBB[] BODY_BOUNDING_BOX = new Bounds(4, 0, 2, 12, 2, 14).getRotatedBounds();
-    private static final AxisAlignedBB[] BODY_VERTICAL_BOUNDING_BOX = new Bounds(14, 1, 2, 16, 9, 14).getRotatedBounds();
-    private static final AxisAlignedBB[] SELECTION_BOUNDING_BOX = new Bounds(3, 0, 1, 13, 3, 15).getRotatedBounds();
-    private static final AxisAlignedBB[] SELECTION_VERTICAL_BOUNDING_BOX = new Bounds(13, 0, 1, 16, 10, 15).getRotatedBounds();
+    // Todo - do rotations for voxel shapes properly.
+    private static final VoxelShape[] BODY_BOUNDING_BOX = {
+            box(4, 0, 2, 12, 2, 14),
+            box(4, 0, 2, 12, 2, 14),
+            box(4, 0, 2, 12, 2, 14),
+            box(4, 0, 2, 12, 2, 14)
+    };
+    private static final VoxelShape[] BODY_VERTICAL_BOUNDING_BOX = {
+            box(14, 1, 2, 16, 9, 14),
+            box(14, 1, 2, 16, 9, 14),
+            box(14, 1, 2, 16, 9, 14),
+            box(14, 1, 2, 16, 9, 14)
+    };
+    private static final VoxelShape[] SELECTION_BOUNDING_BOX = {
+            box(3, 0, 1, 13, 3, 15),
+            box(3, 0, 1, 13, 3, 15),
+            box(3, 0, 1, 13, 3, 15),
+            box(3, 0, 1, 13, 3, 15)
+    };
+    private static final VoxelShape[] SELECTION_VERTICAL_BOUNDING_BOX = {
+            box(13, 0, 1, 16, 10, 15),
+            box(13, 0, 1, 16, 10, 15),
+            box(13, 0, 1, 16, 10, 15),
+            box(13, 0, 1, 16, 10, 15)
+    };
 
-    public BlockRouter()
-    {
-        super(Material.ANVIL);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(VERTICAL, false));
-        this.setCreativeTab(MrCrayfishDeviceMod.TAB_DEVICE);
-        this.setUnlocalizedName("router");
-        this.setRegistryName("router");
+    public BlockRouter(DyeColor color) {
+        super(BlockBehaviour.Properties.of(Material.HEAVY_METAL).strength(6f).sound(SoundType.METAL), color);
+        this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(VERTICAL, false));
     }
 
     @Override
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-    {
-        if(state.getValue(VERTICAL))
-        {
-            return SELECTION_VERTICAL_BOUNDING_BOX[state.getValue(FACING).getHorizontalIndex()];
-        }
-        return SELECTION_BOUNDING_BOX[state.getValue(FACING).getHorizontalIndex()];
+    public @NotNull VoxelShape getShape(@NotNull BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
+        return switch (pState.getValue(FACING)) {
+            case NORTH -> pState.getValue(VERTICAL) ? BODY_VERTICAL_BOUNDING_BOX[0] : BODY_BOUNDING_BOX[0];
+            case EAST -> pState.getValue(VERTICAL) ? BODY_VERTICAL_BOUNDING_BOX[1] : BODY_BOUNDING_BOX[1];
+            case SOUTH -> pState.getValue(VERTICAL) ? BODY_VERTICAL_BOUNDING_BOX[2] : BODY_BOUNDING_BOX[2];
+            case WEST -> pState.getValue(VERTICAL) ? BODY_VERTICAL_BOUNDING_BOX[3] : BODY_BOUNDING_BOX[3];
+            default -> BODY_BOUNDING_BOX[0];
+        };
     }
 
     @Override
-    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
-    {
-        if(state.getValue(VERTICAL))
-        {
-            Block.addCollisionBoxToList(pos, entityBox, collidingBoxes, BODY_VERTICAL_BOUNDING_BOX[state.getValue(FACING).getHorizontalIndex()]);
-        }
-        else
-        {
-            Block.addCollisionBoxToList(pos, entityBox, collidingBoxes, BODY_BOUNDING_BOX[state.getValue(FACING).getHorizontalIndex()]);
-        }
-    }
-
-    @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-    {
-        if(worldIn.isRemote && playerIn.capabilities.isCreativeMode)
-        {
-            TileEntity tileEntity = worldIn.getTileEntity(pos);
-            if(tileEntity instanceof TileEntityRouter)
-            {
-                TileEntityRouter tileEntityRouter = (TileEntityRouter) tileEntity;
-                tileEntityRouter.setDebug();
-                if(tileEntityRouter.isDebug())
-                {
-                    PacketHandler.INSTANCE.sendToServer(new MessageSyncBlock(pos));
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (level.isClientSide && player.isCreative()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof TileEntityRouter router) {
+                router.setDebug();
+                if (router.isDebug()) {
+                    PacketHandler.INSTANCE.sendToServer(new SyncBlockPacket(pos));
                 }
             }
-            return true;
+            return InteractionResult.SUCCESS;
         }
-        return true;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
-    {
-        IBlockState state = super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand);
-        return state.withProperty(VERTICAL, facing.getHorizontalIndex() != -1);
+    public @org.jetbrains.annotations.Nullable BlockState getStateForPlacement(@NotNull BlockPlaceContext pContext) {
+        BlockState state = super.getStateForPlacement(pContext);
+        return state != null ? state.setValue(FACING, pContext.getHorizontalDirection().getOpposite()).setValue(VERTICAL, pContext.getClickLocation().y - pContext.getClickLocation().y > 0.5) : null;
+    }
+
+    @NotNull
+    @Override
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+        return new TileEntityRouter(pos, state);
     }
 
     @Override
-    public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side)
-    {
-        return side != EnumFacing.DOWN;
-    }
-
-    @Nullable
-    @Override
-    public TileEntity createTileEntity(World world, IBlockState state)
-    {
-        return new TileEntityRouter();
-    }
-
-    @Override
-    public int getMetaFromState(IBlockState state)
-    {
-        return state.getValue(FACING).getHorizontalIndex() + (state.getValue(VERTICAL) ? 4 : 0);
-    }
-
-    @Override
-    public IBlockState getStateFromMeta(int meta)
-    {
-        return super.getStateFromMeta(meta).withProperty(VERTICAL, meta - 4 >= 0);
-    }
-
-    @Override
-    protected BlockStateContainer createBlockState()
-    {
-        return new BlockStateContainer(this, FACING, VERTICAL, BlockColored.COLOR);
+    protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> pBuilder) {
+        super.createBlockStateDefinition(pBuilder);
+        pBuilder.add(VERTICAL);
     }
 }

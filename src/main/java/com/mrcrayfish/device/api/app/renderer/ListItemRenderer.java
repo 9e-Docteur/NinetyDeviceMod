@@ -1,7 +1,13 @@
 package com.mrcrayfish.device.api.app.renderer;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mrcrayfish.device.api.io.Drive;
+import com.mrcrayfish.device.api.io.File;
+import com.mrcrayfish.device.core.Device;
+import com.mrcrayfish.device.object.AppInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screens.Screen;
 
 public abstract class ListItemRenderer<E> 
 {
@@ -16,6 +22,22 @@ public abstract class ListItemRenderer<E>
 	{
 		return height;
 	}
-	
-	public abstract void render(E e, Gui gui, Minecraft mc, int x, int y, int width, int height, boolean selected);
+
+	public void render(PoseStack poseStack, E e, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+
+	}
+
+	public void render(PoseStack poseStack, AppInfo info, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+
+	}
+
+	public void render(PoseStack poseStack, Drive drive, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+
+	}
+
+	public void render(PoseStack poseStack, File file, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+
+	}
+
+	public abstract void render(PoseStack poseStack, Device device, javafx.stage.Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected);
 }

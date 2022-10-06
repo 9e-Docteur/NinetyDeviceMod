@@ -1,7 +1,8 @@
 package com.mrcrayfish.device.programs.system.layout;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.ApplicationManager;
-import com.mrcrayfish.device.api.app.Application;
 import com.mrcrayfish.device.api.app.Icons;
 import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.api.app.component.*;
@@ -11,14 +12,13 @@ import com.mrcrayfish.device.api.utils.RenderUtil;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.programs.system.ApplicationAppStore;
 import com.mrcrayfish.device.programs.system.object.LocalEntry;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -34,7 +34,7 @@ public class LayoutSearchApps extends StandardLayout
 
     private long lastClick = 0;
 
-    private ApplicationAppStore appStore;
+    private final ApplicationAppStore appStore;
 
     public LayoutSearchApps(ApplicationAppStore appStore, Layout previous)
     {
@@ -53,13 +53,13 @@ public class LayoutSearchApps extends StandardLayout
         itemListResults.setListItemRenderer(new ListItemRenderer<AppInfo>(18)
         {
             @Override
-            public void render(AppInfo info, Gui gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
+            public void render(PoseStack poseStack, AppInfo info, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
             {
-                Gui.drawRect(x, y, x + width, y + height, selected ? ITEM_SELECTED.getRGB() : ITEM_BACKGROUND.getRGB());
+                Gui.fill(poseStack, x, y, x + width, y + height, selected ? ITEM_SELECTED.getRGB() : ITEM_BACKGROUND.getRGB());
 
-                GlStateManager.color(1.0F, 1.0F, 1.0F);
+                GlStateManager._clearColor(1F, 1.0F, 1.0F, 1.0F);
                 RenderUtil.drawApplicationIcon(info, x + 2, y + 2);
-                RenderUtil.drawStringClipped(info.getName() + TextFormatting.GRAY + " - " + TextFormatting.DARK_GRAY + info.getDescription(), x + 20, y + 5, itemListResults.getWidth() - 22, Color.WHITE.getRGB(), false);
+                RenderUtil.drawStringClipped(info.getName() + ChatFormatting.GRAY + " - " + ChatFormatting.DARK_GRAY + info.getDescription(), x + 20, y + 5, itemListResults.getWidth() - 22, Color.WHITE.getRGB(), false);
             }
         });
         itemListResults.setItemClickListener((info, index, mouseButton) ->

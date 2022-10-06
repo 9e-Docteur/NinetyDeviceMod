@@ -1,21 +1,20 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.IIcon;
 import com.mrcrayfish.device.api.app.listener.ClickListener;
 import com.mrcrayfish.device.api.utils.RenderUtil;
 import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.util.GuiHelper;
-import com.mrcrayfish.device.util.GuiHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -201,59 +200,63 @@ I	 * @param top how many pixels from the top
 	}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) 
+	public void render(PoseStack poseStack,Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
 		if (this.visible)
         {
-            mc.getTextureManager().bindTexture(Component.COMPONENTS_GUI);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            mc.getTextureManager().bindForSetup(Component.COMPONENTS_GUI);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			Color bgColor = new Color(getColorScheme().getBackgroundColor()).brighter().brighter();
 			float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
 			bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1.0F));
 			GL11.glColor4f(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
 			this.hovered = GuiHelper.isMouseWithin(mouseX, mouseY, x, y, width, height) && windowActive;
             int i = this.getHoverState(this.hovered);
-            GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-            GlStateManager.blendFunc(770, 771);
+            RenderSystem.enableBlend();
+            //RenderSystem.tryBlendFuncSeparate(770, 771, 1, 0);
+            RenderSystem.blendFunc(770, 771);
             
             /* Corners */
-            RenderUtil.drawRectWithTexture(x, y, 96 + i * 5, 12, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(x + width - 2, y, 99 + i * 5, 12, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(x + width - 2, y + height - 2, 99 + i * 5, 15, 2, 2, 2, 2);
-            RenderUtil.drawRectWithTexture(x, y + height - 2, 96 + i * 5, 15, 2, 2, 2, 2);
+            RenderUtil.fillWithTexture(x, y, 96 + i * 5, 12, 2, 2, 2, 2);
+            RenderUtil.fillWithTexture(x + width - 2, y, 99 + i * 5, 12, 2, 2, 2, 2);
+            RenderUtil.fillWithTexture(x + width - 2, y + height - 2, 99 + i * 5, 15, 2, 2, 2, 2);
+            RenderUtil.fillWithTexture(x, y + height - 2, 96 + i * 5, 15, 2, 2, 2, 2);
 
             /* Middles */
-            RenderUtil.drawRectWithTexture(x + 2, y, 98 + i * 5, 12, width - 4, 2, 1, 2);
-            RenderUtil.drawRectWithTexture(x + width - 2, y + 2, 99 + i * 5, 14, 2, height - 4, 2, 1);
-            RenderUtil.drawRectWithTexture(x + 2, y + height - 2, 98 + i * 5, 15, width - 4, 2, 1, 2);
-            RenderUtil.drawRectWithTexture(x, y + 2, 96 + i * 5, 14, 2, height - 4, 2, 1);
+            RenderUtil.fillWithTexture(x + 2, y, 98 + i * 5, 12, width - 4, 2, 1, 2);
+            RenderUtil.fillWithTexture(x + width - 2, y + 2, 99 + i * 5, 14, 2, height - 4, 2, 1);
+            RenderUtil.fillWithTexture(x + 2, y + height - 2, 98 + i * 5, 15, width - 4, 2, 1, 2);
+            RenderUtil.fillWithTexture(x, y + 2, 96 + i * 5, 14, 2, height - 4, 2, 1);
             
             /* Center */
-            RenderUtil.drawRectWithTexture(x + 2, y + 2, 98 + i * 5, 14, width - 4, height - 4, 1, 1);
+            RenderUtil.fillWithTexture(x + 2, y + 2, 98 + i * 5, 14, width - 4, height - 4, 1, 1);
             
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
             int contentWidth = (iconResource != null ? iconWidth: 0) + getTextWidth(text);
-            if(iconResource != null && !StringUtils.isNullOrEmpty(text)) contentWidth += 3;
+            if(iconResource != null && !isNullOrEmpty(text)) contentWidth += 3;
             int contentX = (int) Math.ceil((width - contentWidth) / 2.0);
 
             if(iconResource != null)
 			{
 				int iconY = (height - iconHeight) / 2;
-				mc.getTextureManager().bindTexture(iconResource);
-				RenderUtil.drawRectWithTexture(x + contentX, y + iconY, iconU, iconV, iconWidth, iconHeight, iconWidth, iconHeight, iconSourceWidth, iconSourceHeight);
+				mc.getTextureManager().bindForSetup(iconResource);
+				RenderUtil.fillWithTexture(x + contentX, y + iconY, iconU, iconV, iconWidth, iconHeight, iconWidth, iconHeight, iconSourceWidth, iconSourceHeight);
 			}
 
-			if(!StringUtils.isNullOrEmpty(text))
+			if(!isNullOrEmpty(text))
 			{
-				int textY = (height - mc.fontRenderer.FONT_HEIGHT) / 2 + 1;
+				int textY = (height - mc.font.lineHeight) / 2 + 1;
 				int textOffsetX = iconResource != null ? iconWidth + 3 : 0;
 				int textColor = !Button.this.enabled ? 10526880 : (Button.this.hovered ? 16777120 : 14737632);
-				drawString(mc.fontRenderer, text, x + contentX + textOffsetX, y + textY, textColor);
+				drawString(poseStack, mc.font, text, x + contentX + textOffsetX, y + textY, textColor);
 			}
         }
+	}
+
+	public static boolean isNullOrEmpty(String text) {
+		return text == null || text.isEmpty();
 	}
 	
 	@Override
@@ -261,7 +264,8 @@ I	 * @param top how many pixels from the top
 	{
         if(this.hovered && this.toolTip != null && toolTipTick >= TOOLTIP_DELAY)
         {
-        	laptop.drawHoveringText(Arrays.asList(TextFormatting.GOLD + this.toolTipTitle, this.toolTip), mouseX, mouseY);
+			PoseStack poseStack = new PoseStack();
+        	laptop.renderTooltip(poseStack, (net.minecraft.network.chat.Component) Arrays.asList(ChatFormatting.GOLD + this.toolTipTitle, this.toolTip), mouseX, mouseY);
         }
 	}
 
@@ -277,7 +281,7 @@ I	 * @param top how many pixels from the top
 			{
 				clickListener.onClick(mouseX, mouseY, mouseButton);
 			}
-			playClickSound(Minecraft.getMinecraft().getSoundHandler());
+			playClickSound(Minecraft.getInstance().getSoundManager());
 		}
 	}
 	
@@ -308,9 +312,9 @@ I	 * @param top how many pixels from the top
         return i;
     }
 	
-	protected void playClickSound(SoundHandler handler)
+	protected void playClickSound(SoundManager handler)
 	{
-		handler.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+		handler.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 	}
 	
 	protected boolean isInside(int mouseX, int mouseY)
@@ -434,7 +438,7 @@ I	 * @param top how many pixels from the top
 
 	private static int getTextWidth(String text)
 	{
-		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+		Font fontRenderer = Minecraft.getInstance().font;
 		boolean flag = fontRenderer.getUnicodeFlag();
 		fontRenderer.setUnicodeFlag(false);
 		int width = fontRenderer.getStringWidth(text);

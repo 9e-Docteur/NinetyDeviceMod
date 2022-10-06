@@ -30,9 +30,9 @@ public class HeaderModule extends Module
     {
         if(data.containsKey("scale"))
         {
-            return Integer.parseInt(data.get("scale")) * Laptop.fontRenderer.FONT_HEIGHT + 10;
+            return Integer.parseInt(data.get("scale")) * Laptop.fontRenderer.lineHeight + 10;
         }
-        return Laptop.fontRenderer.FONT_HEIGHT + (data.containsKey("padding") ? Integer.parseInt(data.get("padding")) : 5) * 2;
+        return Laptop.fontRenderer.lineHeight + (data.containsKey("padding") ? Integer.parseInt(data.get("padding")) : 5) * 2;
     }
 
     @Override

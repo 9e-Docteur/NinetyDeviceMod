@@ -1,7 +1,7 @@
 package com.mrcrayfish.device.core.io;
 
 import com.mrcrayfish.device.api.app.Application;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 import java.util.Comparator;
@@ -20,22 +20,22 @@ public class ServerFile
     protected ServerFolder parent;
     protected String name;
     protected String openingApp;
-    protected NBTTagCompound data;
+    protected CompoundTag data;
     protected boolean protect = false;
 
     protected ServerFile() {}
 
-    public ServerFile(String name, Application app, NBTTagCompound data)
+    public ServerFile(String name, Application app, CompoundTag data)
     {
         this(name, app.getInfo().getFormattedId(), data, false);
     }
 
-    public ServerFile(String name, String openingAppId, NBTTagCompound data)
+    public ServerFile(String name, String openingAppId, CompoundTag data)
     {
         this(name, openingAppId, data, false);
     }
 
-    private ServerFile(String name, String openingAppId, NBTTagCompound data, boolean protect)
+    private ServerFile(String name, String openingAppId, CompoundTag data, boolean protect)
     {
         this.name = name;
         this.openingApp = openingAppId;
@@ -66,7 +66,7 @@ public class ServerFile
         return openingApp;
     }
 
-    public FileSystem.Response setData(NBTTagCompound data)
+    public FileSystem.Response setData(CompoundTag data)
     {
         if(this.protect)
             return FileSystem.createResponse(FileSystem.Status.FILE_IS_PROTECTED, "Cannot set data on a protected file");
@@ -79,7 +79,7 @@ public class ServerFile
     }
 
     @Nullable
-    public NBTTagCompound getData()
+    public CompoundTag getData()
     {
         return data;
     }
@@ -116,17 +116,17 @@ public class ServerFile
         return FileSystem.createResponse(FileSystem.Status.FILE_INVALID, "Invalid file");
     }
 
-    public NBTTagCompound toTag()
+    public CompoundTag toTag()
     {
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setString("openingApp", openingApp);
-        tag.setTag("data", data);
+        CompoundTag tag = new CompoundTag();
+        tag.putString("openingApp", openingApp);
+        tag.put("data", data);
         return tag;
     }
 
-    public static ServerFile fromTag(String name, NBTTagCompound tag)
+    public static ServerFile fromTag(String name, CompoundTag tag)
     {
-        return new ServerFile(name, tag.getString("openingApp"), tag.getCompoundTag("data"));
+        return new ServerFile(name, tag.getString("openingApp"), tag.getCompound("data"));
     }
 
     @Override

@@ -5,26 +5,22 @@ import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.core.network.Router;
 import com.mrcrayfish.device.tileentity.TileEntityNetworkDevice;
 import com.mrcrayfish.device.tileentity.TileEntityRouter;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.play.server.SPacketChat;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -34,47 +30,45 @@ import java.util.List;
  */
 public class ItemEthernetCable extends Item
 {
-    public ItemEthernetCable()
-    {
-        this.setUnlocalizedName("ethernet_cable");
-        this.setRegistryName("ethernet_cable");
-        this.setCreativeTab(MrCrayfishDeviceMod.TAB_DEVICE);
-        this.setMaxStackSize(1);
+
+
+    public ItemEthernetCable(Properties p_41383_) {
+        super(p_41383_);
     }
 
     @Override
-    public EnumActionResult onItemUseFirst(EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand)
-    {
-        if(!world.isRemote)
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+        Level Level = context.getLevel();
+        Player player = context.getPlayer();
+        BlockPos pos = context.getClickedPos();
+        if(!Level.isClientSide)
         {
-            ItemStack heldItem = player.getHeldItem(hand);
-            TileEntity tileEntity = world.getTileEntity(pos);
+            ItemStack heldItem = player.getItemInHand(InteractionHand.MAIN_HAND);
+            BlockEntity tileEntity = Level.getBlockEntity(pos);
 
-            if(tileEntity instanceof TileEntityRouter)
+            if(tileEntity instanceof TileEntityRouter tileEntityRouter)
             {
-                if(!heldItem.hasTagCompound())
+                if(!heldItem.hasTag())
                 {
                     sendGameInfoMessage(player, "message.invalid_cable");
-                    return EnumActionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 }
 
-                TileEntityRouter tileEntityRouter = (TileEntityRouter) tileEntity;
                 Router router = tileEntityRouter.getRouter();
 
-                NBTTagCompound tag = heldItem.getTagCompound();
-                BlockPos devicePos = BlockPos.fromLong(tag.getLong("pos"));
+                CompoundTag tag = heldItem.getTag();
+                BlockPos devicePos = BlockPos.of(tag.getLong("pos"));
 
-                TileEntity tileEntity1 = world.getTileEntity(devicePos);
-                if(tileEntity1 instanceof TileEntityNetworkDevice)
+                BlockEntity tileEntity1 = Level.getBlockEntity(devicePos);
+                if(tileEntity1 instanceof TileEntityNetworkDevice tileEntityNetworkDevice)
                 {
-                    TileEntityNetworkDevice tileEntityNetworkDevice = (TileEntityNetworkDevice) tileEntity1;
                     if(!router.isDeviceRegistered(tileEntityNetworkDevice))
                     {
                         if(router.addDevice(tileEntityNetworkDevice))
                         {
                             tileEntityNetworkDevice.connect(router);
                             heldItem.shrink(1);
-                            if(getDistance(tileEntity1.getPos(), tileEntityRouter.getPos()) > DeviceConfig.getSignalRange())
+                            if(getDistance(tileEntity1.getBlockPos(), tileEntityRouter.getBlockPos()) > DeviceConfig.getSignalRange())
                             {
                                 sendGameInfoMessage(player, "message.successful_registered");
                             }
@@ -95,7 +89,7 @@ public class ItemEthernetCable extends Item
                 }
                 else
                 {
-                    if(router.addDevice(tag.getUniqueId("id"), tag.getString("name")))
+                    if(router.addDevice(tag.getUUID("id"), tag.getString("name")))
                     {
                         heldItem.shrink(1);
                         sendGameInfoMessage(player, "message.successful_registered");
@@ -105,106 +99,101 @@ public class ItemEthernetCable extends Item
                         sendGameInfoMessage(player, "message.router_max_devices");
                     }
                 }
-                return EnumActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
 
-            if(tileEntity instanceof TileEntityNetworkDevice)
+            if(tileEntity instanceof TileEntityNetworkDevice tileEntityNetworkDevice)
             {
-                TileEntityNetworkDevice tileEntityNetworkDevice = (TileEntityNetworkDevice) tileEntity;
-                heldItem.setTagCompound(new NBTTagCompound());
-                NBTTagCompound tag = heldItem.getTagCompound();
-                tag.setUniqueId("id", tileEntityNetworkDevice.getId());
-                tag.setString("name", tileEntityNetworkDevice.getCustomName());
-                tag.setLong("pos", tileEntityNetworkDevice.getPos().toLong());
+                heldItem.setTag(new CompoundTag());
+                CompoundTag tag = heldItem.getTag();
+                tag.putUUID("id", tileEntityNetworkDevice.getId());
+                tag.putString("name", tileEntityNetworkDevice.getCustomName());
+                tag.putLong("pos", tileEntityNetworkDevice.getBlockPos().asLong());
 
                 sendGameInfoMessage(player, "message.select_router");
-                return EnumActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
-        return EnumActionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
-    private void sendGameInfoMessage(EntityPlayer player, String message)
+    private void sendGameInfoMessage(Player player, String message)
     {
-        if(player instanceof EntityPlayerMP)
+        if(player instanceof ServerPlayer)
         {
-            ((EntityPlayerMP) player).connection.sendPacket(new SPacketChat(new TextComponentTranslation(message), ChatType.GAME_INFO));
+            player.sendSystemMessage(Component.translatable((message)));
         }
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
-    {
-        if(!world.isRemote)
+    public InteractionResultHolder<ItemStack> use(Level p_41432_, Player p_41433_, InteractionHand p_41434_) {
+        if(!p_41432_.isClientSide)
         {
-            ItemStack heldItem = player.getHeldItem(hand);
-            if(player.isSneaking())
+            ItemStack heldItem = p_41433_.getItemInHand(p_41434_);
+            if(p_41433_.isCrouching())
             {
-                heldItem.clearCustomName();
-                heldItem.setTagCompound(null);
-                return new ActionResult<>(EnumActionResult.SUCCESS, heldItem);
+                heldItem.resetHoverName();
+                heldItem.setTag(null);
+                return new InteractionResultHolder<>(InteractionResult.SUCCESS, heldItem);
             }
         }
-        return super.onItemRightClick(world, player, hand);
+        return super.use(p_41432_, p_41433_, p_41434_);
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
+    public void appendHoverText(ItemStack stack, @Nullable Level LevelIn, List<Component> tooltip, TooltipFlag flagIn)
     {
-        if(stack.hasTagCompound())
+        if(stack.hasTag())
         {
-            NBTTagCompound tag = stack.getTagCompound();
+            CompoundTag tag = stack.getTag();
             if(tag != null)
             {
-                tooltip.add(TextFormatting.RED.toString() + TextFormatting.BOLD.toString() + "ID: " + TextFormatting.RESET.toString() + tag.getUniqueId("id"));
-                tooltip.add(TextFormatting.RED.toString() + TextFormatting.BOLD.toString() + "Device: " + TextFormatting.RESET.toString() + tag.getString("name"));
+                tooltip.add(Component.literal(ChatFormatting.RED.toString() + ChatFormatting.BOLD + "ID: " + ChatFormatting.RESET + tag.getUUID("id")));
+                tooltip.add(Component.literal(ChatFormatting.RED.toString() + ChatFormatting.BOLD + "Device: " + ChatFormatting.RESET + tag.getString("name")));
 
-                BlockPos devicePos = BlockPos.fromLong(tag.getLong("pos"));
-                StringBuilder builder = new StringBuilder();
-                builder.append(TextFormatting.RED.toString() + TextFormatting.BOLD.toString() + "X: " + TextFormatting.RESET.toString() + devicePos.getX() + " ");
-                builder.append(TextFormatting.RED.toString() + TextFormatting.BOLD.toString() + "Y: " + TextFormatting.RESET.toString() + devicePos.getY() + " ");
-                builder.append(TextFormatting.RED.toString() + TextFormatting.BOLD.toString() + "Z: " + TextFormatting.RESET.toString() + devicePos.getZ());
-                tooltip.add(builder.toString());
+                BlockPos devicePos = BlockPos.of(tag.getLong("pos"));
+                String builder = ChatFormatting.RED.toString() + ChatFormatting.BOLD + "X: " + ChatFormatting.RESET + devicePos.getX() + " " +
+                        ChatFormatting.RED.toString() + ChatFormatting.BOLD + "Y: " + ChatFormatting.RESET + devicePos.getY() + " " +
+                        ChatFormatting.RED.toString() + ChatFormatting.BOLD + "Z: " + ChatFormatting.RESET + devicePos.getZ();
+                tooltip.add(Component.literal(builder));
             }
         }
         else
         {
-            if(!GuiScreen.isShiftKeyDown())
+            if(!Screen.hasShiftDown())
             {
-                tooltip.add(TextFormatting.GRAY.toString() + "Use this cable to connect");
-                tooltip.add(TextFormatting.GRAY.toString() + "a device to a router.");
-                tooltip.add(TextFormatting.YELLOW.toString() + "Hold SHIFT for How-To");
+                tooltip.add(Component.literal(ChatFormatting.GRAY + "Use this cable to connect"));
+                tooltip.add(Component.literal(ChatFormatting.GRAY + "a device to a router."));
+                tooltip.add(Component.literal(ChatFormatting.YELLOW + "Hold SHIFT for How-To"));
                 return;
             }
 
-            tooltip.add(TextFormatting.GRAY.toString() + "Start by right clicking a");
-            tooltip.add(TextFormatting.GRAY.toString() + "device with this cable");
-            tooltip.add(TextFormatting.GRAY.toString() + "then right click the ");
-            tooltip.add(TextFormatting.GRAY.toString() + "router you want to");
-            tooltip.add(TextFormatting.GRAY.toString() + "connect this device to.");
+            tooltip.add(Component.literal(ChatFormatting.GRAY + "Start by right clicking a"));
+            tooltip.add(Component.literal(ChatFormatting.GRAY + "device with this cable"));
+            tooltip.add(Component.literal(ChatFormatting.GRAY + "then right click the "));
+            tooltip.add(Component.literal(ChatFormatting.GRAY + "router you want to"));
+            tooltip.add(Component.literal(ChatFormatting.GRAY + "connect this device to."));
         }
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, LevelIn, tooltip, flagIn);
     }
 
-    @SideOnly(Side.CLIENT)
-    public boolean hasEffect(ItemStack stack)
-    {
-        return stack.hasTagCompound();
+    @Override
+    public boolean isFoil(ItemStack p_41453_) {
+        return p_41453_.hasTag();
     }
 
     private static double getDistance(BlockPos source, BlockPos target)
     {
-        return Math.sqrt(source.distanceSqToCenter(target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5));
+        return Math.sqrt(source.distToCenterSqr(target.getX() + 0.5, target.getY() + 0.5, target.getZ() + 0.5));
     }
 
+
     @Override
-    public String getItemStackDisplayName(ItemStack stack)
-    {
-        if(stack.hasTagCompound())
+    public Component getName(ItemStack p_41458_) {
+        if(p_41458_.hasTag())
         {
-            return TextFormatting.GRAY.toString() + TextFormatting.BOLD.toString() + super.getItemStackDisplayName(stack);
+            return Component.literal(ChatFormatting.GRAY.toString() + ChatFormatting.BOLD + super.getName(p_41458_));
         }
-        return super.getItemStackDisplayName(stack);
+        return super.getName(p_41458_);
     }
 }

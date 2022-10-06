@@ -7,7 +7,7 @@ import com.mrcrayfish.device.api.app.component.*;
 import com.mrcrayfish.device.api.app.listener.ClickListener;
 import com.mrcrayfish.device.api.app.listener.SlideListener;
 import com.mrcrayfish.device.programs.example.task.TaskNotificationTest;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 
@@ -38,7 +38,7 @@ public class ApplicationExample extends Application
 	}
 	
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		label = new Label("Label", 5, 5);
 		super.addComponent(label);
@@ -128,13 +128,13 @@ public class ApplicationExample extends Application
 	}
 
 	@Override
-	public void load(NBTTagCompound tagCompound) 
+	public void load(CompoundTag tagCompound) 
 	{
 		
 	}
 
 	@Override
-	public void save(NBTTagCompound tagCompound) 
+	public void save(CompoundTag tagCompound) 
 	{
 		
 	}

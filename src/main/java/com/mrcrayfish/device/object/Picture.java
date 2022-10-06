@@ -1,7 +1,7 @@
 package com.mrcrayfish.device.object;
 
 import com.mrcrayfish.device.api.io.File;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -9,8 +9,8 @@ import java.util.Arrays;
 public class Picture 
 {
 	private File source;
-	private String name;
-	private String author;
+	private final String name;
+	private final String author;
 	public int[] pixels;
 	public Size size;
 	
@@ -71,10 +71,7 @@ public class Picture
 	public int[] copyPixels()
 	{
 		int[] copiedPixels = new int[pixels.length];
-		for(int i = 0; i < pixels.length; i++)
-		{
-			copiedPixels[i] = pixels[i];
-		}
+        System.arraycopy(pixels, 0, copiedPixels, 0, pixels.length);
 		return copiedPixels;
 	}
 	
@@ -84,24 +81,24 @@ public class Picture
 		return name;
 	}
 	
-	public void writeToNBT(NBTTagCompound tagCompound)
+	public void writeToNBT(CompoundTag tagCompound)
 	{
-		tagCompound.setString("Name", getName());
-		tagCompound.setString("Author", getAuthor());
-		tagCompound.setIntArray("Pixels", pixels);
-		tagCompound.setInteger("Resolution", size.width);
+		tagCompound.putString("Name", getName());
+		tagCompound.putString("Author", getAuthor());
+		tagCompound.putIntArray("Pixels", pixels);
+		tagCompound.putInt("Resolution", size.width);
 	}
 	
 	public static Picture fromFile(File file)
 	{
-		NBTTagCompound data = file.getData();
-		Picture picture = new Picture(data.getString("Name"), data.getString("Author"), Size.getFromSize(data.getInteger("Resolution")));
+		CompoundTag data = file.getData();
+		Picture picture = new Picture(data.getString("Name"), data.getString("Author"), Size.getFromSize(data.getInt("Resolution")));
 		picture.source = file;
 		picture.pixels = data.getIntArray("Pixels");
 		return picture;
 	}
 	
-	public static enum Size 
+	public enum Size
 	{
 		X16(16, 16, 8, 8), X32(32, 32, 4, 4);
 		

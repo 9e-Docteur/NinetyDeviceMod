@@ -1,6 +1,6 @@
 package com.mrcrayfish.device.api.task;
 
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 
@@ -15,7 +15,7 @@ public interface Callback<T> {
 	/**
 	 * Executes the callback. You should perform any changes to
 	 * your UI in this method. The NBT tag contains the same data
-	 * as {@link com.mrcrayfish.device.api.task.Task#processResponse(NBTTagCompound)}'s
+	 * as {@link com.mrcrayfish.device.api.task.Task#processResponse(CompoundTag)}'s
 	 * tag does.
 	 * 
 	 * @param t the response object

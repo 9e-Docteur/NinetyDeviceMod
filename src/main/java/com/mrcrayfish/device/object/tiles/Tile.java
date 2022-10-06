@@ -74,7 +74,7 @@ public class Tile
 	
 	public void render(Game game, int x, int y, Layer layer)
 	{
-		RenderUtil.drawRectWithTexture(game.xPosition + x * Tile.WIDTH , game.yPosition + y * Tile.HEIGHT, this.x * 16, this.y * 16, WIDTH, HEIGHT, 16, 16);	
+		RenderUtil.fillWithTexture(game.xPosition + x * Tile.WIDTH , game.yPosition + y * Tile.HEIGHT, this.x * 16, this.y * 16, WIDTH, HEIGHT, 16, 16);	
 	}
 	
 	public void renderForeground(Game game, int x, int y, Layer layer) {}
@@ -99,13 +99,13 @@ public class Tile
 		return category;
 	}
 	
-	public static enum Category 
+	public enum Category
 	{
 		BLOCKS("Blocks"), DECORATION("Decorations"), GAME("Game");
 		
 		public String name;
 		
-		private Category(String name)
+		Category(String name)
 		{
 			this.name = name;
 		}

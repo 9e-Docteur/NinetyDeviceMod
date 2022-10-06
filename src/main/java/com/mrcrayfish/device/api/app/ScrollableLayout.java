@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.api.app.component.Text;
 import com.mrcrayfish.device.core.Laptop;
@@ -7,7 +8,7 @@ import com.mrcrayfish.device.util.GLHelper;
 import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 
 import java.awt.*;
 
@@ -19,7 +20,7 @@ public class ScrollableLayout extends Layout
     protected int placeholderColor = new Color(1.0F, 1.0F, 1.0F, 0.35F).getRGB();
 
     protected int scroll;
-    private int visibleHeight;
+    private final int visibleHeight;
     private int scrollSpeed = 5;
 
     public ScrollableLayout(int width, int height, int visibleHeight)
@@ -45,19 +46,20 @@ public class ScrollableLayout extends Layout
     }
 
     @Override
-    public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+    public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
     {
         if(!visible)
             return;
 
         GLHelper.pushScissor(x, y, width, visibleHeight);
-        super.render(laptop, mc, x, y - scroll, mouseX, mouseY, windowActive, partialTicks);
+        super.render(poseStack, laptop, mc, x, y - scroll, mouseX, mouseY, windowActive, partialTicks);
         GLHelper.popScissor();
     }
 
     @Override
     public void renderOverlay(Laptop laptop, Minecraft mc, int mouseX, int mouseY, boolean windowActive)
     {
+        PoseStack poseStack = new PoseStack();
         if(!visible)
             return;
 
@@ -67,10 +69,10 @@ public class ScrollableLayout extends Layout
         {
             int visibleScrollBarHeight = visibleHeight;
             int scrollBarHeight = Math.max(20, (int) (visibleHeight / (float) height * (float) visibleScrollBarHeight));
-            float scrollPercentage = MathHelper.clamp(scroll / (float) (height - visibleHeight), 0.0F, 1.0F);
+            float scrollPercentage = Mth.clamp(scroll / (float) (height - visibleHeight), 0.0F, 1.0F);
             int scrollBarY = (int) ((visibleScrollBarHeight - scrollBarHeight) * scrollPercentage);
             int scrollY = yPosition + scrollBarY;
-            Gui.drawRect(xPosition + width - 5, scrollY, xPosition + width - 2, scrollY + scrollBarHeight, placeholderColor);
+            Gui.fill(poseStack, xPosition + width - 5, scrollY, xPosition + width - 2, scrollY + scrollBarHeight, placeholderColor);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.programs.system.layout;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Application;
 import com.mrcrayfish.device.api.app.IIcon;
 import com.mrcrayfish.device.api.app.Icons;
@@ -18,9 +19,9 @@ import java.awt.Color;
  */
 public class StandardLayout extends Layout
 {
-    private String title;
+    private final String title;
     protected Application app;
-    private Layout previous;
+    private final Layout previous;
     private IIcon icon;
 
     public StandardLayout(String title, int width, int height, Application app, @Nullable Layout previous)
@@ -49,19 +50,19 @@ public class StandardLayout extends Layout
     }
 
     @Override
-    public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
+    public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
     {
         Color color = new Color(Laptop.getSystem().getSettings().getColorScheme().getHeaderColor());
-        Gui.drawRect(x, y, x + width, y + 20, color.getRGB());
-        Gui.drawRect(x, y + 20, x + width, y + 21, color.darker().getRGB());
+        Gui.fill(poseStack, x, y, x + width, y + 20, color.getRGB());
+        Gui.fill(poseStack, x, y + 20, x + width, y + 21, color.darker().getRGB());
 
         if(previous == null && icon != null)
         {
             icon.draw(mc, x + 5, y + 5);
         }
-        mc.fontRenderer.drawString(title, x + 5 + (previous != null || icon != null ? 16 : 0), y + 7, Color.WHITE.getRGB(), true);
+        mc.font.draw(poseStack, title, x + 5 + (previous != null || icon != null ? 16 : 0), y + 7, Color.WHITE.getRGB());
 
-        super.render(laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
+        super.render(poseStack, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
     }
 
     public void setIcon(IIcon icon)

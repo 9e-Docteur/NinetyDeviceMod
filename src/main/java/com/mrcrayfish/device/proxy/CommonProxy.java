@@ -8,11 +8,12 @@ import com.mrcrayfish.device.network.task.MessageSyncApplications;
 import com.mrcrayfish.device.network.task.MessageSyncConfig;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.programs.system.SystemApplication;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerMP;
 import net.minecraft.init.Items;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.Level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
@@ -80,23 +81,23 @@ public class CommonProxy
 	{
 		if(allowedApps != null)
 		{
-			PacketHandler.INSTANCE.sendTo(new MessageSyncApplications(allowedApps), (EntityPlayerMP) event.player);
+			PacketHandler.INSTANCE.sendTo(new MessageSyncApplications(allowedApps), (PlayerMP) event.player);
 		}
-		PacketHandler.INSTANCE.sendTo(new MessageSyncConfig(), (EntityPlayerMP) event.player);
+		PacketHandler.INSTANCE.sendTo(new MessageSyncConfig(), (PlayerMP) event.player);
 	}
 
 	@SubscribeEvent
 	public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event)
 	{
-		World world = event.getWorld();
+		Level Level = event.getLevel();
 		if(!event.getItemStack().isEmpty() && event.getItemStack().getItem() == Items.PAPER)
 		{
-			if(world.getBlockState(event.getPos()).getBlock() == DeviceBlocks.PRINTER)
+			if(Level.getBlockState(event.getPos()).getBlock() == DeviceBlocks.PRINTER)
 			{
 				event.setUseBlock(Event.Result.ALLOW);
 			}
 		}
 	}
 
-	public void showNotification(NBTTagCompound tag) {}
+	public void showNotification(CompoundTag tag) {}
 }

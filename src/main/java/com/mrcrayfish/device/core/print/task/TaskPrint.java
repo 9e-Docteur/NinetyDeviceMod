@@ -6,11 +6,11 @@ import com.mrcrayfish.device.core.network.NetworkDevice;
 import com.mrcrayfish.device.core.network.Router;
 import com.mrcrayfish.device.tileentity.TileEntityNetworkDevice;
 import com.mrcrayfish.device.tileentity.TileEntityPrinter;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.UUID;
 
@@ -37,27 +37,26 @@ public class TaskPrint extends Task
     }
 
     @Override
-    public void prepareRequest(NBTTagCompound nbt)
+    public void prepareRequest(CompoundTag nbt)
     {
-        nbt.setLong("devicePos", devicePos.toLong());
-        nbt.setUniqueId("printerId", printerId);
-        nbt.setTag("print", IPrint.writeToTag(print));
+        nbt.putLong("devicePos", devicePos.asLong());
+        nbt.putUUID("printerId", printerId);
+        nbt.put("print", IPrint.writeToTag(print));
     }
 
     @Override
-    public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player)
+    public void processRequest(CompoundTag nbt, Level Level, Player player)
     {
-        TileEntity tileEntity = world.getTileEntity(BlockPos.fromLong(nbt.getLong("devicePos")));
-        if(tileEntity instanceof TileEntityNetworkDevice)
+        BlockEntity tileEntity = Level.getBlockEntity(BlockPos.of(nbt.getLong("devicePos")));
+        if(tileEntity instanceof TileEntityNetworkDevice device)
         {
-            TileEntityNetworkDevice device = (TileEntityNetworkDevice) tileEntity;
             Router router = device.getRouter();
             if(router != null)
             {
-                TileEntityNetworkDevice printer = router.getDevice(world, nbt.getUniqueId("printerId"));
+                TileEntityNetworkDevice printer = router.getDevice(Level, nbt.getUUID("printerId"));
                 if(printer != null && printer instanceof TileEntityPrinter)
                 {
-                    IPrint print = IPrint.loadFromTag(nbt.getCompoundTag("print"));
+                    IPrint print = IPrint.loadFromTag(nbt.getCompound("print"));
                     ((TileEntityPrinter) printer).addToQueue(print);
                     this.setSuccessful();
                 }
@@ -66,13 +65,13 @@ public class TaskPrint extends Task
     }
 
     @Override
-    public void prepareResponse(NBTTagCompound nbt)
+    public void prepareResponse(CompoundTag nbt)
     {
 
     }
 
     @Override
-    public void processResponse(NBTTagCompound nbt)
+    public void processResponse(CompoundTag nbt)
     {
 
     }

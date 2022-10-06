@@ -1,6 +1,7 @@
 package com.mrcrayfish.device.programs.system.layout;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.api.app.Icons;
 import com.mrcrayfish.device.api.app.Layout;
@@ -18,10 +19,11 @@ import com.mrcrayfish.device.programs.system.object.AppEntry;
 import com.mrcrayfish.device.programs.system.object.LocalEntry;
 import com.mrcrayfish.device.programs.system.object.RemoteEntry;
 import com.mrcrayfish.device.util.GuiHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.awt.*;
 import java.net.URI;
@@ -33,9 +35,9 @@ import java.util.Arrays;
  */
 public class LayoutAppPage extends Layout
 {
-    private Laptop laptop;
-    private AppEntry entry;
-    private ApplicationAppStore store;
+    private final Laptop laptop;
+    private final AppEntry entry;
+    private final ApplicationAppStore store;
 
     private Image imageBanner;
     private Image imageIcon;
@@ -60,12 +62,12 @@ public class LayoutAppPage extends Layout
             installed = Laptop.getSystem().getInstalledApplications().contains(((LocalEntry) entry).getInfo());
         }
 
-        this.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+        this.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
         {
             Color color = new Color(Laptop.getSystem().getSettings().getColorScheme().getBackgroundColor());
-            Gui.drawRect(x, y + 40, x + width, y + 41, color.brighter().getRGB());
-            Gui.drawRect(x, y + 41, x + width, y + 60, color.getRGB());
-            Gui.drawRect(x, y + 60, x + width, y + 61, color.darker().getRGB());
+            Gui.fill(poseStack, x, y + 40, x + width, y + 41, color.brighter().getRGB());
+            Gui.fill(poseStack, x, y + 41, x + width, y + 60, color.getRGB());
+            Gui.fill(poseStack, x, y + 60, x + width, y + 61, color.darker().getRGB());
         });
 
         ResourceLocation resource = new ResourceLocation(entry.getId());
@@ -74,29 +76,28 @@ public class LayoutAppPage extends Layout
         imageBanner.setDrawFull(true);
         if(entry instanceof LocalEntry)
         {
-            imageBanner.setImage(new ResourceLocation(resource.getResourceDomain(), "textures/app/banner/" + resource.getResourcePath() + ".png"));
+            imageBanner.setImage(new ResourceLocation(resource.getNamespace(), "textures/app/banner/" + resource.getPath() + ".png"));
         }
         else if(entry instanceof RemoteEntry)
         {
-            imageBanner.setImage(ApplicationAppStore.CERTIFIED_APPS_URL + "/assets/" + resource.getResourceDomain() + "/" + resource.getResourcePath() + "/banner.png");
+            imageBanner.setImage(ApplicationAppStore.CERTIFIED_APPS_URL + "/assets/" + resource.getNamespace() + "/" + resource.getPath() + "/banner.png");
         }
         this.addComponent(imageBanner);
 
-        if(entry instanceof LocalEntry)
+        if(entry instanceof LocalEntry localEntry)
         {
-            LocalEntry localEntry = (LocalEntry) entry;
             AppInfo info = localEntry.getInfo();
             imageIcon = new Image(5, 26, 28, 28, info.getIconU(), info.getIconV(), 14, 14, 224, 224, Laptop.ICON_TEXTURES);
         }
         else if(entry instanceof RemoteEntry)
         {
-            imageIcon = new Image(5, 26, 28, 28, ApplicationAppStore.CERTIFIED_APPS_URL + "/assets/" + resource.getResourceDomain() + "/" + resource.getResourcePath() + "/icon.png");
+            imageIcon = new Image(5, 26, 28, 28, ApplicationAppStore.CERTIFIED_APPS_URL + "/assets/" + resource.getNamespace() + "/" + resource.getPath() + "/icon.png");
         }
         this.addComponent(imageIcon);
 
         if(store.certifiedApps.contains(entry))
         {
-            int width = Laptop.fontRenderer.getStringWidth(entry.getName()) * 2;
+            int width = Laptop.fontRenderer.width(entry.getName()) * 2;
             Image certifiedIcon = new Image(38 + width + 3, 29, 20, 20, Icons.VERIFIED);
             this.addComponent(certifiedIcon);
         }
@@ -130,10 +131,9 @@ public class LayoutAppPage extends Layout
                 }
             }
         }
-        else if(entry instanceof RemoteEntry)
+        else if(entry instanceof RemoteEntry remoteEntry)
         {
-            RemoteEntry remoteEntry = (RemoteEntry) entry;
-            String screenshotUrl = ApplicationAppStore.CERTIFIED_APPS_URL + "/assets/" + resource.getResourceDomain() + "/" + resource.getResourcePath() + "/screenshots/screenshot_%d.png";
+            String screenshotUrl = ApplicationAppStore.CERTIFIED_APPS_URL + "/assets/" + resource.getNamespace() + "/" + resource.getPath() + "/screenshots/screenshot_%d.png";
             for(int i = 0; i < remoteEntry.screenshots; i++)
             {
                 slideShow.addImage(String.format(screenshotUrl, i));
@@ -196,10 +196,11 @@ public class LayoutAppPage extends Layout
         super.renderOverlay(laptop, mc, mouseX, mouseY, windowActive);
         if(store.certifiedApps.contains(entry))
         {
-            int width = Laptop.fontRenderer.getStringWidth(entry.getName()) * 2;
+            int width = Laptop.fontRenderer.width(entry.getName()) * 2;
             if(GuiHelper.isMouseWithin(mouseX, mouseY, xPosition + 38 + width + 3, yPosition + 29, 20, 20))
             {
-                laptop.drawHoveringText(Lists.newArrayList(TextFormatting.GREEN + "Certified App"), mouseX, mouseY);
+                PoseStack poseStack = new PoseStack();
+                laptop.renderTooltip(poseStack, (Component) Lists.newArrayList(ChatFormatting.GREEN + "Certified App"), mouseX, mouseY);
             }
         }
     }
@@ -216,7 +217,7 @@ public class LayoutAppPage extends Layout
         catch (Throwable throwable1)
         {
             Throwable throwable = throwable1.getCause();
-            MrCrayfishDeviceMod.getLogger().error("Couldn't open link: {}", (Object)(throwable == null ? "<UNKNOWN>" : throwable.getMessage()));
+            MrCrayfishDeviceMod.getLogger().error("Couldn't open link: {}", throwable == null ? "<UNKNOWN>" : throwable.getMessage());
         }
     }
 }

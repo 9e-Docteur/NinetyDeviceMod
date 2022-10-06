@@ -3,7 +3,7 @@ package com.mrcrayfish.device.network.task;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.api.app.Notification;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  */
 public class MessageNotification implements IMessage, IMessageHandler<MessageNotification, IMessage>
 {
-    private NBTTagCompound notificationTag;
+    private CompoundTag notificationTag;
 
     public MessageNotification() {}
 

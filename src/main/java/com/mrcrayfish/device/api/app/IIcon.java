@@ -1,9 +1,9 @@
 package com.mrcrayfish.device.api.app;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.device.api.utils.RenderUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public interface IIcon
 {
@@ -35,11 +35,11 @@ public interface IIcon
 
     default void draw(Minecraft mc, int x, int y)
 	{
-		GlStateManager.color(1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindTexture(getIconAsset());
+		RenderSystem.setShaderColor(1F, 1.0F, 1.0F, 1.0F);
+		mc.getTextureManager().bindForSetup(getIconAsset());
 		int size = getIconSize();
 		int assetWidth = getGridWidth() * size;
 		int assetHeight = getGridHeight() * size;
-		RenderUtil.drawRectWithTexture(x, y, getU(), getV(), size, size, size, size, assetWidth, assetHeight);
+		RenderUtil.fillWithTexture(x, y, getU(), getV(), size, size, size, size, assetWidth, assetHeight);
 	}
 }

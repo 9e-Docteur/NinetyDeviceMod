@@ -5,10 +5,10 @@ import com.mrcrayfish.device.api.utils.BankUtil;
 import com.mrcrayfish.device.programs.auction.AuctionManager;
 import com.mrcrayfish.device.programs.auction.object.AuctionItem;
 import com.mrcrayfish.device.programs.system.object.Account;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.UUID;
 
@@ -28,13 +28,13 @@ public class TaskBuyItem extends Task
 	}
 
 	@Override
-	public void prepareRequest(NBTTagCompound nbt)
+	public void prepareRequest(CompoundTag nbt)
 	{
-		nbt.setString("id", id.toString());
+		nbt.putString("id", id.toString());
 	}
 
 	@Override
-	public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player)
+	public void processRequest(CompoundTag nbt, Level Level, Player player)
 	{
 		this.id = UUID.fromString(nbt.getString("id"));
 		AuctionItem item = AuctionManager.INSTANCE.getItem(id);
@@ -46,15 +46,15 @@ public class TaskBuyItem extends Task
 			if(buyer.pay(seller, price))
 			{
 				item.setSold();
-				world.spawnEntity(new EntityItem(world, player.posX, player.posY, player.posZ, item.getStack().copy()));
+				Level.addFreshEntity(new ItemEntity(Level, player.getX(), player.getY(), player.getZ(), item.getStack().copy()));
 				this.setSuccessful();
 			}
 		}
 	}
 
 	@Override
-	public void prepareResponse(NBTTagCompound nbt) {}
+	public void prepareResponse(CompoundTag nbt) {}
 
 	@Override
-	public void processResponse(NBTTagCompound nbt) {}
+	public void processResponse(CompoundTag nbt) {}
 }

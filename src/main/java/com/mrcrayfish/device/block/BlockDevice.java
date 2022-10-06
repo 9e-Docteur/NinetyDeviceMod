@@ -1,279 +1,164 @@
 package com.mrcrayfish.device.block;
 
 import com.mrcrayfish.device.tileentity.TileEntityDevice;
-import com.mrcrayfish.device.tileentity.TileEntityPrinter;
-import com.mrcrayfish.device.util.IColored;
-import net.minecraft.block.BlockColored;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockFaceShape;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import com.mrcrayfish.device.util.TileEntityUtil;
+import net.minecraft.client.renderer.texture.Tickable;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Random;
 
 /**
  * Author: MrCrayfish
  */
-public abstract class BlockDevice extends BlockHorizontal
+public abstract class BlockDevice extends HorizontalDirectionalBlock implements EntityBlock
 {
-    protected BlockDevice(Material materialIn)
-    {
-        super(materialIn);
-        this.setHardness(0.5F);
+
+
+    protected BlockDevice(Properties p_54120_) {
+        super(p_54120_.strength(0.5f));
     }
 
+    @NotNull
     @Override
-    public boolean isOpaqueCube(IBlockState state)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean isFullCube(IBlockState state)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean canBeConnectedTo(IBlockAccess world, BlockPos pos, EnumFacing facing)
-    {
-        return false;
-    }
-
-    @Override
-    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
-    {
-        return BlockFaceShape.UNDEFINED;
-    }
-
-    @Override
-    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand)
-    {
-        IBlockState state = super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand);
-        return state.withProperty(FACING, placer.getHorizontalFacing());
-    }
-
-    @Override
-    public Item getItemDropped(IBlockState state, Random rand, int fortune)
-    {
-        return null;
-    }
-
-    @Override
-    public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {}
-
-    @Override
-    public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
-    {
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-        TileEntity tileEntity = worldIn.getTileEntity(pos);
-        if(tileEntity instanceof TileEntityDevice)
-        {
-            TileEntityDevice tileEntityDevice = (TileEntityDevice) tileEntity;
-            if(stack.hasDisplayName())
-            {
-                tileEntityDevice.setCustomName(stack.getDisplayName());
-            }
-        }
-    }
-
-    @Override
-    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
-    {
-        if(!world.isRemote && !player.capabilities.isCreativeMode)
-        {
-            TileEntity tileEntity = world.getTileEntity(pos);
-            if(tileEntity instanceof TileEntityDevice)
-            {
-                TileEntityDevice device = (TileEntityDevice) tileEntity;
-
-                NBTTagCompound tileEntityTag = new NBTTagCompound();
-                tileEntity.writeToNBT(tileEntityTag);
-                tileEntityTag.removeTag("x");
-                tileEntityTag.removeTag("y");
-                tileEntityTag.removeTag("z");
-                tileEntityTag.removeTag("id");
-                tileEntityTag.removeTag("color");
-
-                removeTagsForDrop(tileEntityTag);
-
-                NBTTagCompound compound = new NBTTagCompound();
-                compound.setTag("BlockEntityTag", tileEntityTag);
-
-                ItemStack drop;
-                if(tileEntity instanceof IColored)
-                {
-                    drop = new ItemStack(Item.getItemFromBlock(this), 1, ((IColored)tileEntity).getColor().getMetadata());
-                }
-                else
-                {
-                    drop = new ItemStack(Item.getItemFromBlock(this));
-                }
-                drop.setTagCompound(compound);
-
-                if(device.hasCustomName())
-                {
-                    drop.setStackDisplayName(device.getCustomName());
-                }
-
-                world.spawnEntity(new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop));
-
-                return world.setBlockToAir(pos);
-            }
-        }
-        return super.removedByPlayer(state, world, pos, player, willHarvest);
-    }
-
-    protected void removeTagsForDrop(NBTTagCompound tileEntityTag) {}
-
-    @Override
-    public boolean hasTileEntity(IBlockState state)
-    {
-        return true;
+    public VoxelShape getShape(@NotNull BlockState pState, @NotNull BlockGetter pLevel, @NotNull BlockPos pPos, @NotNull CollisionContext pContext) {
+        return Shapes.empty();
     }
 
     @Nullable
     @Override
-    public abstract TileEntity createTileEntity(World world, IBlockState state);
+    public BlockState getStateForPlacement(@NotNull BlockPlaceContext pContext) {
+        BlockState state = super.getStateForPlacement(pContext);
+        return state != null ? state.setValue(FACING, Objects.requireNonNull(pContext.getPlayer(), "Player in block placement context is null.").getDirection().getOpposite()) : null;
+    }
 
     @Override
-    public boolean eventReceived(IBlockState state, World worldIn, BlockPos pos, int id, int param)
-    {
-        TileEntity tileentity = worldIn.getTileEntity(pos);
-        return tileentity != null && tileentity.receiveClientEvent(id, param);
+    public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof TileEntityDevice deviceBlockEntity) {
+            if (stack.hasCustomHoverName()) {
+                deviceBlockEntity.setCustomName(stack.getHoverName().getString());
+            }
+        }
     }
 
-    /**
-     * Colored implementation of BlockDevice.
-     */
-    public static abstract class Colored extends BlockDevice
-    {
-        protected Colored(Material materialIn)
-        {
-            super(materialIn);
-        }
 
-        @Override
-        public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
-        {
-            TileEntity tileEntity = world.getTileEntity(pos);
-            if(tileEntity instanceof IColored)
-            {
-                drops.add(new ItemStack(Item.getItemFromBlock(this), 1, ((IColored) tileEntity).getColor().getMetadata()));
-            }
-        }
+    @Override
+    public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {
+        if (!level.isClientSide()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof TileEntityDevice device) {
+                CompoundTag blockEntityTag = new CompoundTag();
+                blockEntity.saveWithoutMetadata();
+                blockEntityTag.remove("id");
 
-        @Override
-        public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
-        {
-            TileEntity tileEntity = world.getTileEntity(pos);
-            if(tileEntity instanceof IColored)
-            {
-                return new ItemStack(Item.getItemFromBlock(this), 1, ((IColored) tileEntity).getColor().getMetadata());
-            }
-            return super.getPickBlock(state, target, world, pos, player);
-        }
+                removeTagsForDrop(blockEntityTag);
 
-        @Override
-        public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
-        {
-            super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
-            TileEntity tileEntity = worldIn.getTileEntity(pos);
-            if(tileEntity instanceof IColored)
-            {
-                IColored colored = (IColored) tileEntity;
-                colored.setColor(EnumDyeColor.byMetadata(stack.getMetadata()));
-            }
-        }
+                CompoundTag tag = new CompoundTag();
+                tag.put("BlockEntityTag", blockEntityTag);
 
-        @Override
-        public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
-        {
-            TileEntity tileEntity = worldIn.getTileEntity(pos);
-            if(tileEntity instanceof IColored)
-            {
-                IColored colored = (IColored) tileEntity;
-                state = state.withProperty(BlockColored.COLOR, colored.getColor());
-            }
-            return state;
-        }
-
-        @Override
-        public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
-        {
-            if(!world.isRemote && !player.capabilities.isCreativeMode)
-            {
-                TileEntity tileEntity = world.getTileEntity(pos);
-                if(tileEntity instanceof IColored)
-                {
-                    IColored colored = (IColored) tileEntity;
-
-                    NBTTagCompound tileEntityTag = new NBTTagCompound();
-                    tileEntity.writeToNBT(tileEntityTag);
-                    tileEntityTag.removeTag("x");
-                    tileEntityTag.removeTag("y");
-                    tileEntityTag.removeTag("z");
-                    tileEntityTag.removeTag("id");
-                    tileEntityTag.removeTag("color");
-
-                    removeTagsForDrop(tileEntityTag);
-
-                    NBTTagCompound compound = new NBTTagCompound();
-                    compound.setTag("BlockEntityTag", tileEntityTag);
-
-                    ItemStack  drop = new ItemStack(Item.getItemFromBlock(this), 1, colored.getColor().getMetadata());
-                    drop.setTagCompound(compound);
-
-                    if(tileEntity instanceof TileEntityDevice)
-                    {
-                        TileEntityDevice device = (TileEntityDevice) tileEntity;
-                        if(device.hasCustomName())
-                        {
-                            drop.setStackDisplayName(device.getCustomName());
-                        }
-                    }
-
-                    world.spawnEntity(new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop));
-
-                    return world.setBlockToAir(pos);
+                ItemStack drop;
+                if (blockEntity instanceof Colorable) {
+                    drop = new ItemStack(this, 1);
+                } else {
+                    drop = new ItemStack(this);
                 }
+                drop.setTag(tag);
+
+                if (device.hasCustomName()) {
+                    drop.setHoverName(Component.literal(device.getCustomName()));
+                }
+
+                level.addFreshEntity(new ItemEntity((Level) level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop));
+
+                level.removeBlock(pos, false);
+                return;
             }
-            return super.removedByPlayer(state, world, pos, player, willHarvest);
+        }
+        super.destroy(level, pos, state);
+    }
+
+    protected void removeTagsForDrop(CompoundTag blockEntityTag) {
+
+    }
+
+    @Nullable
+    @Override
+    public abstract BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state);
+
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
+        return getTicker();
+    }
+
+    @Override
+    public boolean triggerEvent(@NotNull BlockState state, Level level, @NotNull BlockPos pos, int id, int param) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        return blockEntity != null && blockEntity.triggerEvent(id, param);
+    }
+
+    public static abstract class Colored extends BlockDevice {
+        private final DyeColor color;
+
+        protected Colored(Properties properties, DyeColor color) {
+            super(properties);
+            this.color = color;
+        }
+
+        public DyeColor getColor() {
+            return color;
         }
 
         @Override
-        public int getMetaFromState(IBlockState state)
-        {
-            return state.getValue(FACING).getHorizontalIndex();
+        public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack stack) {
+            super.setPlacedBy(level, pos, state, placer, stack);
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof Colorable colored) {
+                colored.setColor(color);
+            }
         }
 
         @Override
-        public IBlockState getStateFromMeta(int meta)
-        {
-            return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta));
-        }
-
-        @Override
-        protected BlockStateContainer createBlockState()
-        {
-            return new BlockStateContainer(this, FACING, BlockColored.COLOR);
+        protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> pBuilder) {
+            super.createBlockStateDefinition(pBuilder);
+            pBuilder.add(FACING);
         }
     }
+
+    public static <T extends BlockEntity> BlockEntityTicker<T> getTicker() {
+        return (pLevel, pPos, pState, pBlockEntity) -> {
+            if (pBlockEntity instanceof Tickable) {
+                ((Tickable) pBlockEntity).tick();
+            }
+        };
+    }
+
 }

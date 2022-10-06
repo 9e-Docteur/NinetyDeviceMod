@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.object;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.core.Laptop;
@@ -31,7 +32,7 @@ public class Canvas extends Component
 	
 	public Picture picture;
 	
-	private int gridColor = new Color(200, 200, 200, 150).getRGB();
+	private final int gridColor = new Color(200, 200, 200, 150).getRGB();
 	
 	public Canvas(int left, int top)
 	{
@@ -57,21 +58,21 @@ public class Canvas extends Component
 	public void init(Layout layout) {}
 
 	@Override
-	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks) 
+	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
 	{
-		drawRect(xPosition, yPosition, xPosition + picture.getWidth() * picture.getPixelWidth() + 2, yPosition + picture.getHeight() * picture.getPixelHeight() + 2, Color.DARK_GRAY.getRGB());
-		drawRect(xPosition + 1, yPosition + 1, xPosition + picture.getWidth() * picture.getPixelWidth() + 1, yPosition + picture.getHeight() * picture.getPixelHeight() + 1, Color.WHITE.getRGB());
+		fill(poseStack, xPosition, yPosition, xPosition + picture.getWidth() * picture.getPixelWidth() + 2, yPosition + picture.getHeight() * picture.getPixelHeight() + 2, Color.DARK_GRAY.getRGB());
+		fill(poseStack, xPosition + 1, yPosition + 1, xPosition + picture.getWidth() * picture.getPixelWidth() + 1, yPosition + picture.getHeight() * picture.getPixelHeight() + 1, Color.WHITE.getRGB());
 		for(int i = 0; i < picture.getHeight(); i++)
 		{
 			for(int j = 0; j < picture.getWidth(); j++)
 			{
 				int pixelX = xPosition + j * picture.getPixelWidth() + 1;
 				int pixelY = yPosition + i * picture.getPixelHeight() + 1;
-				drawRect(pixelX, pixelY, pixelX + picture.getPixelWidth(), pixelY + picture.getPixelHeight(), pixels[j + i * picture.size.width]);
+				fill(poseStack, pixelX, pixelY, pixelX + picture.getPixelWidth(), pixelY + picture.getPixelHeight(), pixels[j + i * picture.size.width]);
 				if(showGrid)
 				{
-					drawRect(pixelX, pixelY, pixelX + picture.getPixelWidth(), pixelY + 1, gridColor);
-					drawRect(pixelX, pixelY, pixelX + 1, pixelY + picture.getPixelHeight(), gridColor);
+					fill(poseStack, pixelX, pixelY, pixelX + picture.getPixelWidth(), pixelY + 1, gridColor);
+					fill(poseStack, pixelX, pixelY, pixelX + 1, pixelY + picture.getPixelHeight(), gridColor);
 				}
 			}
 		}
@@ -196,10 +197,7 @@ public class Canvas extends Component
 	public int[] copyPixels()
 	{
 		int[] copiedPixels = new int[pixels.length];
-		for(int i = 0; i < pixels.length; i++)
-		{
-			copiedPixels[i] = pixels[i];
-		}
+		System.arraycopy(pixels, 0, copiedPixels, 0, pixels.length);
 		return copiedPixels;
 	}
 	

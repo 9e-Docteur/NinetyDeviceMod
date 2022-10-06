@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Layout.Background;
 import com.mrcrayfish.device.api.app.component.Button;
 import com.mrcrayfish.device.api.app.component.Image;
@@ -23,13 +24,15 @@ import com.mrcrayfish.device.programs.system.component.FileBrowser;
 import com.mrcrayfish.device.programs.system.object.ColorScheme;
 import com.mrcrayfish.device.tileentity.TileEntityPrinter;
 import com.mrcrayfish.device.util.GLHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.ChatFormatting;
 import net.minecraftforge.common.util.Constants;
 import org.lwjgl.opengl.GL11;
 
@@ -74,7 +77,7 @@ public abstract class Dialog extends Wrappable
 	}
 
 	@Override
-	public void init(@Nullable NBTTagCompound intent)
+	public void init(@Nullable CompoundTag intent)
 	{
 		this.defaultLayout.clear();
 		this.setLayout(defaultLayout);
@@ -93,10 +96,11 @@ public abstract class Dialog extends Wrappable
 	@Override
 	public void render(Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean active, float partialTicks)
 	{
+		PoseStack poseStack = new PoseStack();
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
 		
 		GLHelper.pushScissor(x, y, width, height);
-		customLayout.render(laptop, mc, x, y, mouseX, mouseY, active, partialTicks);
+		customLayout.render(poseStack, laptop, mc, x, y, mouseX, mouseY, active, partialTicks);
 		GLHelper.popScissor();
 
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
@@ -104,7 +108,7 @@ public abstract class Dialog extends Wrappable
 		customLayout.renderOverlay(laptop, mc, mouseX, mouseY, active);
 
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		RenderHelper.disableStandardItemLighting();
+		//RenderHelper.disableStandardItemLighting();
 	}
 
 	@Override
@@ -211,11 +215,11 @@ public abstract class Dialog extends Wrappable
 		}
 		
 		@Override
-		public void init(@Nullable NBTTagCompound intent)
+		public void init(@Nullable CompoundTag intent)
 		{
 			super.init(intent);
 			
-			int lines = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(messageText, getWidth() - 10).size();
+			int lines = Minecraft.getInstance().font.wordWrapHeight(messageText, getWidth() - 10);
 			defaultLayout.height += (lines - 1) * 9;
 			
 			super.init(intent);
@@ -223,9 +227,9 @@ public abstract class Dialog extends Wrappable
 			defaultLayout.setBackground(new Background()
 			{
 				@Override
-				public void render(Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
+				public void render(PoseStack poseStack, Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
 				{
-					Gui.drawRect(x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB());
+					Gui.fill(poseStack, x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB());
 				}
 			});
 			
@@ -276,11 +280,11 @@ public abstract class Dialog extends Wrappable
 		}
 
 		@Override
-		public void init(@Nullable NBTTagCompound intent)
+		public void init(@Nullable CompoundTag intent)
 		{
 			super.init(intent);
 			
-			int lines = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(messageText, getWidth() - 10).size();
+			int lines = Minecraft.getInstance().font.wordWrapHeight(messageText, getWidth() - 10);
 			defaultLayout.height += (lines - 1) * 9;
 			
 			super.init(intent);
@@ -288,16 +292,16 @@ public abstract class Dialog extends Wrappable
 			defaultLayout.setBackground(new Background()
 			{
 				@Override
-				public void render(Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
+				public void render(PoseStack poseStack, Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
 				{
-					Gui.drawRect(x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB());
+					Gui.fill(poseStack, x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB());
 				}
 			});
 			
 			Text message = new Text(messageText, 5, 5, getWidth() - 10);
 			this.addComponent(message);
 
-			int positiveWidth = Minecraft.getMinecraft().fontRenderer.getStringWidth(positiveText);
+			int positiveWidth = Minecraft.getInstance().font.width(positiveText);
 			buttonPositive = new Button(getWidth() - positiveWidth - DIVIDE_WIDTH, getHeight() - 20, positiveText);
 			buttonPositive.setSize(positiveWidth + 10, 16);
 			buttonPositive.setClickListener((mouseX, mouseY, mouseButton) ->
@@ -310,7 +314,7 @@ public abstract class Dialog extends Wrappable
 			});
 			this.addComponent(buttonPositive);
 
-			int negativeWidth = Math.max(20, Minecraft.getMinecraft().fontRenderer.getStringWidth(negativeText));
+			int negativeWidth = Math.max(20, Minecraft.getInstance().font.width(negativeText));
 			buttonNegative = new Button(getWidth() - DIVIDE_WIDTH - positiveWidth - DIVIDE_WIDTH - negativeWidth + 1, getHeight() - 20, negativeText);
 			buttonNegative.setSize(negativeWidth + 10, 16);
 			buttonNegative.setClickListener((mouseX, mouseY, mouseButton) ->
@@ -391,7 +395,7 @@ public abstract class Dialog extends Wrappable
 		}
 
 		@Override
-		public void init(@Nullable NBTTagCompound intent)
+		public void init(@Nullable CompoundTag intent)
 		{
 			super.init(intent);
 
@@ -399,15 +403,16 @@ public abstract class Dialog extends Wrappable
 
 			if(messageText != null)
 			{
-				int lines = Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(messageText, getWidth() - 10).size();
+				int lines = Minecraft.getInstance().font.wordWrapHeight(messageText, getWidth() - 10);
 				defaultLayout.height += lines * 9 + 10;
 				offset += lines * 9 + 5;
 			}
 
 			super.init(intent);
 
+			PoseStack poseStack = new PoseStack();
 			defaultLayout.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) -> {
-				Gui.drawRect(x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB());
+				Gui.fill(poseStack, x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB());
 			});
 
 			if(messageText != null)
@@ -421,7 +426,7 @@ public abstract class Dialog extends Wrappable
 			textFieldInput.setFocused(true);
 			this.addComponent(textFieldInput);
 
-			int positiveWidth = Minecraft.getMinecraft().fontRenderer.getStringWidth(positiveText);
+			int positiveWidth = Minecraft.getInstance().font.width(positiveText);
 			buttonPositive = new Button(getWidth() - positiveWidth - DIVIDE_WIDTH, getHeight() - 20, positiveText);
 			buttonPositive.setSize(positiveWidth + 10, 16);
 			buttonPositive.setClickListener((mouseX, mouseY, mouseButton) ->
@@ -527,7 +532,7 @@ public abstract class Dialog extends Wrappable
 		}
 
 		@Override
-		public void init(@Nullable NBTTagCompound intent)
+		public void init(@Nullable CompoundTag intent)
 		{
 			super.init(intent);
 
@@ -548,7 +553,7 @@ public abstract class Dialog extends Wrappable
 			});
 			main.addComponent(browser);
 
-			int positiveWidth = Minecraft.getMinecraft().fontRenderer.getStringWidth(positiveText);
+			int positiveWidth = Minecraft.getInstance().font.width(positiveText);
 			buttonPositive = new Button(172, 106, positiveText);
 			buttonPositive.setSize(positiveWidth + 10, 16);
 			buttonPositive.setEnabled(false);
@@ -642,7 +647,7 @@ public abstract class Dialog extends Wrappable
 	{
 		private final Application app;
 		private String name;
-		private NBTTagCompound data;
+		private final CompoundTag data;
 
 		private String positiveText = "Save";
 		private String negativeText = "Cancel";
@@ -658,7 +663,7 @@ public abstract class Dialog extends Wrappable
 
 		private String path = FileSystem.DIR_HOME;
 
-		public SaveFile(Application app, NBTTagCompound data)
+		public SaveFile(Application app, CompoundTag data)
 		{
 			this.app = app;
 			this.data = data;
@@ -674,7 +679,7 @@ public abstract class Dialog extends Wrappable
 		}
 
 		@Override
-		public void init(@Nullable NBTTagCompound intent)
+		public void init(@Nullable CompoundTag intent)
 		{
 			super.init(intent);
 			main = new Layout(211, 145);
@@ -844,7 +849,7 @@ public abstract class Dialog extends Wrappable
 		}
 
 		@Override
-		public void init(@Nullable NBTTagCompound intent)
+		public void init(@Nullable CompoundTag intent)
 		{
 			super.init(intent);
 
@@ -870,10 +875,10 @@ public abstract class Dialog extends Wrappable
 			itemListPrinters.setListItemRenderer(new ListItemRenderer<NetworkDevice>(16)
 			{
 				@Override
-				public void render(NetworkDevice networkDevice, Gui gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
+				public void render(PoseStack poseStack, NetworkDevice networkDevice, Gui gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
 				{
 					ColorScheme colorScheme = Laptop.getSystem().getSettings().getColorScheme();
-					Gui.drawRect(x, y, x + width, y + height, selected ? colorScheme.getItemHighlightColor() : colorScheme.getItemBackgroundColor());
+					Gui.fill(poseStack, x, y, x + width, y + height, selected ? colorScheme.getItemHighlightColor() : colorScheme.getItemBackgroundColor());
 					Icons.PRINTER.draw(mc, x + 3, y + 3);
 					RenderUtil.drawStringClipped(networkDevice.getName(), x + 18, y + 4, 118, Laptop.getSystem().getSettings().getColorScheme().getTextColor(), true);
 				}
@@ -911,7 +916,7 @@ public abstract class Dialog extends Wrappable
 					if(networkDevice != null)
 					{
 						TaskPrint task = new TaskPrint(Laptop.getPos(), networkDevice, print);
-						task.setCallback((nbtTagCompound, success) ->
+						task.setCallback((CompoundTag, success) ->
 						{
 							if(success)
 							{
@@ -966,10 +971,10 @@ public abstract class Dialog extends Wrappable
 			{
 				if(success)
 				{
-					NBTTagList tagList = tagCompound.getTagList("network_devices", Constants.NBT.TAG_COMPOUND);
-					for(int i = 0; i < tagList.tagCount(); i++)
+					ListTag tagList = tagCompound.getList("network_devices", Tag.TAG_COMPOUND);
+					for(int i = 0; i < tagList.size(); i++)
 					{
-						itemList.addItem(NetworkDevice.fromTag(tagList.getCompoundTagAt(i)));
+						itemList.addItem(NetworkDevice.fromTag(tagList.getCompound(i)));
 					}
 					itemList.setLoading(false);
 				}
@@ -995,21 +1000,21 @@ public abstract class Dialog extends Wrappable
 			}
 
 			@Override
-			public void init(@Nullable NBTTagCompound intent)
+			public void init(@Nullable CompoundTag intent)
 			{
 				super.init(intent);
 
 				layoutMain = new Layout(120, 70);
 
-				labelName = new Label(TextFormatting.GOLD.toString() + TextFormatting.BOLD.toString() + entry.getName(), 5, 5);
+				labelName = new Label(ChatFormatting.GOLD.toString() + ChatFormatting.BOLD + entry.getName(), 5, 5);
 				layoutMain.addComponent(labelName);
 
-				labelPaper = new Label(TextFormatting.DARK_GRAY + "Paper: " + TextFormatting.RESET + Integer.toString(0), 5, 18); //TODO fix paper count
+				labelPaper = new Label(ChatFormatting.DARK_GRAY + "Paper: " + ChatFormatting.RESET + 0, 5, 18); //TODO fix paper count
 				labelPaper.setAlignment(Component.ALIGN_LEFT);
 				labelPaper.setShadow(false);
 				layoutMain.addComponent(labelPaper);
 
-				String position = TextFormatting.DARK_GRAY + "X: " + TextFormatting.RESET + entry.getPos().getX() + " " + TextFormatting.DARK_GRAY + "Y: " + TextFormatting.RESET + entry.getPos().getY() + " " + TextFormatting.DARK_GRAY + "Z: " + TextFormatting.RESET + entry.getPos().getZ();
+				String position = ChatFormatting.DARK_GRAY + "X: " + ChatFormatting.RESET + entry.getPos().getX() + " " + ChatFormatting.DARK_GRAY + "Y: " + ChatFormatting.RESET + entry.getPos().getY() + " " + ChatFormatting.DARK_GRAY + "Z: " + ChatFormatting.RESET + entry.getPos().getZ();
 				labelPosition = new Label(position, 5, 30);
 				labelPosition.setShadow(false);
 				layoutMain.addComponent(labelPosition);

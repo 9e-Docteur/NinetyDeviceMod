@@ -1,17 +1,17 @@
 package com.mrcrayfish.device.util;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class InventoryUtil
 {
-	public static int getItemAmount(EntityPlayer player, Item item)
+	public static int getItemAmount(Player player, Item item)
 	{
 		int amount = 0;
-		for(int i = 0; i < player.inventory.getSizeInventory(); i++)
+		for(int i = 0; i < player.getInventory().getContainerSize(); i++)
 		{
-			ItemStack stack = player.inventory.getStackInSlot(i);
+			ItemStack stack = player.getInventory().getItem(i);
 			if(stack != null && stack.getItem() == item)
 			{
 				amount += stack.getCount();
@@ -20,10 +20,10 @@ public class InventoryUtil
 		return amount;
 	}
 	
-	public static boolean hasItemAndAmount(EntityPlayer player, Item item, int amount)
+	public static boolean hasItemAndAmount(Player player, Item item, int amount)
 	{
 		int count = 0;
-		for(ItemStack stack : player.inventory.mainInventory)
+		for(ItemStack stack : player.getInventory().items)
 		{
 			if(stack != null && stack.getItem() == item)
 			{
@@ -33,13 +33,13 @@ public class InventoryUtil
 		return amount <= count;
 	}
 	
-	public static boolean removeItemWithAmount(EntityPlayer player, Item item, int amount)
+	public static boolean removeItemWithAmount(Player player, Item item, int amount)
 	{
 		if(hasItemAndAmount(player, item, amount))
 		{
-			for(int i = 0; i < player.inventory.getSizeInventory(); i++)
+			for(int i = 0; i < player.getInventory().getContainerSize(); i++)
 			{
-				ItemStack stack = player.inventory.getStackInSlot(i);
+				ItemStack stack = player.getInventory().getItem(i);
 				if(stack != null && stack.getItem() == item)
 				{
 					if(amount - stack.getCount() < 0)
@@ -50,7 +50,7 @@ public class InventoryUtil
 					else
 					{
 						amount -= stack.getCount();
-						player.inventory.mainInventory.set(i, ItemStack.EMPTY);
+						player.getInventory().items.set(i, ItemStack.EMPTY);
 						if(amount == 0) return true;
 					}
 				}

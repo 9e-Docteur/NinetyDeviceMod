@@ -3,9 +3,9 @@ package com.mrcrayfish.device.programs.email.task;
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.programs.email.object.Email;
 import com.mrcrayfish.device.programs.email.EmailManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 
@@ -25,18 +25,18 @@ public class TaskDeleteEmail extends Task {
 	}
 
 	@Override
-	public void prepareRequest(NBTTagCompound nbt) 
+	public void prepareRequest(CompoundTag nbt) 
 	{
-		nbt.setInteger("Index", this.index);
+		nbt.putInt("Index", this.index);
 	}
 
 	@Override
-	public void processRequest(NBTTagCompound nbt, World world, EntityPlayer player) 
+	public void processRequest(CompoundTag nbt, Level Level, Player player)
 	{
 		List<Email> emails = EmailManager.INSTANCE.getEmailsForAccount(player);
 		if(emails != null)
 		{
-			int index = nbt.getInteger("Index");
+			int index = nbt.getInt("Index");
 			if(index >= 0 && index < emails.size())
 			{
 				emails.remove(index);
@@ -46,8 +46,8 @@ public class TaskDeleteEmail extends Task {
 	}
 
 	@Override
-	public void prepareResponse(NBTTagCompound nbt) {}
+	public void prepareResponse(CompoundTag nbt) {}
 
 	@Override
-	public void processResponse(NBTTagCompound nbt) {}
+	public void processResponse(CompoundTag nbt) {}
 }
