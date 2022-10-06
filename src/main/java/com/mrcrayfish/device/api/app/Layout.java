@@ -9,7 +9,6 @@ import com.mrcrayfish.device.util.GLHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderSystem;
 
 import java.awt.*;
 import java.util.ArrayList;

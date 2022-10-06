@@ -57,7 +57,7 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
                     sync();
                     if(remainingPrintTime != 0 && state == PRINTING)
                     {
-                        level.playSound(null, worldPosition, DeviceSounds.PRINTER_PRINTING, SoundSource.BLOCKS, 0.5F, 1.0F);
+                        level.playSound(null, worldPosition, DeviceSounds.PRINTER_PRINTING.get(), SoundSource.BLOCKS, 0.5F, 1.0F);
                     }
                 }
                 remainingPrintTime--;
@@ -196,7 +196,7 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
 
     private void print(IPrint print)
     {
-        level.playSound(null, worldPosition, DeviceSounds.PRINTER_LOADING_PAPER, SoundSource.BLOCKS, 0.5F, 1.0F);
+        level.playSound(null, worldPosition, DeviceSounds.PRINTER_LOADING_PAPER.get(), SoundSource.BLOCKS, 0.5F, 1.0F);
 
         setState(LOADING_PAPER);
         currentPrint = print;

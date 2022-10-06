@@ -8,17 +8,16 @@ import com.mrcrayfish.device.network.task.MessageSyncApplications;
 import com.mrcrayfish.device.network.task.MessageSyncConfig;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.programs.system.SystemApplication;
-import net.minecraft.entity.player.PlayerMP;
-import net.minecraft.init.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.Level.Level;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -81,9 +80,9 @@ public class CommonProxy
 	{
 		if(allowedApps != null)
 		{
-			PacketHandler.INSTANCE.sendTo(new MessageSyncApplications(allowedApps), (PlayerMP) event.player);
+			PacketHandler.sendTo(new MessageSyncApplications(allowedApps), (ServerPlayer) event.getEntity());
 		}
-		PacketHandler.sendTo(new MessageSyncConfig(), (PlayerMP) event.player);
+		PacketHandler.sendTo(new MessageSyncConfig(), (ServerPlayer) event.getEntity());
 	}
 
 	@SubscribeEvent
@@ -92,7 +91,7 @@ public class CommonProxy
 		Level Level = event.getLevel();
 		if(!event.getItemStack().isEmpty() && event.getItemStack().getItem() == Items.PAPER)
 		{
-			if(Level.getBlockState(event.getPos()).getBlock() == DeviceBlocks.PRINTER)
+			if(Level.getBlockState(event.getPos()).getBlock() == DeviceBlocks.PRINTER.get())
 			{
 				event.setUseBlock(Event.Result.ALLOW);
 			}

@@ -44,7 +44,7 @@ public class BlockOfficeChair extends BlockDevice.Colored
     {
         if(!level.isClientSide)
         {
-            SeatUtil.createSeatAndSit(level, pos, player, -1);
+            //SeatUtil.createSeatAndSit(level, pos, player, -1);
         }
         return InteractionResult.SUCCESS;
     }

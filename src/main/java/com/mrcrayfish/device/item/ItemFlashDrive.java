@@ -3,19 +3,9 @@ package com.mrcrayfish.device.item;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.Reference;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ChatFormatting;
-import net.minecraft.Level.Level;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -47,14 +37,6 @@ public class ItemFlashDrive extends Item implements SubItems
         tooltip.add(Component.literal("Color: " + ChatFormatting.BOLD.toString() + getFromColor(color).toString() + colorName));
     }
 
-    @Override
-    public NonNullList<ResourceLocation> getModels() {
-        NonNullList<ResourceLocation> modelLocations = NonNullList.create();
-        for (DyeColor color : DyeColor.values())
-            modelLocations.add(new ResourceLocation(Reference.MOD_ID, Objects.requireNonNull(Registries.getId(this, Registry.ITEM_REGISTRY)).getPath().substring(5) + "/" + color.getName()));
-        return modelLocations;
-    }
-
     private static ChatFormatting getFromColor(DyeColor color)
     {
         switch(color)
@@ -76,5 +58,10 @@ public class ItemFlashDrive extends Item implements SubItems
             case BLACK: return ChatFormatting.BLACK;
             default: return ChatFormatting.WHITE;
         }
+    }
+
+    @Override
+    public NonNullList<ResourceLocation> getModels() {
+        return null;
     }
 }

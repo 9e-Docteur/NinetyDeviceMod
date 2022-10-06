@@ -2,14 +2,15 @@ package com.mrcrayfish.device.network.task;
 
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.api.task.TaskManager;
+import com.mrcrayfish.device.network.IPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
 
-public class MessageRequest implements IMessage, IMessageHandler<MessageRequest, IMessage>
+import java.util.function.Supplier;
+
+public class MessageRequest implements IPacket<MessageRequest>
 {
 	private int id;
 	private Task request;
@@ -28,30 +29,28 @@ public class MessageRequest implements IMessage, IMessageHandler<MessageRequest,
 		return id;
 	}
 
+
 	@Override
-	public IMessage onMessage(MessageRequest message, MessageContext ctx)
-	{
-		message.request.processRequest(message.nbt, ctx.getServerHandler().player.Level, ctx.getServerHandler().player);
-		return new MessageResponse(message.id, message.request);
+	public void encode(MessageRequest packet, FriendlyByteBuf byteBuf) {
+		byteBuf.writeInt(this.id);
+		byteBuf.writeUtf(this.request.getName());
+		CompoundTag tag = new CompoundTag();
+		this.request.prepareRequest(tag);
+		byteBuf.writeNbt(tag);
 	}
 
 	@Override
-	public void fromBytes(ByteBuf buf)
-	{
-		this.id = buf.readInt();
-		String name = ByteBufUtils.readUTF8String(buf);
-		this.request = TaskManager.getTask(name);
-		this.nbt = ByteBufUtils.readTag(buf);
+	public MessageRequest decode(FriendlyByteBuf byteBuf) {
+		byteBuf.writeInt(this.id);
+		byteBuf.writeUtf(this.request.getName());
+		CompoundTag tag = new CompoundTag();
+		this.request.prepareRequest(tag);
+		byteBuf.writeNbt(tag);
+		return null;
 	}
 
 	@Override
-	public void toBytes(ByteBuf buf)
-	{
-		buf.writeInt(this.id);
-		ByteBufUtils.writeUTF8String(buf, this.request.getName());
-		CompoundTag nbt = new CompoundTag();
-		this.request.prepareRequest(nbt);
-		ByteBufUtils.writeTag(buf, nbt);
+	public void handlePacket(MessageRequest packet, Supplier<NetworkEvent.Context> ctx) {
+		packet.request.processRequest(packet.nbt, ctx.get().getSender().level, ctx.get().getSender().connection.player);
 	}
-
 }

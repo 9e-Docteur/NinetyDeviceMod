@@ -1,34 +1,37 @@
 package com.mrcrayfish.device.network.task;
 
 import com.mrcrayfish.device.DeviceConfig;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import com.mrcrayfish.device.network.IPacket;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Author: MrCrayfish
  */
-public class MessageSyncConfig implements IMessage, IMessageHandler<MessageSyncConfig, MessageSyncConfig>
+public class MessageSyncConfig implements IPacket<MessageSyncConfig>
 {
-    @Override
-    public void toBytes(ByteBuf buf)
-    {
-        ByteBufUtils.writeTag(buf, DeviceConfig.writeSyncTag());
+    public MessageSyncConfig() {
+
+    }
+    public MessageSyncConfig(FriendlyByteBuf friendlyByteBuf){
+        DeviceConfig.readSyncTag(Objects.requireNonNull(friendlyByteBuf.readNbt()));
     }
 
     @Override
-    public void fromBytes(ByteBuf buf)
-    {
-        CompoundTag syncTag = ByteBufUtils.readTag(buf);
-        DeviceConfig.readSyncTag(syncTag);
+    public void encode(MessageSyncConfig packet, FriendlyByteBuf byteBuf) {
+        byteBuf.writeNbt(DeviceConfig.writeSyncTag());
     }
 
     @Override
-    public MessageSyncConfig onMessage(MessageSyncConfig message, MessageContext ctx)
-    {
+    public MessageSyncConfig decode(FriendlyByteBuf byteBuf) {
         return null;
+    }
+
+    @Override
+    public void handlePacket(MessageSyncConfig packet, Supplier<NetworkEvent.Context> ctx) {
+
     }
 }

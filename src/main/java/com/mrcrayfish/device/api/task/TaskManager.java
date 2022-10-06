@@ -56,7 +56,7 @@ public final class TaskManager
 		
 		int requestId = manager.currentId++;
 		manager.requests.put(requestId, task);
-		PacketHandler.INSTANCE.sendToServer(new MessageRequest(requestId, task));
+		PacketHandler.sendServerPacket(new MessageRequest(requestId, task));
 	}
 	
 	public static Task getTask(String name)

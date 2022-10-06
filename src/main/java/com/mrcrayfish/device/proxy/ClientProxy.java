@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.proxy;
 
+import com.mojang.blaze3d.platform.TextureUtil;
 import com.mrcrayfish.device.DeviceConfig;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.Reference;
@@ -20,13 +21,18 @@ import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -35,24 +41,25 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-public class ClientProxy extends CommonProxy implements IResourceManagerReloadListener
+public class ClientProxy extends CommonProxy
 {
     @Override
     public void preInit()
     {
         super.preInit();
-        ((IReloadableResourceManager)Minecraft.getMinecraft().getResourceManager()).registerReloadListener(this);
     }
 
     @Override
     public void init()
     {
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLaptop.class, new LaptopRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPrinter.class, new PrinterRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPaper.class, new PaperRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityRouter.class, new RouterRenderer());
-        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityOfficeChair.class, new OfficeChairRenderer());
+        //TODO: BOUND REGISTER WITH TILE!
+//        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLaptop.class, new LaptopRenderer());
+//        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPrinter.class, new PrinterRenderer());
+//        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityPaper.class, new PaperRenderer());
+//        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityRouter.class, new RouterRenderer());
+//        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityOfficeChair.class, new OfficeChairRenderer());
 
         if(MrCrayfishDeviceMod.DEVELOPER_MODE)
         {
@@ -86,7 +93,7 @@ public class ClientProxy extends CommonProxy implements IResourceManagerReloadLi
 
         try
         {
-            BufferedImage icon = TextureUtil.readBufferedImage(ClientProxy.class.getResourceAsStream("/assets/" + Reference.MOD_ID + "/textures/app/icon/missing.png"));
+            BufferedImage icon = ImageIO.read(Objects.requireNonNull(ClientProxy.class.getResourceAsStream("/assets/" + Reference.MOD_ID + "/textures/app/icon/missing.png")));
             g.drawImage(icon, 0, 0, ICON_SIZE, ICON_SIZE, null);
         }
         catch(IOException e)
@@ -109,7 +116,7 @@ public class ClientProxy extends CommonProxy implements IResourceManagerReloadLi
                 InputStream input = ClientProxy.class.getResourceAsStream(path);
                 if(input != null)
                 {
-                    BufferedImage icon = TextureUtil.readBufferedImage(input);
+                    BufferedImage icon = ImageIO.read(input);
                     if(icon.getWidth() != ICON_SIZE || icon.getHeight() != ICON_SIZE)
                     {
                         MrCrayfishDeviceMod.getLogger().error("Incorrect icon size for " + identifier.toString() + " (Must be 14 by 14 pixels)");
@@ -133,13 +140,13 @@ public class ClientProxy extends CommonProxy implements IResourceManagerReloadLi
         }
 
         g.dispose();
-        Minecraft.getMinecraft().getTextureManager().loadTexture(Laptop.ICON_TEXTURES, new DynamicTexture(atlas));
+        Minecraft.getInstance().getTextureManager().register(Laptop.ICON_TEXTURES, new DynamicTexture(atlas));
     }
 
     private void updateIcon(AppInfo info, int iconU, int iconV)
     {
-        ReflectionHelper.setPrivateValue(AppInfo.class, info, iconU, "iconU");
-        ReflectionHelper.setPrivateValue(AppInfo.class, info, iconV, "iconV");
+//        ReflectionHelper.setPrivateValue(AppInfo.class, info, iconU, "iconU");
+//        ReflectionHelper.setPrivateValue(AppInfo.class, info, iconV, "iconV");
     }
 
     @Nullable
@@ -154,7 +161,7 @@ public class ClientProxy extends CommonProxy implements IResourceManagerReloadLi
         try
         {
             Application application = clazz.newInstance();
-            java.util.List<Application> APPS = ReflectionHelper.getPrivateValue(Laptop.class, null, "APPLICATIONS");
+            java.util.List<Application> APPS = ObfuscationReflectionHelper.getPrivateValue(Laptop.class, null, "APPLICATIONS");
             APPS.add(application);
 
             Field field = Application.class.getDeclaredField("info");
@@ -195,11 +202,11 @@ public class ClientProxy extends CommonProxy implements IResourceManagerReloadLi
             try
             {
                 IPrint.Renderer renderer = classRenderer.newInstance();
-                Map<String, IPrint.Renderer> idToRenderer = ReflectionHelper.getPrivateValue(PrintingManager.class, null, "registeredRenders");
+                Map<String, IPrint.Renderer> idToRenderer = ObfuscationReflectionHelper.getPrivateValue(PrintingManager.class, null, "registeredRenders");
                 if(idToRenderer == null)
                 {
                     idToRenderer = new HashMap<>();
-                    ReflectionHelper.setPrivateValue(PrintingManager.class, null, idToRenderer, "registeredRenders");
+                    ObfuscationReflectionHelper.setPrivateValue(PrintingManager.class, null, idToRenderer, "registeredRenders");
                 }
                 idToRenderer.put(identifier.toString(), renderer);
             }
@@ -217,18 +224,8 @@ public class ClientProxy extends CommonProxy implements IResourceManagerReloadLi
         return false;
     }
 
-    @Override
-    public void onResourceManagerReload(IResourceManager resourceManager)
-    {
-        if(ApplicationManager.getAllApplications().size() > 0)
-        {
-            ApplicationManager.getAllApplications().forEach(AppInfo::reload);
-            generateIconAtlas();
-        }
-    }
-
     @SubscribeEvent
-    public void onClientDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event)
+    public void onClientDisconnect(PlayerEvent.PlayerLoggedOutEvent event)
     {
         allowedApps = null;
         DeviceConfig.restore();

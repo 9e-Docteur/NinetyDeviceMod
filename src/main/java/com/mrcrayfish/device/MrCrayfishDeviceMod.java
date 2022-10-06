@@ -15,6 +15,7 @@ import com.mrcrayfish.device.event.EmailEvents;
 import com.mrcrayfish.device.init.DeviceTileEntites;
 import com.mrcrayfish.device.init.RegistrationHandler;
 import com.mrcrayfish.device.network.PacketHandler;
+import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.programs.*;
 import com.mrcrayfish.device.programs.debug.ApplicationTextArea;
 import com.mrcrayfish.device.programs.email.ApplicationEmail;
@@ -30,11 +31,14 @@ import com.mrcrayfish.device.programs.system.task.*;
 import com.mrcrayfish.device.proxy.CommonProxy;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.List;
 
 @Mod(Reference.MOD_ID)
 public class MrCrayfishDeviceMod 
@@ -45,6 +49,7 @@ public class MrCrayfishDeviceMod
 	private static final Logger logger = LogManager.getLogger();
 
 	public static final boolean DEVELOPER_MODE = NDMUtils.Launch.isRunningInDev();
+	static List<AppInfo> allowedApps;
 
 	public void preInit() throws LaunchException
 	{
@@ -60,12 +65,16 @@ public class MrCrayfishDeviceMod
 		
 		proxy.preInit();
 	}
+
+	public static void setAllowedApps(List<AppInfo> allowedApps) {
+		MrCrayfishDeviceMod.allowedApps = allowedApps;
+	}
 	
 
 	public void init(FMLCommonSetupEvent event)
 	{
 		/* Tile Entity Registering */
-		DeviceTileEntites.register();
+		//DeviceTileEntites.register();
 
 		//EntityRegistry.registerModEntity(new ResourceLocation("cdm:seat"), EntitySeat.class, "Seat", 0, this, 80, 1, false);
 

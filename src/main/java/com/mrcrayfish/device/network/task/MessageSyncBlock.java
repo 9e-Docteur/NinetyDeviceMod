@@ -1,18 +1,22 @@
 package com.mrcrayfish.device.network.task;
 
+import com.mrcrayfish.device.network.IPacket;
 import com.mrcrayfish.device.tileentity.TileEntityRouter;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.Level.Level;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Author: MrCrayfish
  */
-public class MessageSyncBlock implements IMessage, IMessageHandler<MessageSyncBlock, MessageSyncBlock>
+public class MessageSyncBlock implements IPacket<MessageSyncBlock>
 {
     private BlockPos routerPos;
 
@@ -24,26 +28,21 @@ public class MessageSyncBlock implements IMessage, IMessageHandler<MessageSyncBl
     }
 
     @Override
-    public void toBytes(ByteBuf buf)
-    {
-        buf.writeLong(routerPos.toLong());
+    public void encode(MessageSyncBlock packet, FriendlyByteBuf byteBuf) {
+        byteBuf.writeBlockPos(routerPos);
     }
 
     @Override
-    public void fromBytes(ByteBuf buf)
-    {
-        routerPos = BlockPos.fromLong(buf.readLong());
-    }
-
-    @Override
-    public MessageSyncBlock onMessage(MessageSyncBlock message, MessageContext ctx)
-    {
-        Level Level = ctx.getServerHandler().player.Level;
-        TileEntity tileEntity = Level.getBlockEntity(message.routerPos);
-        if(tileEntity instanceof TileEntityRouter tileEntityRouter)
-        {
-            tileEntityRouter.syncDevicesToClient();
-        }
+    public MessageSyncBlock decode(FriendlyByteBuf byteBuf) {
         return null;
+    }
+
+    @Override
+    public void handlePacket(MessageSyncBlock packet, Supplier<NetworkEvent.Context> ctx) {
+        Level level = Objects.requireNonNull(ctx.get().getSender().level);
+        BlockEntity blockEntity = level.getChunkAt(routerPos).getBlockEntity(routerPos, LevelChunk.EntityCreationType.IMMEDIATE);
+        if (blockEntity instanceof TileEntityRouter router) {
+            router.syncDevicesToClient();
+        }
     }
 }

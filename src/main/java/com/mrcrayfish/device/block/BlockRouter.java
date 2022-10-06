@@ -2,6 +2,7 @@ package com.mrcrayfish.device.block;
 
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.network.PacketHandler;
+import com.mrcrayfish.device.network.task.MessageSyncBlock;
 import com.mrcrayfish.device.tileentity.TileEntityRouter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -87,7 +88,7 @@ public class BlockRouter extends BlockDevice.Colored
             if (blockEntity instanceof TileEntityRouter router) {
                 router.setDebug();
                 if (router.isDebug()) {
-                    PacketHandler.INSTANCE.sendToServer(new SyncBlockPacket(pos));
+                    PacketHandler.sendServerPacket(new MessageSyncBlock(pos));
                 }
             }
             return InteractionResult.SUCCESS;

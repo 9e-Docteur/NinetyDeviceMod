@@ -3,6 +3,7 @@ package com.mrcrayfish.device.network.task;
 import com.google.common.collect.ImmutableList;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.api.ApplicationManager;
+import com.mrcrayfish.device.network.IPacket;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.proxy.CommonProxy;
 import io.netty.buffer.ByteBuf;
@@ -11,14 +12,20 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.PacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Author: MrCrayfish
  */
-public class MessageSyncApplications implements PacketListener, Packet<MessageSyncApplications> {
+public class MessageSyncApplications implements IPacket<MessageSyncApplications> {
     private List<AppInfo> allowedApps;
+
+    public MessageSyncApplications(){
+
+    }
 
     public MessageSyncApplications(FriendlyByteBuf buf) {
         int size = buf.readInt();
@@ -40,26 +47,22 @@ public class MessageSyncApplications implements PacketListener, Packet<MessageSy
         this.allowedApps = allowedApps;
     }
 
+
     @Override
-    public void write(FriendlyByteBuf p_131343_) {
-        p_131343_.writeInt(allowedApps.size());
+    public void encode(MessageSyncApplications packet, FriendlyByteBuf byteBuf) {
+        byteBuf.writeInt(allowedApps.size());
         for (AppInfo appInfo : allowedApps) {
-            p_131343_.writeResourceLocation(appInfo.getId());
+            byteBuf.writeResourceLocation(appInfo.getId());
         }
     }
 
     @Override
-    public void handle(MessageSyncApplications p_131342_) {
-        //Devices.setAllowedApps(allowedApps);
-    }
-
-    @Override
-    public void onDisconnect(Component p_130552_) {
-
-    }
-
-    @Override
-    public Connection getConnection() {
+    public MessageSyncApplications decode(FriendlyByteBuf byteBuf) {
         return null;
+    }
+
+    @Override
+    public void handlePacket(MessageSyncApplications packet, Supplier<NetworkEvent.Context> ctx) {
+        MrCrayfishDeviceMod.setAllowedApps(allowedApps);
     }
 }
