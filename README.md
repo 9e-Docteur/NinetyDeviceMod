@@ -1,4 +1,4 @@
-##**About**
+#**About**
 ***
 
 This mod is based on MrCrayfish's device mod. Because his mod is discountinued and under GPL3 Liscence, we can update the mod. And i'm gonna with my team trying to add features and update this mod!
@@ -17,13 +17,10 @@ This mod is based on MrCrayfish's device mod. Because his mod is discountinued a
 The original mod was under GPL3, MrCrayfish wanted that all modified version using the code and assets use also GPL3, so we are also using GPL3.
 Feel free to copy part of the code but please credit MrCrayfish and DocTeam (9e_Docteur, PandaRebel, Killar.exe) 
 
-#### **Forge source installation**
+#### **Credits**
 ***
-MinecraftForge ships with this code and installs it as part of the forge
-installation process, no further action is required on your part.
+* MrCrayfish - Orginal Dev of the Mod
+* 9e_Docteur - Updating the code
+* Killarexe - Updating the code
+* DocTeam (Team by 9e_Docteur) - Assets
 ***
-#### **LexManos' Install Video**
-***
-[![Forge Gradle Setup, updating, and release](http://img.youtube.com/vi/8VEdtQLuLO0/0.jpg)](http://www.youtube.com/watch?v=8VEdtQLuLO0)
-
-##### For more details update more often refer to the [Forge Forums](http://www.minecraftforge.net/forum/index.php/topic,14048.0.html).
