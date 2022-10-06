@@ -80,6 +80,6 @@ public class Notification
      */
     public void pushTo(ServerPlayer player)
     {
-        PacketHandler.INSTANCE.sendTo(new MessageNotification(this), player);
+        PacketHandler.sendTo(new MessageNotification(this), player);
     }
 }

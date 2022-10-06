@@ -2,43 +2,47 @@ package com.mrcrayfish.device.network.task;
 
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.api.app.Notification;
+import com.mrcrayfish.device.network.IPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
+
 
 /**
  * Author: MrCrayfish
  */
-public class MessageNotification implements IMessage, IMessageHandler<MessageNotification, IMessage>
+public class MessageNotification implements IPacket<MessageNotification>
 {
     private CompoundTag notificationTag;
 
     public MessageNotification() {}
 
+    public MessageNotification(CompoundTag compoundTag)
+    {
+        this.notificationTag = compoundTag;
+    }
+
     public MessageNotification(Notification notification)
     {
-        this.notificationTag = notification.toTag();
+        this(notification.toTag());
     }
 
     @Override
-    public void toBytes(ByteBuf buf)
-    {
-        ByteBufUtils.writeTag(buf, notificationTag);
+    public void encode(MessageNotification packet, FriendlyByteBuf byteBuf) {
+        byteBuf.writeNbt(packet.notificationTag);
     }
 
     @Override
-    public void fromBytes(ByteBuf buf)
-    {
-        notificationTag = ByteBufUtils.readTag(buf);
+    public MessageNotification decode(FriendlyByteBuf byteBuf) {
+        CompoundTag notificationTag = byteBuf.readNbt();
+        return new MessageNotification(notificationTag);
     }
 
     @Override
-    public IMessage onMessage(MessageNotification message, MessageContext ctx)
-    {
-        MrCrayfishDeviceMod.proxy.showNotification(message.notificationTag);
-        return null;
+    public void handlePacket(MessageNotification packet, Supplier<NetworkEvent.Context> ctx) {
+        MrCrayfishDeviceMod.proxy.showNotification(packet.notificationTag);
     }
 }
