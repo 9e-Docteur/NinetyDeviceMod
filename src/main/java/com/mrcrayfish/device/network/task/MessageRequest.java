@@ -3,17 +3,17 @@ package com.mrcrayfish.device.network.task;
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.api.task.TaskManager;
 import com.mrcrayfish.device.network.IPacket;
+import com.mrcrayfish.device.network.PacketHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
 public class MessageRequest implements IPacket<MessageRequest>
 {
-
-	//TODO: FIX ERROR IN ENCODE RECODE
 	private int id;
 	private Task request;
 	private CompoundTag nbt;
@@ -43,16 +43,16 @@ public class MessageRequest implements IPacket<MessageRequest>
 
 	@Override
 	public MessageRequest decode(FriendlyByteBuf byteBuf) {
-		byteBuf.writeInt(this.id);
-		byteBuf.writeUtf(this.request.getName());
-		CompoundTag tag = new CompoundTag();
-		this.request.prepareRequest(tag);
-		byteBuf.writeNbt(tag);
+		this.id = byteBuf.readInt();
+		String name = byteBuf.readUtf();
+		this.request = TaskManager.getTask(name);
+		this.nbt = byteBuf.readNbt();
 		return null;
 	}
 
 	@Override
 	public void handlePacket(MessageRequest packet, Supplier<NetworkEvent.Context> ctx) {
-		packet.request.processRequest(packet.nbt, ctx.get().getSender().level, ctx.get().getSender().connection.player);
+		packet.request.processRequest(packet.nbt, ctx.get().getSender().level, ctx.get().getSender());
+			PacketHandler.sendTo(new MessageRequest(id, request), ctx.get().getSender());
 	}
 }
