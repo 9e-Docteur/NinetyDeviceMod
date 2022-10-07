@@ -39,7 +39,7 @@ public class OfficeChairRenderer implements BlockEntityRenderer<TileEntityOffice
             //poseStack.translate(x, y, z);
 
             poseStack.translate(0.5, 0, 0.5);
-            poseStack.mulPose(Quaternion.fromXYZDegrees(new Vector3f(0, - te.getRotation()+180, 0)));
+            poseStack.mulPose(Quaternion.fromXYZDegrees(new Vector3f(0, -/* te.getRotation()*/+180, 0)));
             poseStack.translate(-0.5, 0, -0.5);
 
             BlockState state = tempState.setValue(BlockOfficeChair.FACING, Direction.NORTH).setValue(BlockOfficeChair.TYPE, BlockOfficeChair.Type.SEAT);

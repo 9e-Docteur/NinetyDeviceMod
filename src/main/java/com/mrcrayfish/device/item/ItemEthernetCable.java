@@ -68,7 +68,7 @@ public class ItemEthernetCable extends Item
                         {
                             tileEntityNetworkDevice.connect(router);
                             heldItem.shrink(1);
-                            if(getDistance(tileEntity1.getBlockPos(), tileEntityRouter.getBlockPos()) > DeviceConfig.getSignalRange())
+                            if(getDistance(tileEntity1.getBlockPos(), tileEntityRouter.getBlockPos()) > DeviceConfig.SIGNAL_RANGE.get())
                             {
                                 sendGameInfoMessage(player, "message.successful_registered");
                             }

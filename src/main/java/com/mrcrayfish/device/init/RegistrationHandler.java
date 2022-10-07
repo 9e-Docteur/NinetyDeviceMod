@@ -12,6 +12,6 @@ public class RegistrationHandler
     {
         DeviceBlocks.register(eventBus);
         DeviceItems.register(eventBus);
-
+        DeviceTileEntites.register(eventBus);
     }
 }

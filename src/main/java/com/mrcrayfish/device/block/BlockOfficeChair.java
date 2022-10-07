@@ -4,6 +4,7 @@ import com.mrcrayfish.device.tileentity.TileEntityOfficeChair;
 import com.mrcrayfish.device.util.SeatUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -28,6 +29,8 @@ import javax.annotation.Nullable;
  */
 public class BlockOfficeChair extends BlockDevice.Colored
 {
+    public static final EnumProperty<Type> TYPE = EnumProperty.create("type", Type.class);
+
     public BlockOfficeChair(DyeColor color)
     {
         super(BlockBehaviour.Properties.of(Material.STONE, color.getMaterialColor()), color);
@@ -60,5 +63,16 @@ public class BlockOfficeChair extends BlockDevice.Colored
     protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> pBuilder)
     {
         super.createBlockStateDefinition(pBuilder);
+    }
+
+    public enum Type implements StringRepresentable
+    {
+        LEGS, SEAT, FULL;
+
+        @Override
+        public String getSerializedName()
+        {
+            return name().toLowerCase();
+        }
     }
 }

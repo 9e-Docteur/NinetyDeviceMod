@@ -39,5 +39,7 @@ public abstract class ListItemRenderer<E>
 
 	}
 
-	public abstract void render(PoseStack poseStack, Device device, javafx.stage.Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected);
+	public void render(PoseStack poseStack, Device device, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+
+	}
 }

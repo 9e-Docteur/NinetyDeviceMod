@@ -2,6 +2,8 @@ package com.mrcrayfish.device.tileentity.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import com.mrcrayfish.device.block.BlockPrinter;
 import com.mrcrayfish.device.block.BlockRouter;
 import com.mrcrayfish.device.core.network.NetworkDevice;
@@ -47,7 +49,7 @@ public class RouterRenderer implements BlockEntityRenderer<TileEntityRouter> {
                 Tesselator tesselator = Tesselator.getInstance();
                 BufferBuilder buffer = tesselator.getBuilder();
 
-                final Collection<NetworkDevice> DEVICES = router.getConnectedDevices(Minecraft.getInstance().level());
+                final Collection<NetworkDevice> DEVICES = router.getConnectedDevices(Minecraft.getInstance().level);
                 DEVICES.forEach(networkDevice ->
                 {
                     BlockPos devicePos = networkDevice.getPos();
@@ -75,13 +77,15 @@ public class RouterRenderer implements BlockEntityRenderer<TileEntityRouter> {
         float lineY = 0.1F;
         float lineZ = 0.5F;
 
-        if(state.getValue(BlockRouter.VERTICAL))
-        {
-            double[] fixedPosition = CollisionHelper.fixRotation(state.getValue(BlockPrinter.FACING), 14 * 0.0625, 0.5, 14 * 0.0625, 0.5);
-            lineX = (float) fixedPosition[0];
-            lineY = 0.35F;
-            lineZ = (float) fixedPosition[1];
+        if (state.getValue(BlockRouter.VERTICAL)) {
+            Quaternion rotation = state.getValue(BlockRouter.FACING).getRotation();
+            rotation.mul(new Quaternion((float) (14 * 0.0625), 0.5f, (float) (14 * 0.0625), 0.5f));
+            Vector3f fixedPosition = rotation.toXYZ();
+            lineX = fixedPosition.x();
+            lineY = 0.35f;
+            lineZ = fixedPosition.z();
         }
+
 
         return new Vec3d(lineX, lineY, lineZ);
     }

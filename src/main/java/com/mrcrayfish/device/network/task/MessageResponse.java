@@ -15,18 +15,13 @@ import net.minecraftforge.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class MessageResponse implements IPacket<MessageResponse> {
-	private final int id;
-	private final Task request;
+	private int id;
+	private Task request;
 	private CompoundTag tag;
 
 
-	public MessageResponse(FriendlyByteBuf buf) {
-		this.id = buf.readInt();
-		boolean successful = buf.readBoolean();
-		this.request = TaskManager.getTaskAndRemove(this.id);
-		if (successful) this.request.setSuccessful();
-		String name = buf.readUtf();
-		this.tag = buf.readNbt();
+	public MessageResponse() {
+
 	}
 
 	public MessageResponse(int id, Task request) {
@@ -47,6 +42,12 @@ public class MessageResponse implements IPacket<MessageResponse> {
 
 	@Override
 	public MessageResponse decode(FriendlyByteBuf byteBuf) {
+		this.id = byteBuf.readInt();
+		boolean successful = byteBuf.readBoolean();
+		this.request = TaskManager.getTaskAndRemove(this.id);
+		if (successful) this.request.setSuccessful();
+		String name = byteBuf.readUtf();
+		this.tag = byteBuf.readNbt();
 		return null;
 	}
 

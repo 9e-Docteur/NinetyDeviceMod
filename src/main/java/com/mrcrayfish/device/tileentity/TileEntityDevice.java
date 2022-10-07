@@ -68,15 +68,15 @@ public abstract class TileEntityDevice extends TileEntitySync
     @Override
     public void deserializeNBT(CompoundTag nbt) {
         super.deserializeNBT(nbt);
-        if(nbt.getString("deviceId", Tag.TAG_STRING))
+        if(nbt.contains("deviceId", Tag.TAG_STRING))
         {
             deviceId = UUID.fromString(nbt.getString("deviceId"));
         }
-        if(nbt.getString("name", Tag.TAG_STRING))
+        if(nbt.contains("name", Tag.TAG_STRING))
         {
             name = nbt.getString("name");
         }
-        if(nbt.getString("color", Tag.TAG_BYTE))
+        if(nbt.contains("color", Tag.TAG_BYTE))
         {
             this.color = DyeColor.byId(nbt.getByte("color"));
         }
@@ -105,7 +105,7 @@ public abstract class TileEntityDevice extends TileEntitySync
         @Override
         public void deserializeNBT(CompoundTag nbt) {
             super.deserializeNBT(nbt);
-            if(nbt.put("color", Tag.TAG_BYTE))
+            if(nbt.contains("color", Tag.TAG_BYTE))
             {
                 this.color = DyeColor.byId(nbt.getByte("color"));
             }

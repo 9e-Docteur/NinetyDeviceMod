@@ -14,11 +14,11 @@ public class Email
 {
     private final String subject;
     private String author;
-    private final String message;
+    private final FormattedText message;
     private final File attachment;
     private boolean read;
 
-    public Email(String subject, String message, @Nullable File file)
+    public Email(String subject, FormattedText message, @Nullable File file)
     {
         this.subject = subject;
         this.message = message;
@@ -26,7 +26,7 @@ public class Email
         this.read = false;
     }
 
-    public Email(String subject, String author, String message, @Nullable File attachment)
+    public Email(String subject, String author, FormattedText message, @Nullable File attachment)
     {
         this(subject, message, attachment);
         this.author = author;
@@ -47,7 +47,7 @@ public class Email
         this.author = author;
     }
 
-    public String getMessage()
+    public FormattedText getMessage()
     {
         return message;
     }
@@ -71,7 +71,7 @@ public class Email
     {
         nbt.putString("subject", this.subject);
         if(author != null) nbt.putString("author", this.author);
-        nbt.putString("message", this.message);
+        nbt.putString("message", String.valueOf(this.message));
         nbt.putBoolean("read", this.read);
 
         if(attachment != null)
@@ -91,7 +91,7 @@ public class Email
             CompoundTag fileTag = nbt.getCompound("attachment");
             attachment = File.fromTag(fileTag.getString("file_name"), fileTag.getCompound("data"));
         }
-        Email email = new Email(nbt.getString("subject"), nbt.getString("author"), nbt.getString("message"), attachment);
+        Email email = new Email(nbt.getString("subject"), nbt.getString("author"), FormattedText.of(nbt.getString("message")), attachment);
         email.setRead(nbt.getBoolean("read"));
         return email;
     }

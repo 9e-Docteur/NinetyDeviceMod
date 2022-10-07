@@ -50,8 +50,8 @@ public class LaptopRenderer implements BlockEntityRenderer<TileEntityLaptop>
 					poseStack.translate(-0.5, 0, -0.5);
 					poseStack.translate(0.595, -0.2075, -0.005);
 					entityItem.flyDist = 0.0F;
-					entityItem.setItem(new ItemStack(DeviceItems.FLASH_DRIVE.get(), 1, te.getExternalDriveColor()));
-					Minecraft.getInstance().levelRenderer.renderEntity(entityItem, 0.0D, 0.0D, 0.0D, 0.0F, poseStack, bufferSource);
+					//entityItem.setItem(new ItemStack(DeviceItems.FLASH_DRIVE.get(), 1, te.getExternalDriveColor()));
+					//Minecraft.getInstance().levelRenderer.renderEntity(entityItem, 0.0D, 0.0D, 0.0D, 0.0F, poseStack, bufferSource);
 					poseStack.translate(0.1, 0, 0);
 				}
 				poseStack.popPose();
@@ -59,6 +59,7 @@ public class LaptopRenderer implements BlockEntityRenderer<TileEntityLaptop>
 
 			poseStack.pushPose();
 			{
+				var direction = te.getBlockState().getValue(BlockLaptop.FACING).getClockWise().toYRot();
 				poseStack.translate(0.5, 0, 0.5);
 				poseStack.mulPose(Vector3f.YP.rotationDegrees(te.getBlockState().getValue(BlockLaptop.FACING) == Direction.EAST || te.getBlockState().getValue(BlockLaptop.FACING) == Direction.WEST ? direction + 90 : direction - 90));
 				poseStack.translate(-0.5, 0, -0.5);

@@ -212,11 +212,11 @@ public class FileSystem
 	{
 		if(attachedDrive != null)
 		{
-			ItemStack stack = new ItemStack(DeviceItems.FLASH_DRIVE.get(), 1, getAttachedDriveColor().getId());
-			stack.setHoverName(Component.literal(attachedDrive.getName()));
-			stack.getTag().put("drive", attachedDrive.toTag());
-			attachedDrive = null;
-			return stack;
+//			ItemStack stack = new ItemStack(DeviceItems.FLASH_DRIVE.get(), 1, getAttachedDriveColor().getId());
+//			stack.setHoverName(Component.literal(attachedDrive.getName()));
+//			stack.getTag().put("drive", attachedDrive.toTag());
+//			attachedDrive = null;
+//			return stack;
 		}
 		return null;
 	}

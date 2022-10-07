@@ -36,7 +36,7 @@ public class PaperRenderer implements BlockEntityRenderer<TileEntityPaper> {
             poseStack.translate(0.5, 0.5, 0.5);
             BlockState state = te.getLevel().getBlockState(te.getBlockPos());
             if(state.getBlock() != DeviceBlocks.PAPER.get()) return;
-            poseStack.mulPose(state.getValue(BlockPaper.FACING).getHorizontalIndex() * -90F + 180F, 0, 1, 0);
+            poseStack.mulPose(state.getValue(BlockPaper.FACING).getRotation());
             poseStack.mulPose(new Quaternion(0, 0, 1, -te.getRotation()));
             poseStack.translate(-0.5, -0.5, -0.5);
 

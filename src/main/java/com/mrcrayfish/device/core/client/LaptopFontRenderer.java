@@ -2,8 +2,6 @@ package com.mrcrayfish.device.core.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.ResourceLocation;
 
 /**
  * Author: MrCrayfish
@@ -12,9 +10,10 @@ public class LaptopFontRenderer extends Font
 {
     private boolean debug = false;
 
-    public LaptopFontRenderer(Minecraft mc)
+    public LaptopFontRenderer(Minecraft minecraft)
     {
-       // super(mc.gameSettings, new ResourceLocation("textures/font/ascii.png"), mc.getTextureManager(), false);
+        super();
+        // super(mc.gameSettings, new ResourceLocation("textures/font/ascii.png"), mc.getTextureManager(), false);
         //this.onResourceManagerReload(null);
     }
 

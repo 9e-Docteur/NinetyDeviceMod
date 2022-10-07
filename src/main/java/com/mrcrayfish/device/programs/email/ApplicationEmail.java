@@ -27,6 +27,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -383,7 +384,7 @@ public class ApplicationEmail extends Application
 			Matcher matcher = EMAIL.matcher(fieldRecipient.getText());
 			if(!matcher.matches()) return;
 
-			Email email = new Email(fieldSubject.getText(), textAreaMessage.getText(), attachedFile);
+			Email email = new Email(fieldSubject.getText(), FormattedText.of(textAreaMessage.getText()), attachedFile);
 			TaskSendEmail taskSendEmail = new TaskSendEmail(email, matcher.group(1));
 			taskSendEmail.setCallback((nbt, success) ->
 			{

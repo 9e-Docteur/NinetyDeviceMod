@@ -2,6 +2,7 @@ package com.mrcrayfish.device.api.print;
 
 import com.mrcrayfish.device.init.DeviceBlocks;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -68,12 +69,12 @@ public interface IPrint
         CompoundTag itemTag = new CompoundTag();
         itemTag.put("BlockEntityTag", blockEntityTag);
 
-        ItemStack stack = new ItemStack(DeviceBlocks.PAPER);
-        stack.put(itemTag);
+        ItemStack stack = new ItemStack(DeviceBlocks.PAPER.get());
+        stack.setTag(itemTag);
 
         if(print.getName() != null && !print.getName().isEmpty())
         {
-            stack.setHoverName(print.getName());
+            stack.setHoverName(Component.literal(print.getName()));
         }
         return stack;
     }

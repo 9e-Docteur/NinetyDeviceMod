@@ -97,9 +97,8 @@ public class ItemList<E> extends Component implements Iterable<E>
 		layoutLoading = new Layout(left, top, getWidth(), getHeight());
 		layoutLoading.setVisible(loading);
 		layoutLoading.addComponent(new Spinner((layoutLoading.width - 12) / 2, (layoutLoading.height - 12) / 2));
-		layoutLoading.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+		layoutLoading.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
 		{
-			PoseStack poseStack = new PoseStack();
 			Gui.fill(poseStack, x, y, x + width, y + height, LOADING_BACKGROUND);
 		});
 		layout.addComponent(layoutLoading);
