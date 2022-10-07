@@ -1,11 +1,13 @@
 package com.mrcrayfish.device.util;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Stack;
 
@@ -16,21 +18,21 @@ public class GLHelper
 {
     public static Stack<Scissor> scissorStack = new Stack<>();
 
-    public static void pushScissor(int x, int y, int width, int height)
-    {
-        if(scissorStack.size() > 0)
-        {
+    public static void pushScissor(int x, int y, int width, int height) {
+        if (scissorStack.size() > 0) {
             Scissor scissor = scissorStack.peek();
             x = Math.max(scissor.x, x);
             y = Math.max(scissor.y, y);
             width = x + width > scissor.x + scissor.width ? scissor.x + scissor.width - x : width;
             height = y + height > scissor.y + scissor.height ? scissor.y + scissor.height - y : height;
+        } else {
+            GlStateManager._enableScissorTest();
         }
 
         Minecraft mc = Minecraft.getInstance();
         ScaledResolution resolution = new ScaledResolution(mc);
-        int scale = resolution.getScaleFactor();
-        GL11.glScissor(x * scale, mc.getWindow().getHeight() - y * scale - height * scale, Math.max(0, width * scale), Math.max(0, height * scale));
+        double scale = resolution.getScaleFactor();
+        GlStateManager._scissorBox((int) (x * scale), (int) (mc.getWindow().getHeight() - y * scale - height * scale), (int) Math.max(0, width * scale), (int) Math.max(0, height * scale));
         scissorStack.push(new Scissor(x, y, width, height));
     }
 
@@ -45,13 +47,14 @@ public class GLHelper
 
     private static void restoreScissor()
     {
-        if(!scissorStack.isEmpty())
-        {
+        if (!scissorStack.isEmpty()) {
             Scissor scissor = scissorStack.peek();
-            Minecraft mc = Minecraft.getMinecraft();
+            Minecraft mc = Minecraft.getInstance();
             ScaledResolution resolution = new ScaledResolution(mc);
-            int scale = resolution.getScaleFactor();
-            GL11.glScissor(scissor.x * scale, mc.displayHeight - scissor.y * scale - scissor.height * scale, Math.max(0, scissor.width * scale), Math.max(0, scissor.height * scale));
+            double scale = resolution.getScaleFactor();
+            GlStateManager._scissorBox((int) (scissor.x * scale), (int) (mc.getWindow().getHeight() - scissor.y * scale - scissor.height * scale), (int) Math.max(0, scissor.width * scale), (int) Math.max(0, scissor.height * scale));
+        } else {
+            GlStateManager._disableScissorTest();
         }
     }
 
@@ -70,27 +73,60 @@ public class GLHelper
 
     public static Color getPixel(int x, int y)
     {
-        Minecraft mc = Minecraft.getMinecraft();
+        Minecraft mc = Minecraft.getInstance();
         ScaledResolution resolution = new ScaledResolution(mc);
-        int scale = resolution.getScaleFactor();
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(3);
-        GL11.glReadPixels(x * scale, mc.displayHeight - y * scale - scale, 1, 1, GL11.GL_RGB, GL11.GL_FLOAT, buffer);
-        return new Color(buffer.get(0), buffer.get(1), buffer.get(2));
+        double scale = resolution.getScaleFactor();
+        ByteBuffer buffer = BufferUtils.createByteBuffer(3);
+        RenderSystem.readPixels((int) (x * scale), (int) (mc.getWindow().getHeight() - y * scale - scale), 1, 1, GL11.GL_RGB, GL11.GL_BYTE, buffer);
+        return new Color(Math.min(255, buffer.get(0) % 256*2), Math.min(255, buffer.get(1) % 256*2), Math.min(255, buffer.get(2) % 256*2));
     }
 
-    public static class Scissor
-    {
+
+    public static class Scissor {
         public int x;
         public int y;
         public int width;
         public int height;
 
-        Scissor(int x, int y, int width, int height)
-        {
+        Scissor(int x, int y, int width, int height) {
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
+        }
+    }
+
+    public static class ScaledResolution{
+        private final double scaleFactor;
+        private final double scale;
+        private int scaledWidth;
+        private int scaledHeight;
+
+        public ScaledResolution(Minecraft mc) {
+            this.scaleFactor = mc.getWindow().getGuiScale();
+            this.scale = this.scaleFactor == 0 ? 1 : this.scaleFactor;
+            this.updateScaledWidthAndHeight();
+        }
+
+        private void updateScaledWidthAndHeight() {
+            this.scaledWidth = (int) (this.scale * Minecraft.getInstance().getWindow().getScreenWidth());
+            this.scaledHeight = (int) (this.scale * Minecraft.getInstance().getWindow().getScreenHeight());
+        }
+
+        public double getScaleFactor() {
+            return scaleFactor;
+        }
+
+        public double getScale() {
+            return scale;
+        }
+
+        public int getScaledWidth() {
+            return scaledWidth;
+        }
+
+        public int getScaledHeight() {
+            return scaledHeight;
         }
     }
 }

@@ -9,20 +9,20 @@ import com.mrcrayfish.device.api.app.Layout;
 import com.mrcrayfish.device.api.utils.RenderUtil;
 import com.mrcrayfish.device.core.Laptop;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderSystem;
 import net.minecraft.client.renderer.texture.*;
-import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
+import sun.misc.IOUtils;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -203,9 +203,9 @@ public class Image extends Component
                 image.restore();
 
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, alpha);
-                //RenderSystem.enableAlpha();
-                RenderSystem.enableBlend();
-                RenderSystem.bindTexture(image.textureId);
+//                GlStateManager.enableAlpha();
+//                GlStateManager.enableBlend();
+                RenderSystem.setShaderTexture(0, image.textureId);
 
                 if(hasBorder)
                 {
@@ -234,11 +234,11 @@ public class Image extends Component
             {
                 if(hasBorder)
                 {
-                    fill(poseStack,x + borderThickness, y + borderThickness, x + componentWidth - borderThickness, y + componentHeight - borderThickness, Color.LIGHT_GRAY.getRGB());
+                    fill(poseStack, x + borderThickness, y + borderThickness, x + componentWidth - borderThickness, y + componentHeight - borderThickness, Color.LIGHT_GRAY.getRGB());
                 }
                 else
                 {
-                    fill(poseStack,x, y, x + componentWidth, y + componentHeight, Color.LIGHT_GRAY.getRGB());
+                    fill(poseStack, x, y, x + componentWidth, y + componentHeight, Color.LIGHT_GRAY.getRGB());
                 }
             }
         }
@@ -370,25 +370,21 @@ public class Image extends Component
         @Override
         public CachedImage load(Image image)
         {
-            AbstractTexture textureObj = Minecraft.getInstance().getTextureManager().getTexture(resource);
-            if(textureObj != null)
-            {
+            AbstractTexture textureObj = Minecraft.getInstance().getTextureManager().getTexture(resource, null);
+            if (textureObj != null) {
                 return new CachedImage(textureObj.getId(), 0, 0, false);
-            }
-            else
-            {
+            } else {
                 AbstractTexture texture = new SimpleTexture(resource);
-                {
-                    return new CachedImage(texture.getId(), 0, 0, false);
-                }
+                Minecraft.getInstance().getTextureManager().register(resource, texture);
                 return new CachedImage(texture.getId(), 0, 0, false);
+            }
         }
     }
 
     private static class DynamicLoader extends ImageLoader
     {
         private AbstractTexture texture;
-        private final String url;
+        private String url;
 
         public DynamicLoader(String url)
         {
@@ -410,10 +406,15 @@ public class Image extends Component
                     URL url = new URL(this.url);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestProperty("User-Agent", "Mozilla/5.0");
-                    BufferedImage bufferedImage = ImageIO.read(conn.getInputStream());
-                    image.imageWidth = bufferedImage.getWidth();
-                    image.imageHeight = bufferedImage.getHeight();
-                    texture = new DynamicTexture(bufferedImage);
+                    InputStream inputStream = conn.getInputStream();
+                    byte[] bytes = IOUtils.readAllBytes(inputStream);
+                    inputStream.close();
+                    conn.disconnect();
+                    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+                    NativeImage nativeImage = NativeImage.read(in);
+                    image.imageWidth = nativeImage.getWidth();
+                    image.imageHeight = nativeImage.getHeight();
+                    texture = new DynamicTexture(nativeImage);
                     setup = true;
                 }
                 catch(IOException e)
@@ -446,23 +447,6 @@ public class Image extends Component
         }
     }
 
-    private static class DynamicTexture extends AbstractTexture
-    {
-        private final BufferedImage image;
-
-        private DynamicTexture(BufferedImage image)
-        {
-            this.image = image;
-        }
-
-        @Override
-        public void load(@NotNull ResourceManager resourceManager) throws IOException {
-            NativeImage nativeImage = NativeImage.read(in);
-            Minecraft.getInstance().getTextureManager().register(Devices.id("dynamic_loaded/" + getId()), this);
-            this.upload(nativeImage);
-        }
-    }
-
     private static class ImageCache extends LinkedHashMap<String, CachedImage>
     {
         private final int CAPACITY;
@@ -490,7 +474,7 @@ public class Image extends Component
         private final int textureId;
         private final int width;
         private final int height;
-        private final boolean dynamic;
+        private boolean dynamic;
         private boolean delete = false;
 
         private CachedImage(int textureId, int width, int height, boolean dynamic)

@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
@@ -13,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
@@ -288,50 +290,22 @@ public class TextArea extends Component
 		if(!this.visible || !this.enabled || !this.isFocused || !this.editable)
 			return;
 
-		if (GuiScreen.isKeyComboCtrlV(code))
-		{
-			String[] lines = GuiScreen.getClipboardString().split("\n");
-			for(int i = 0; i < lines.length - 1; i++)
-			{
+		if (Screen.isPaste(code)) {
+			String[] lines = Minecraft.getInstance().keyboardHandler.getClipboard().split("\n");
+			for (int i = 0; i < lines.length - 1; i++) {
 				writeText(lines[i] + "\n");
 			}
 			writeText(lines[lines.length - 1]);
-		}
-		else
-		{
-			switch (code)
-			{
-				case Keyboard.KEY_BACK:
-					performBackspace();
-					break;
-				case Keyboard.KEY_RETURN:
-					performReturn();
-					break;
-				case Keyboard.KEY_TAB:
-					writeText('\t');
-					break;
-				case Keyboard.KEY_LEFT:
-					moveCursorLeft(1);
-					break;
-				case Keyboard.KEY_RIGHT:
-					moveCursorRight(1);
-					break;
-				case Keyboard.KEY_UP:
-					moveCursorUp();
-					break;
-				case Keyboard.KEY_DOWN:
-					moveCursorDown();
-					break;
-				default:
-					if (ChatAllowedCharacters.isAllowedCharacter(character))
-					{
-						writeText(character);
-					}
-			}
-
-			if(keyListener != null)
-			{
-				keyListener.onKeyTyped(character);
+		} else {
+			System.out.println("TextArea.handleKeyTypes: keyCode = " + code);
+			switch (code) {
+				case InputConstants.KEY_BACKSPACE -> performBackspace(); // TODO: Make delete actually work
+				case InputConstants.KEY_RETURN -> performReturn();
+				case InputConstants.KEY_TAB -> writeText('\t');
+				case InputConstants.KEY_LEFT -> moveCursorLeft(1);
+				case InputConstants.KEY_RIGHT -> moveCursorRight(1);
+				case InputConstants.KEY_UP -> moveCursorUp();
+				case InputConstants.KEY_DOWN -> moveCursorDown();
 			}
 		}
 		updateScroll();
@@ -406,7 +380,7 @@ public class TextArea extends Component
 					return;
 
 				String result = activeLine + lines.remove(cursorY + 1);
-				if(fontRenderer.getStringWidth(result) > width - padding * 2)
+				if(fontRenderer.width(result) > width - padding * 2)
 				{
 					String trimmed = fontRenderer.plainSubstrByWidth(result, width - padding * 2);
 					lines.set(cursorY, trimmed);
@@ -569,7 +543,7 @@ public class TextArea extends Component
 			if(text.endsWith("\n"))
 			{
 				String result = head + text;
-				if(fontRenderer.getStringWidth(result) > width - padding * 2)
+				if(fontRenderer.width(result) > width - padding * 2)
 				{
 					String trimmed = fontRenderer.plainSubstrByWidth(result, width - padding * 2);
 					lines.set(cursorY, trimmed);
@@ -584,7 +558,7 @@ public class TextArea extends Component
 			else
 			{
 				String result = head + text + tail;
-				if(fontRenderer.getStringWidth(result) > width - padding * 2)
+				if(fontRenderer.width(result) > width - padding * 2)
 				{
 					String trimmed = fontRenderer.plainSubstrByWidth(result, width - padding * 2);
 					lines.set(cursorY, trimmed);
@@ -628,7 +602,7 @@ public class TextArea extends Component
 				return;
 			}
 			String result = text + lines.get(lineIndex);
-			if(fontRenderer.getStringWidth(result) > width - padding * 2)
+			if(fontRenderer.width(result) > width - padding * 2)
 			{
 				String trimmed = fontRenderer.plainSubstrByWidth(result, width - padding * 2);
 				lines.set(lineIndex, trimmed);
@@ -789,7 +763,7 @@ public class TextArea extends Component
 					continue;
 				}
 
-				List<String> split = fontRenderer.listFormattedStringToWidth(lines.get(i), width - padding * 2);
+				List<String> split = fontRenderer.plainSubstrByWidth(lines.get(i), width - padding * 2).lines().toList();
 				for(int j = 0; j < split.size() - 1; j++)
 				{
 					updatedLines.add(split.get(j));
@@ -800,7 +774,7 @@ public class TextArea extends Component
 				}
 			}
 
-			List<String> split = fontRenderer.listFormattedStringToWidth(lines.get(lines.size() - 1), width - padding * 2);
+			List<String> split = fontRenderer.plainSubstrByWidth(lines.get(lines.size() - 1), width - padding * 2).lines().toList();
 			for(int i = 0; i < split.size() - 1; i++)
 			{
 				updatedLines.add(split.get(i));
@@ -810,7 +784,7 @@ public class TextArea extends Component
 				updatedLines.add(split.get(split.size() - 1));
 			}
 
-            List<String> activeLine = fontRenderer.listFormattedStringToWidth(lines.get(cursorY), width - padding * 2);
+            List<String> activeLine = fontRenderer.plainSubstrByWidth(lines.get(cursorY), width - padding * 2).lines().toList();
             int totalLength = 0;
 			for(String line : activeLine)
 			{
@@ -876,7 +850,7 @@ public class TextArea extends Component
 		if(!wrapText)
 		{
 			int visibleWidth = width - padding * 2;
-			int textWidth = fontRenderer.getStringWidth(lines.get(cursorY).substring(0, cursorX));
+			int textWidth = fontRenderer.width(lines.get(cursorY).substring(0, cursorX));
 			if(textWidth < horizontalScroll)
 			{
 				horizontalScroll = Math.max(0, textWidth - 1);
@@ -906,9 +880,9 @@ public class TextArea extends Component
 		int maxWidth = 0;
 		for(String line : lines)
 		{
-			if(fontRenderer.getStringWidth(line) > maxWidth)
+			if(fontRenderer.width(line) > maxWidth)
 			{
-				maxWidth = fontRenderer.getStringWidth(line);
+				maxWidth = fontRenderer.width(line);
 			}
 		}
 		maxLineWidth = maxWidth;
@@ -919,8 +893,8 @@ public class TextArea extends Component
 		String line = lines.get(lineY);
 		int clickedCharX = fontRenderer.plainSubstrByWidth(line, lineX).length();
 		int nextCharX = Mth.clamp(clickedCharX + 1, 0, Math.max(0, line.length()));
-		int clickedCharWidth = fontRenderer.getStringWidth(line.substring(0, clickedCharX));
-		int nextCharWidth = fontRenderer.getStringWidth(line.substring(0, nextCharX));
+		int clickedCharWidth = fontRenderer.width(line.substring(0, clickedCharX));
+		int nextCharWidth = fontRenderer.width(line.substring(0, nextCharX));
 		int clickedDistanceX = Math.abs(clickedCharWidth - lineX);
 		int nextDistanceX = Math.abs(nextCharWidth - lineX - 1);
 

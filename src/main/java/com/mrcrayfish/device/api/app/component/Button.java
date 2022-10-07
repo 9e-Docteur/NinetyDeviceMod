@@ -436,15 +436,11 @@ I	 * @param top how many pixels from the top
 		this.toolTip = toolTip;
 	}
 
-	private static int getTextWidth(String text)
-	{
+	//TODO: VERIFY
+	public static int getTextWidth(String text) {
+		boolean flag = Minecraft.getInstance().options.forceUnicodeFont().get();
 		Font fontRenderer = Minecraft.getInstance().font;
-		boolean flag = fontRenderer.getUnicodeFlag();
-		fontRenderer.setUnicodeFlag(false);
-		int width = fontRenderer.getStringWidth(text);
-		fontRenderer.setUnicodeFlag(flag);
+		int width = fontRenderer.width(text);
 		return width;
 	}
-	
-	//TODO add button text Color and button Color
 }
