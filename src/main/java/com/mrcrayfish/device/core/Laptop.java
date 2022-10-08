@@ -297,7 +297,7 @@ public class Laptop extends Screen implements System
 		{
 			int dropdownX = context.xPosition;
 			int dropdownY = context.yPosition;
-			if(isMouseInside(mouseX, mouseY, dropdownX, dropdownY, dropdownX + context.width, dropdownY + context.height))
+			if(isMouseInside((int) mouseX, (int) mouseY, dropdownX, dropdownY, dropdownX + context.width, dropdownY + context.height))
 			{
 				this.context.handleMouseClick((int)mouseX, (int)mouseY, mouseButton);
 				return false;

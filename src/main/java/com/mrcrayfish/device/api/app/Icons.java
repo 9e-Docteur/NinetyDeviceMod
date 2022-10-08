@@ -1,6 +1,8 @@
 package com.mrcrayfish.device.api.app;
 
 
+import net.minecraft.resources.ResourceLocation;
+
 /**
  * Author: MrCrayfish
  */

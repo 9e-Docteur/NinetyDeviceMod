@@ -11,8 +11,6 @@ import com.mrcrayfish.device.core.network.Router;
 import com.mrcrayfish.device.init.DeviceBlocks;
 import com.mrcrayfish.device.tileentity.TileEntityOfficeChair;
 import com.mrcrayfish.device.tileentity.TileEntityRouter;
-import com.mrcrayfish.device.util.CollisionHelper;
-import com.sun.javafx.geom.Vec3d;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;

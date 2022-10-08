@@ -32,16 +32,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderSystem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ChatFormatting;
-import net.minecraftforge.common.util.Constants;
 
 import java.awt.*;
 import java.lang.System;
@@ -150,7 +145,7 @@ public class FileBrowser extends Component
     public void init(Layout layout)
     {
         layoutMain = new Layout(mode.getWidth(), mode.getHeight());
-        layoutMain.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+        layoutMain.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
         {
             Color color = new Color(Laptop.getSystem().getSettings().getColorScheme().getHeaderColor());
             Gui.fill(poseStack, x, y, x + width, y + 20, color.getRGB());
@@ -354,7 +349,7 @@ public class FileBrowser extends Component
         layout.addComponent(layoutMain);
 
         layoutLoading = new Layout(mode.getOffset(), 25, fileList.getWidth(), fileList.getHeight());
-        layoutLoading.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
+        layoutLoading.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) ->
         {
             Gui.fill(poseStack, x, y, x + width, y + height, Window.Color_WINDOW_DARK);
         });

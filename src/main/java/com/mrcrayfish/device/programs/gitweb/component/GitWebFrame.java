@@ -8,6 +8,7 @@ import com.mrcrayfish.device.api.app.component.Text;
 import com.mrcrayfish.device.api.task.Callback;
 import com.mrcrayfish.device.api.utils.OnlineRequest;
 import com.mrcrayfish.device.programs.gitweb.module.*;
+import com.mrcrayfish.device.programs.gitweb.module.Module;
 import net.minecraft.client.Minecraft;
 
 import java.io.BufferedWriter;

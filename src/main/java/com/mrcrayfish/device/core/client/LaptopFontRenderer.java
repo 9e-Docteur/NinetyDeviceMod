@@ -2,6 +2,9 @@ package com.mrcrayfish.device.core.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.font.FontSet;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Author: MrCrayfish
@@ -12,7 +15,7 @@ public class LaptopFontRenderer extends Font
 
     public LaptopFontRenderer(Minecraft minecraft)
     {
-        super();
+        super(res -> new LaptopFontSet(minecraft.getTextureManager(), new ResourceLocation("ndm", "laptop")), false);
         // super(mc.gameSettings, new ResourceLocation("textures/font/ascii.png"), mc.getTextureManager(), false);
         //this.onResourceManagerReload(null);
     }
@@ -46,5 +49,11 @@ public class LaptopFontRenderer extends Font
     public void setDebug(boolean debug)
     {
         this.debug = debug;
+    }
+
+    public static class LaptopFontSet extends FontSet {
+        public LaptopFontSet(TextureManager textureManager, ResourceLocation resourceLocation) {
+            super(textureManager, resourceLocation);
+        }
     }
 }

@@ -27,13 +27,11 @@ import com.mrcrayfish.device.util.GLHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ChatFormatting;
-import net.minecraftforge.common.util.Constants;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
@@ -227,7 +225,7 @@ public abstract class Dialog extends Wrappable
 			defaultLayout.setBackground(new Background()
 			{
 				@Override
-				public void render(PoseStack poseStack, Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
+				public void render(PoseStack poseStack, Screen gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
 				{
 					Gui.fill(poseStack, x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB());
 				}
@@ -292,7 +290,7 @@ public abstract class Dialog extends Wrappable
 			defaultLayout.setBackground(new Background()
 			{
 				@Override
-				public void render(PoseStack poseStack, Gui gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
+				public void render(PoseStack poseStack, Screen gui, Minecraft mc, int x, int y, int width, int height, int mouseX, int mouseY, boolean windowActive)
 				{
 					Gui.fill(poseStack, x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB());
 				}
@@ -410,8 +408,7 @@ public abstract class Dialog extends Wrappable
 
 			super.init(intent);
 
-			PoseStack poseStack = new PoseStack();
-			defaultLayout.setBackground((gui, mc, x, y, width, height, mouseX, mouseY, windowActive) -> {
+			defaultLayout.setBackground((poseStack, gui, mc, x, y, width, height, mouseX, mouseY, windowActive) -> {
 				Gui.fill(poseStack, x, y, x + width, y + height, Color.LIGHT_GRAY.getRGB());
 			});
 
@@ -443,7 +440,7 @@ public abstract class Dialog extends Wrappable
             });
 			this.addComponent(buttonPositive);
 
-			int negativeWidth = Minecraft.getMinecraft().fontRenderer.getStringWidth(negativeText);
+			int negativeWidth = Minecraft.getInstance().font.width(negativeText);
 			buttonNegative = new Button(getWidth() - DIVIDE_WIDTH - positiveWidth - DIVIDE_WIDTH - negativeWidth + 1, getHeight() - 20, negativeText);
 			buttonNegative.setSize(negativeWidth + 10, 16);
 			buttonNegative.setClickListener((mouseX, mouseY, mouseButton) -> close());
@@ -575,7 +572,7 @@ public abstract class Dialog extends Wrappable
 			});
 			main.addComponent(buttonPositive);
 
-			int negativeWidth = Minecraft.getMinecraft().fontRenderer.getStringWidth(negativeText);
+			int negativeWidth = Minecraft.getInstance().font.width(negativeText);
 			buttonNegative = new Button(125, 106, negativeText);
 			buttonNegative.setSize(negativeWidth + 10, 16);
 			buttonNegative.setClickListener((mouseX, mouseY, mouseButton) -> close());
@@ -875,7 +872,7 @@ public abstract class Dialog extends Wrappable
 			itemListPrinters.setListItemRenderer(new ListItemRenderer<NetworkDevice>(16)
 			{
 				@Override
-				public void render(PoseStack poseStack, NetworkDevice networkDevice, Gui gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
+				public void render(PoseStack poseStack, NetworkDevice networkDevice, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
 				{
 					ColorScheme colorScheme = Laptop.getSystem().getSettings().getColorScheme();
 					Gui.fill(poseStack, x, y, x + width, y + height, selected ? colorScheme.getItemHighlightColor() : colorScheme.getItemBackgroundColor());
@@ -896,10 +893,10 @@ public abstract class Dialog extends Wrappable
 				BlockPos laptopPos = Laptop.getPos();
 
 				BlockPos pos1 = o1.getPos();
-				double distance1 = laptopPos.distanceSqToCenter(pos1.getX() + 0.5, pos1.getY() + 0.5, pos1.getZ() + 0.5);
+				double distance1 = laptopPos.distToCenterSqr(pos1.getX() + 0.5, pos1.getY() + 0.5, pos1.getZ() + 0.5);
 
 				BlockPos pos2 = o2.getPos();
-				double distance2 = laptopPos.distanceSqToCenter(pos2.getX() + 0.5, pos2.getY() + 0.5, pos2.getZ() + 0.5);
+				double distance2 = laptopPos.distToCenterSqr(pos2.getX() + 0.5, pos2.getY() + 0.5, pos2.getZ() + 0.5);
 
 				return distance2 < distance1 ? 1 : (distance1 == distance2) ? 0 : -1;
 			});

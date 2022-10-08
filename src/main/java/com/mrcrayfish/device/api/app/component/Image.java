@@ -15,7 +15,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import sun.misc.IOUtils;
-
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
