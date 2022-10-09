@@ -35,7 +35,7 @@ import java.awt.*;
 
 public class ApplicationPixelPainter extends Application
 {
-	private static final ResourceLocation PIXEL_PAINTER_ICONS = new ResourceLocation("cdm:textures/gui/pixel_painter.png");
+	private static final ResourceLocation PIXEL_PAINTER_ICONS = new ResourceLocation("ndm:textures/gui/pixel_painter.png");
 
 	private static final Color ITEM_BACKGROUND = new Color(170, 176, 194);
 	private static final Color ITEM_SELECTED = new Color(200, 176, 174);

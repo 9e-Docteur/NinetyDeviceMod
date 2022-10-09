@@ -80,7 +80,7 @@ public enum Alphabet implements IIcon
     RIGHT_CURLY_BRACKET,
     TILDE;
 
-    private static final ResourceLocation ALPHABET_ASSET = new ResourceLocation("cdm:textures/gui/alphabet.png");
+    private static final ResourceLocation ALPHABET_ASSET = new ResourceLocation("ndm:textures/gui/alphabet.png");
     
     private static final int ICON_SIZE = 10;
     private static final int GRID_SIZE = 20;

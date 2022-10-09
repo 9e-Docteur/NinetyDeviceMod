@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.proxy;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mrcrayfish.device.DeviceConfig;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
@@ -54,17 +55,17 @@ public class ClientProxy extends CommonProxy
 
         if(MrCrayfishDeviceMod.DEVELOPER_MODE)
         {
-            Laptop.addWallpaper(new ResourceLocation("cdm:textures/gui/developer_wallpaper.png"));
+            Laptop.addWallpaper(new ResourceLocation("ndm:textures/gui/developer_wallpaper.png"));
         }
         else
         {
-            Laptop.addWallpaper(new ResourceLocation("cdm:textures/gui/laptop_wallpaper_1.png"));
-            Laptop.addWallpaper(new ResourceLocation("cdm:textures/gui/laptop_wallpaper_2.png"));
-            Laptop.addWallpaper(new ResourceLocation("cdm:textures/gui/laptop_wallpaper_3.png"));
-            Laptop.addWallpaper(new ResourceLocation("cdm:textures/gui/laptop_wallpaper_4.png"));
-            Laptop.addWallpaper(new ResourceLocation("cdm:textures/gui/laptop_wallpaper_5.png"));
-            Laptop.addWallpaper(new ResourceLocation("cdm:textures/gui/laptop_wallpaper_6.png"));
-            Laptop.addWallpaper(new ResourceLocation("cdm:textures/gui/laptop_wallpaper_7.png"));
+            Laptop.addWallpaper(new ResourceLocation("ndm:textures/gui/laptop_wallpaper_1.png"));
+            Laptop.addWallpaper(new ResourceLocation("ndm:textures/gui/laptop_wallpaper_2.png"));
+            Laptop.addWallpaper(new ResourceLocation("ndm:textures/gui/laptop_wallpaper_3.png"));
+            Laptop.addWallpaper(new ResourceLocation("ndm:textures/gui/laptop_wallpaper_4.png"));
+            Laptop.addWallpaper(new ResourceLocation("ndm:textures/gui/laptop_wallpaper_5.png"));
+            Laptop.addWallpaper(new ResourceLocation("ndm:textures/gui/laptop_wallpaper_6.png"));
+            Laptop.addWallpaper(new ResourceLocation("ndm:textures/gui/laptop_wallpaper_7.png"));
         }
     }
 
@@ -94,22 +95,17 @@ public class ClientProxy extends CommonProxy
 
         index++;
 
-        for(AppInfo info : ApplicationManager.getAllApplications())
-        {
-            if(info.getIcon() == null)
-                continue;
+        for (AppInfo info : ApplicationManager.getAllApplications()) {
+            if (info.getIcon() == null) continue;
 
             ResourceLocation identifier = info.getId();
             ResourceLocation iconResource = new ResourceLocation(info.getIcon());
             String path = "/assets/" + iconResource.getNamespace() + "/" + iconResource.getPath();
-            try
-            {
-                InputStream input = ClientProxy.class.getResourceAsStream(path);
-                if(input != null)
-                {
+            try {
+                InputStream input = MrCrayfishDeviceMod.class.getResourceAsStream(path);
+                if (input != null) {
                     BufferedImage icon = ImageIO.read(input);
-                    if(icon.getWidth() != ICON_SIZE || icon.getHeight() != ICON_SIZE)
-                    {
+                    if (icon.getWidth() != ICON_SIZE || icon.getHeight() != ICON_SIZE) {
                         MrCrayfishDeviceMod.getLogger().error("Incorrect icon size for " + identifier.toString() + " (Must be 14 by 14 pixels)");
                         continue;
                     }
@@ -118,20 +114,31 @@ public class ClientProxy extends CommonProxy
                     g.drawImage(icon, iconU, iconV, ICON_SIZE, ICON_SIZE, null);
                     updateIcon(info, iconU, iconV);
                     index++;
+                } else {
+                    MrCrayfishDeviceMod.getLogger().error("Icon for application '" + identifier.toString() + "' could not be found at '" + path + "'");
                 }
-                else
-                {
-                    MrCrayfishDeviceMod.getLogger().error("Icon for application '" + identifier.toString() +  "' could not be found at '" + path + "'");
-                }
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 MrCrayfishDeviceMod.getLogger().error("Unable to load icon for " + identifier.toString());
             }
         }
 
         g.dispose();
-        Minecraft.getInstance().getTextureManager().register(Laptop.ICON_TEXTURES, new DynamicTexture(atlas));
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(atlas, "png", output);
+            byte[] bytes = output.toByteArray();
+            ByteArrayInputStream input = new ByteArrayInputStream(bytes);
+            Minecraft.getInstance().submit(() -> {
+                try {
+                    Minecraft.getInstance().getTextureManager().register(Laptop.ICON_TEXTURES, new DynamicTexture(NativeImage.read(input)));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void updateIcon(AppInfo info, int iconU, int iconV)

@@ -27,11 +27,28 @@ public class MessageSyncApplications implements IPacket<MessageSyncApplications>
 
     }
 
-    public MessageSyncApplications(FriendlyByteBuf buf) {
-        int size = buf.readInt();
+    public MessageSyncApplications(List<AppInfo> allowedApps) {
+        this.allowedApps = allowedApps;
+    }
+
+
+    @Override
+    public void encode(MessageSyncApplications packet, FriendlyByteBuf byteBuf) {
+        if(allowedApps == null){
+            return;
+        }
+        byteBuf.writeInt(allowedApps.size());
+        for (AppInfo appInfo : allowedApps) {
+            byteBuf.writeResourceLocation(appInfo.getId());
+        }
+    }
+
+    @Override
+    public MessageSyncApplications decode(FriendlyByteBuf byteBuf) {
+        int size = byteBuf.readInt();
         ImmutableList.Builder<AppInfo> builder = ImmutableList.builder();
         for (int i = 0; i < size; i++) {
-            String appId = buf.readUtf();
+            String appId = byteBuf.readUtf();
             AppInfo info = ApplicationManager.getApplication(appId);
             if (info != null) {
                 builder.add(info);
@@ -41,23 +58,6 @@ public class MessageSyncApplications implements IPacket<MessageSyncApplications>
         }
 
         allowedApps = builder.build();
-    }
-
-    public MessageSyncApplications(List<AppInfo> allowedApps) {
-        this.allowedApps = allowedApps;
-    }
-
-
-    @Override
-    public void encode(MessageSyncApplications packet, FriendlyByteBuf byteBuf) {
-        byteBuf.writeInt(allowedApps.size());
-        for (AppInfo appInfo : allowedApps) {
-            byteBuf.writeResourceLocation(appInfo.getId());
-        }
-    }
-
-    @Override
-    public MessageSyncApplications decode(FriendlyByteBuf byteBuf) {
         return null;
     }
 

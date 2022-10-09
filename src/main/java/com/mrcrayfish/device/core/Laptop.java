@@ -840,4 +840,8 @@ public class Laptop extends Screen implements System
 		context = null;
 		dragging = false;
 	}
+
+	public static Font getFontRenderer(){
+		return fontRenderer;
+	}
 }

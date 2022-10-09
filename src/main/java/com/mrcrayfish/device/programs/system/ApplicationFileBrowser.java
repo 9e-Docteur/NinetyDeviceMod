@@ -52,7 +52,7 @@ public class ApplicationFileBrowser extends SystemApplication
 		@Override
 		public void handleClick(int mouseX, int mouseY, int mouseButton)
 		{
-			AppInfo info = ApplicationManager.getApplication("cdm:file_browser");
+			AppInfo info = ApplicationManager.getApplication("ndm:file_browser");
 			if(info != null)
 			{
 				Laptop.getSystem().openApplication(info);

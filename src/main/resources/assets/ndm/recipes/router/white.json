@@ -1,0 +1,33 @@
+{
+    "result": {
+        "item": "ndm:router",
+        "data": 0
+    },
+    "pattern": [
+        "RDR",
+        "PPP",
+        "WCB"
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "D": {
+            "item": "minecraft:dye",
+            "data": 15
+        },
+        "R": {
+            "item": "minecraft:end_rod"
+        },
+        "P": {
+            "item": "ndm:plastic_frame"
+        },
+        "W": {
+            "item": "ndm:wifi"
+        },
+        "C": {
+            "item": "ndm:circuit_board"
+        },
+        "B": {
+            "item": "ndm:battery"
+        }
+    }
+}

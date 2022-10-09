@@ -1,0 +1,24 @@
+modLoader="javafml" #mandatory
+loaderVersion="[41,)" #mandatory
+license="All rights reserved"
+[[mods]] #mandatory
+modId="ndm" #mandatory
+version="1.0" #mandatory
+updateJSONURL=""
+displayName="Ninety's Device Mod 1.0" #mandatory
+logoFile="device_mod.png" #optional
+credits="MrCrayfish, PandaRebel4307, Josia, Killar.exe" #optional
+authors="MrCrayfish, 9e_Docteur" #optional
+description='''Device mod created by MrCrayfish. Ported and maintened by 9e_Docteur. Add fuctional device on Minecraft.'''
+[[dependencies.ndm]] #optional
+modId="forge" #mandatory
+mandatory=true #mandatory
+versionRange="[41,)" #mandatory
+ordering="NONE"
+side="BOTH"
+[[dependencies.ndm]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.19,1.19.1,1.19.2]"
+ordering="NONE"
+side="BOTH"

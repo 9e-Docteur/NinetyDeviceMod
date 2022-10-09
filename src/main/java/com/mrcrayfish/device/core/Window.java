@@ -17,7 +17,7 @@ import java.awt.*;
 
 public class Window<T extends Wrappable>
 {
-	public static final ResourceLocation WINDOW_GUI = new ResourceLocation("cdm:textures/gui/application.png");
+	public static final ResourceLocation WINDOW_GUI = new ResourceLocation("ndm:textures/gui/application.png");
 	
 	public static final int Color_WINDOW_DARK = new Color(0F, 0F, 0F, 0.25F).getRGB();
 	

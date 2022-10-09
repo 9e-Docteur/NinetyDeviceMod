@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class Game extends Component
 {
-	public static final ResourceLocation ICONS = new ResourceLocation("cdm:textures/gui/mine_racer.png");
+	public static final ResourceLocation ICONS = new ResourceLocation("ndm:textures/gui/mine_racer.png");
 
 	private static final Map<Integer, Tile> registeredTiles = new HashMap<Integer, Tile>();
 	

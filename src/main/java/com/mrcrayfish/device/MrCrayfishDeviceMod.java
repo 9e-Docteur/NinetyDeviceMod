@@ -17,6 +17,10 @@ import com.mrcrayfish.device.init.RegistrationHandler;
 import com.mrcrayfish.device.network.PacketHandler;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.programs.*;
+import com.mrcrayfish.device.programs.auction.ApplicationMineBay;
+import com.mrcrayfish.device.programs.auction.task.TaskAddAuction;
+import com.mrcrayfish.device.programs.auction.task.TaskBuyItem;
+import com.mrcrayfish.device.programs.auction.task.TaskGetAuctions;
 import com.mrcrayfish.device.programs.debug.ApplicationTextArea;
 import com.mrcrayfish.device.programs.email.ApplicationEmail;
 import com.mrcrayfish.device.programs.email.task.*;
@@ -32,8 +36,12 @@ import com.mrcrayfish.device.proxy.CommonProxy;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,41 +53,61 @@ public class MrCrayfishDeviceMod
 {
 
 	public static CommonProxy proxy;
-
 	private static final Logger logger = LogManager.getLogger();
 
 	public static final boolean DEVELOPER_MODE = NDMUtils.Launch.isRunningInDev();
 	static List<AppInfo> allowedApps;
 
-	public void preInit() throws LaunchException
-	{
-		if(DEVELOPER_MODE)
-		{
-			throw new LaunchException();
-		}
-
-		//DeviceConfig.load(event.getSuggestedConfigurationFile());
-		MinecraftForge.EVENT_BUS.register(new DeviceConfig());
-
-		//RegistrationHandler.init();
-		
+	public MrCrayfishDeviceMod() {
+		proxy = new CommonProxy();
 		proxy.preInit();
+		proxy.postInit();
+		proxy.init();
+		IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+		MinecraftForge.EVENT_BUS.register(new DeviceConfig());
+		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, DeviceConfig.CONFIG, "ndm-config-client.toml");
+		DeviceConfig.init();
+		MinecraftForge.EVENT_BUS.register(this);
+		eventBus.addListener(MrCrayfishDeviceMod::init);
+		eventBus.addListener(MrCrayfishDeviceMod::initClientEvent);
+		//MinecraftForge.EVENT_BUS.addListener(MrCrayfishDeviceMod::preInit);
+		preInit();
+		PacketHandler.init();
 	}
 
+	public static void preInit()
+	{
+
+		//DeviceConfig.load(event.getSuggestedConfigurationFile());
+
+		//RegistrationHandler.init();
+
+
+	}
 	public static void setAllowedApps(List<AppInfo> allowedApps) {
 		MrCrayfishDeviceMod.allowedApps = allowedApps;
 	}
 	
 
-	public void init(FMLCommonSetupEvent event)
+	public static void init(FMLCommonSetupEvent event)
 	{
+		//MrCrayfishDeviceMod.preInit();
+
+
+		//RegistrationHandler.init();
+
+		IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
 		/* Tile Entity Registering */
 		//DeviceTileEntites.register();
 
-		//EntityRegistry.registerModEntity(new ResourceLocation("cdm:seat"), EntitySeat.class, "Seat", 0, this, 80, 1, false);
+		//EntityRegistry.registerModEntity(new ResourceLocation("ndm:seat"), EntitySeat.class, "Seat", 0, this, 80, 1, false);
+
+		proxy.preInit();
 
 		/* Packet Registering */
-		//PacketHandler.init();
+
+		RegistrationHandler.register(eventBus);
 
 		//NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
 
@@ -92,7 +120,11 @@ public class MrCrayfishDeviceMod
 		proxy.init();
 	}
 
-	private void registerApplications()
+	public static void initClientEvent(FMLClientSetupEvent event){
+		DeviceConfig.restore();
+	}
+
+	private static void registerApplications()
 	{
 		// Applications (Both)
 		ApplicationManager.registerApplication(new ResourceLocation(Reference.MOD_ID, "settings"), ApplicationSettings.class);
@@ -139,13 +171,13 @@ public class MrCrayfishDeviceMod
 		if(!DEVELOPER_MODE)
 		{
 			// Applications (Normal)
-			//ApplicationManager.registerApplication(new ResourceLocation(Reference.MOD_ID, "boat_racers"), ApplicationBoatRacers.class);
-			//ApplicationManager.registerApplication(new ResourceLocation(Reference.MOD_ID, "mine_bay"), ApplicationMineBay.class);
+			ApplicationManager.registerApplication(new ResourceLocation(Reference.MOD_ID, "boat_racers"), ApplicationBoatRacers.class);
+			ApplicationManager.registerApplication(new ResourceLocation(Reference.MOD_ID, "mine_bay"), ApplicationMineBay.class);
 
 			// Tasks (Normal)
-			//TaskManager.registerTask(TaskAddAuction.class);
-			//TaskManager.registerTask(TaskGetAuctions.class);
-			//TaskManager.registerTask(TaskBuyItem.class);
+			TaskManager.registerTask(TaskAddAuction.class);
+			TaskManager.registerTask(TaskGetAuctions.class);
+			TaskManager.registerTask(TaskBuyItem.class);
 		}
 		else
 		{

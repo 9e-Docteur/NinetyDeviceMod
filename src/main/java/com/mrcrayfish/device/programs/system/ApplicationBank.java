@@ -27,7 +27,7 @@ import java.awt.Color;
 public class ApplicationBank extends SystemApplication
 {
 	private static final ItemStack EMERALD = new ItemStack(Items.EMERALD);
-	private static final ResourceLocation BANK_ASSETS = new ResourceLocation("cdm:textures/gui/bank.png");
+	private static final ResourceLocation BANK_ASSETS = new ResourceLocation("ndm:textures/gui/bank.png");
 	private static final ResourceLocation villagerTextures = new ResourceLocation("textures/entity/villager/villager.png");
     //private static final ModelVillager villagerModel = new ModelVillager(0.0F); //TODO: Re-add this
 

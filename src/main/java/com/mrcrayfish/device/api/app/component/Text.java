@@ -7,14 +7,17 @@ import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.network.chat.Style;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Text extends Component 
 {
 	protected String rawText;
-	protected int lines;
+	protected List<String> lines;
 	protected int width;
 	protected int padding;
 	protected boolean shadow = false;
@@ -64,7 +67,10 @@ public class Text extends Component
 	{
 		rawText = text;
 		text = text.replace("\\n", "\n");
-		this.lines = Laptop.fontRenderer.wordWrapHeight(text, width - padding * 2);
+		System.out.println(Laptop.getFontRenderer().plainSubstrByWidth(text, width - padding * 2));
+		var a = new ArrayList<String>();
+		Laptop.getFontRenderer().getSplitter().splitLines(FormattedText.of(text), width - padding * 2, Style.EMPTY).forEach(b -> a.add(b.getString()));
+		this.lines = a;
 	}
 	
 	/**

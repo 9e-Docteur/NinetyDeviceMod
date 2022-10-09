@@ -154,7 +154,7 @@ public enum Icons implements IIcon
     FOLDER,
     SAVE_AS;
 
-    private static final ResourceLocation ICON_ASSET = new ResourceLocation("cdm:textures/gui/icons.png");
+    private static final ResourceLocation ICON_ASSET = new ResourceLocation("ndm:textures/gui/icons.png");
 
     private static final int ICON_SIZE = 10;
     private static final int GRID_SIZE = 20;

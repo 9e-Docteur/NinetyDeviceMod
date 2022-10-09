@@ -18,16 +18,16 @@ public class DeviceTileEntites
 
 
 	public static RegistryObject<BlockEntityType<TileEntityPrinter>> PRINTER =
-			TILE_ENTITIES.register("laptop", () -> BlockEntityType.Builder.of(
+			TILE_ENTITIES.register("printer", () -> BlockEntityType.Builder.of(
 					TileEntityPrinter::new, DeviceBlocks.PRINTER.get()).build(null));
 	public static RegistryObject<BlockEntityType<TileEntityPaper>> PAPER =
-			TILE_ENTITIES.register("laptop", () -> BlockEntityType.Builder.of(
+			TILE_ENTITIES.register("paper", () -> BlockEntityType.Builder.of(
 					TileEntityPaper::new, DeviceBlocks.PAPER.get()).build(null));
 	public static RegistryObject<BlockEntityType<TileEntityOfficeChair>> CHAIR =
-			TILE_ENTITIES.register("laptop", () -> BlockEntityType.Builder.of(
+			TILE_ENTITIES.register("chair", () -> BlockEntityType.Builder.of(
 					TileEntityOfficeChair::new, DeviceBlocks.CHAIR.get()).build(null));
 	public static RegistryObject<BlockEntityType<TileEntityRouter>> ROUTER =
-			TILE_ENTITIES.register("laptop", () -> BlockEntityType.Builder.of(
+			TILE_ENTITIES.register("router", () -> BlockEntityType.Builder.of(
 					TileEntityRouter::new, DeviceBlocks.ROUTER.get()).build(null));
 
 

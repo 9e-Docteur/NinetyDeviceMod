@@ -197,7 +197,7 @@ public class ApplicationAppStore extends SystemApplication
 		@Override
 		public void handleClick(int mouseX, int mouseY, int mouseButton)
 		{
-			AppInfo info = ApplicationManager.getApplication("cdm:app_store");
+			AppInfo info = ApplicationManager.getApplication("ndm:app_store");
 			if(info != null)
 			{
 				Laptop.getSystem().openApplication(info);

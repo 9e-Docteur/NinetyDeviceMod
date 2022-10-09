@@ -26,7 +26,7 @@ import java.util.function.Predicate;
 
 public class TaskBar
 {
-	public static final ResourceLocation APP_BAR_GUI = new ResourceLocation("cdm:textures/gui/application_bar.png");
+	public static final ResourceLocation APP_BAR_GUI = new ResourceLocation("ndm:textures/gui/application_bar.png");
 
 	private static final int APPS_DISPLAYED = MrCrayfishDeviceMod.DEVELOPER_MODE ? 18 : 10;
 	public static final int BAR_HEIGHT = 18;

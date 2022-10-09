@@ -1,0 +1,33 @@
+{
+    "result": {
+        "item": "ndm:printer",
+        "data": 11
+    },
+    "pattern": [
+        "PSP",
+        "MCB",
+        "PDP"
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "D": {
+            "item": "minecraft:dye",
+            "data": 4
+        },
+        "P": {
+            "item": "ndm:plastic_frame"
+        },
+        "S": {
+            "item": "ndm:screen"
+        },
+        "M": {
+            "item": "ndm:small_electric_motor"
+        },
+        "C": {
+            "item": "ndm:carriage"
+        },
+        "B": {
+            "item": "ndm:controller_unit"
+        }
+    }
+}

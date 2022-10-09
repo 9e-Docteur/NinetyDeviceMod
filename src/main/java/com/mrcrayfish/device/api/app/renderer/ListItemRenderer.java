@@ -7,6 +7,7 @@ import com.mrcrayfish.device.core.Device;
 import com.mrcrayfish.device.object.AppInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 
 public abstract class ListItemRenderer<E> 
@@ -40,6 +41,10 @@ public abstract class ListItemRenderer<E>
 	}
 
 	public void render(PoseStack poseStack, Device device, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected) {
+
+	}
+
+	public void render(PoseStack poseStack, E e, GuiComponent gui, Minecraft mc, int x, int y, int width, int height, boolean selected){
 
 	}
 }

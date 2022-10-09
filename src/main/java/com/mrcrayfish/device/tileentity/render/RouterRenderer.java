@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Collection;
@@ -39,7 +40,7 @@ public class RouterRenderer implements BlockEntityRenderer<TileEntityRouter> {
                 Router router = te.getRouter();
                 BlockPos routerPos = router.getPos();
 
-                Vec3d linePositions = getLineStartPosition(state);
+                Vec3 linePositions = getLineStartPosition(state);
                 final double startLineX = linePositions.x;
                 final double startLineY = linePositions.y;
                 final double startLineZ = linePositions.z;
@@ -69,7 +70,7 @@ public class RouterRenderer implements BlockEntityRenderer<TileEntityRouter> {
         }
     }
 
-    private Vec3d getLineStartPosition(BlockState state)
+    private Vec3 getLineStartPosition(BlockState state)
     {
         float lineX = 0.5F;
         float lineY = 0.1F;
@@ -85,6 +86,6 @@ public class RouterRenderer implements BlockEntityRenderer<TileEntityRouter> {
         }
 
 
-        return new Vec3d(lineX, lineY, lineZ);
+        return new Vec3(lineX, lineY, lineZ);
     }
 }

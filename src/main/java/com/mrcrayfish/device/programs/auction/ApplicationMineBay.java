@@ -35,7 +35,7 @@ import java.util.List;
 public class ApplicationMineBay extends Application
 {
 	private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
-	private static final ResourceLocation MINEBAY_ASSESTS = new ResourceLocation("cdm:textures/gui/minebay.png");
+	private static final ResourceLocation MINEBAY_ASSESTS = new ResourceLocation("ndm:textures/gui/minebay.png");
 	
 	private static final ItemStack EMERALD = new ItemStack(Items.EMERALD);
 	

@@ -17,7 +17,7 @@ import net.minecraft.resources.ResourceLocation;
  */
 public class ClientNotification implements Toast
 {
-    private static final ResourceLocation TEXTURE_TOASTS = new ResourceLocation("cdm:textures/gui/toast.png");
+    private static final ResourceLocation TEXTURE_TOASTS = new ResourceLocation("ndm:textures/gui/toast.png");
 
     private IIcon icon;
     private String title;

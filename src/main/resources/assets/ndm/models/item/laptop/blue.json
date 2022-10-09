@@ -1,0 +1,6 @@
+{
+    "parent": "ndm:item/laptop",
+    "textures": {
+        "2": "blocks/wool_colored_blue"
+    }
+}

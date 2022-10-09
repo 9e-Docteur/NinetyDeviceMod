@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
-import sun.misc.IOUtils;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -406,7 +405,7 @@ public class Image extends Component
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestProperty("User-Agent", "Mozilla/5.0");
                     InputStream inputStream = conn.getInputStream();
-                    byte[] bytes = IOUtils.readAllBytes(inputStream);
+                    byte[] bytes = inputStream.readAllBytes();
                     inputStream.close();
                     conn.disconnect();
                     ByteArrayInputStream in = new ByteArrayInputStream(bytes);

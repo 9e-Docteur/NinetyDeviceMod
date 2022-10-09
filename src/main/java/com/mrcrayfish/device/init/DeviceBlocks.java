@@ -3,6 +3,7 @@ package com.mrcrayfish.device.init;
 
 import be.ninedocteur.ndm.NDMCreativeTabs;
 import be.ninedocteur.ndm.utils.NDMUtils;
+import com.mrcrayfish.device.Reference;
 import com.mrcrayfish.device.block.*;
 import com.mrcrayfish.device.core.network.Router;
 import net.minecraft.world.item.BlockItem;
@@ -19,7 +20,7 @@ import java.util.function.Supplier;
 
 public class DeviceBlocks
 {
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, "ndm");
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Reference.MOD_ID);
 
     public static final RegistryObject<Block> LAPTOP = registerBlock("laptop", () -> new BlockLaptop(DyeColor.WHITE));
     public static final RegistryObject<Block> PRINTER = registerBlock("printer", () -> new BlockPrinter(DyeColor.WHITE));

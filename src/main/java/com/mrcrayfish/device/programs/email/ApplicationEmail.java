@@ -38,8 +38,8 @@ import java.util.regex.Pattern;
 
 public class ApplicationEmail extends Application
 {
-	private static final ResourceLocation ENDER_MAIL_ICONS = new ResourceLocation("cdm:textures/gui/ender_mail.png");
-	private static final ResourceLocation ENDER_MAIL_BACKGROUND = new ResourceLocation("cdm:textures/gui/ender_mail_background.png");
+	private static final ResourceLocation ENDER_MAIL_ICONS = new ResourceLocation("ndm:textures/gui/ender_mail.png");
+	private static final ResourceLocation ENDER_MAIL_BACKGROUND = new ResourceLocation("ndm:textures/gui/ender_mail_background.png");
 
 	private static final Pattern EMAIL = Pattern.compile("^([a-zA-Z0-9]{1,10})@endermail\\.com$");
 	private final Color COLOR_EMAIL_CONTENT_BACKGROUND = new Color(160, 160, 160);

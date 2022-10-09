@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  */
 public class FileBrowser extends Component
 {
-    private static final ResourceLocation ASSETS = new ResourceLocation("cdm:textures/gui/file_browser.png");
+    private static final ResourceLocation ASSETS = new ResourceLocation("ndm:textures/gui/file_browser.png");
 
     private static final Color HEADER_BACKGROUND = Color.decode("0x535861");
     private static final Color ITEM_BACKGROUND = Color.decode("0x9E9E9E");

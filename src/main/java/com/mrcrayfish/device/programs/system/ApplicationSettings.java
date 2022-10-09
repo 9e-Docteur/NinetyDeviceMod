@@ -286,7 +286,7 @@ public class ApplicationSettings extends SystemApplication
 		@Override
 		public void handleClick(int mouseX, int mouseY, int mouseButton)
 		{
-			AppInfo info = ApplicationManager.getApplication("cdm:settings");
+			AppInfo info = ApplicationManager.getApplication("ndm:settings");
 			if(info != null)
 			{
 				Laptop.getSystem().openApplication(info);

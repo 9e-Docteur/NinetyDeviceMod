@@ -1,0 +1,30 @@
+{
+    "result": {
+        "item": "ndm:flash_drive",
+        "data": 3
+    },
+    "pattern": [
+        "DID",
+        "PFP",
+        "PCP"
+    ],
+    "type": "minecraft:crafting_shaped",
+    "key": {
+        "D": {
+            "item": "minecraft:dye",
+            "data": 12
+        },
+        "I": {
+            "item": "minecraft:iron_ingot"
+        },
+        "P": {
+            "item": "ndm:plastic_frame"
+        },
+        "F": {
+            "item": "ndm:flash_chip"
+        },
+        "C": {
+            "item": "ndm:circuit_board"
+        }
+    }
+}

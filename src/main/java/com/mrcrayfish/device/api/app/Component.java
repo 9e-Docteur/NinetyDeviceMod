@@ -13,7 +13,7 @@ public abstract class Component extends GuiComponent
 	/**
 	 * The default components textures
 	 */
-	public static final ResourceLocation COMPONENTS_GUI = new ResourceLocation("cdm:textures/gui/components.png");
+	public static final ResourceLocation COMPONENTS_GUI = new ResourceLocation("ndm:textures/gui/components.png");
 
 	/**
 	 * The raw x position of the component. This is not relative to the application.
