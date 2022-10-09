@@ -1,6 +1,7 @@
 package com.mrcrayfish.device.core;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.Reference;
@@ -206,8 +207,8 @@ public class Laptop extends Screen implements System
 
 		//this.drawDefaultBackground();
 
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindForSetup(LAPTOP_GUI);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderTexture(0, LAPTOP_GUI);
 
 		/* Physical Screen */
 		int posX = (width - DEVICE_WIDTH) / 2;
@@ -229,7 +230,7 @@ public class Laptop extends Screen implements System
 		RenderUtil.fillWithTexture(posX + BORDER, posY + BORDER, 10, 10, SCREEN_WIDTH, SCREEN_HEIGHT, 1, 1);
 
 		/* Wallpaper */
-		mc.getTextureManager().bindForSetup(WALLPAPERS.get(currentWallpaper));
+		RenderSystem.setShaderTexture(0, WALLPAPERS.get(currentWallpaper));
 		RenderUtil.fillWithFullTexture(posX + 10, posY + 10, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		if(!MrCrayfishDeviceMod.DEVELOPER_MODE)
@@ -238,7 +239,7 @@ public class Laptop extends Screen implements System
 		}
 		else
 		{
-			drawString(poseStack, fontRenderer, "Developer Version - " + Reference.VERSION, posX + BORDER + 5, posY + BORDER + 5, Color.WHITE.getRGB());
+			drawString(poseStack, font, "Developer Version - " + Reference.VERSION, posX + BORDER + 5, posY + BORDER + 5, Color.WHITE.getRGB());
 		}
 
 		boolean insideContext = false;

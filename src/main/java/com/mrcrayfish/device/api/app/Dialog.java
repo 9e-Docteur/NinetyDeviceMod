@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Layout.Background;
 import com.mrcrayfish.device.api.app.component.Button;
@@ -105,7 +106,7 @@ public abstract class Dialog extends Wrappable
 
 		customLayout.renderOverlay(laptop, mc, mouseX, mouseY, active);
 
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		//RenderHelper.disableStandardItemLighting();
 	}
 

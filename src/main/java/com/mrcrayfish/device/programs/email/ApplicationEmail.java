@@ -1,6 +1,7 @@
 package com.mrcrayfish.device.programs.email;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.ApplicationManager;
 import com.mrcrayfish.device.api.app.*;
@@ -262,7 +263,7 @@ public class ApplicationEmail extends Application
 				{
 					GlStateManager._clearColor(1f,1.0F, 1.0F, 1.0F);
 					int posX = x + (!e.isRead() ? -12 : 0) + width;
-					mc.getTextureManager().bindForSetup(ENDER_MAIL_ICONS);
+					RenderSystem.setShaderTexture(0, ENDER_MAIL_ICONS);
 					RenderUtil.fillWithTexture(posX, y + 16, 20, 10, 7, 10, 13, 20);
 				}
 				RenderUtil.drawStringClipped(e.getSubject(), x + 5, y + 5, width - 20, Color.WHITE.getRGB(), false);

@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app.component;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Component;
 import com.mrcrayfish.device.api.app.listener.ClickListener;
@@ -78,8 +79,8 @@ public class CheckBox extends Component implements RadioGroup.Item
 				Color bgColor = new Color(getColorScheme().getBackgroundColor()).brighter().brighter();
 				float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
 				bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1.0F));
-				GL11.glColor4f(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
-				mc.getTextureManager().bindForSetup(COMPONENTS_GUI);
+				RenderSystem.setShaderColor(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
+				RenderSystem.setShaderTexture(0, COMPONENTS_GUI);
 				blit(poseStack,xPosition, yPosition, checked ? 10 : 0, 60, 10, 10);
 			}
 			drawString(poseStack, mc.font, name, xPosition + 12, yPosition + 1, color(textColor, getColorScheme().getTextColor()));

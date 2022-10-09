@@ -36,7 +36,7 @@ public interface IIcon
     default void draw(Minecraft mc, int x, int y)
 	{
 		RenderSystem.setShaderColor(1F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindForSetup(getIconAsset());
+		RenderSystem.setShaderTexture(0, getIconAsset());
 		int size = getIconSize();
 		int assetWidth = getGridWidth() * size;
 		int assetHeight = getGridHeight() * size;

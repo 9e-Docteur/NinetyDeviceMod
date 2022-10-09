@@ -1,8 +1,10 @@
 package com.mrcrayfish.device.block;
 
+import com.mrcrayfish.device.core.Laptop;
 import com.mrcrayfish.device.item.ItemFlashDrive;
 import com.mrcrayfish.device.tileentity.TileEntityLaptop;
 import com.mrcrayfish.device.util.TileEntityUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -106,6 +108,7 @@ public class BlockLaptop extends BlockDevice.Colored
 					}
 					return InteractionResult.SUCCESS;
 				}
+				Minecraft.getInstance().setScreen(new Laptop(laptop));
 			}
 		}
 

@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL11;
@@ -150,8 +151,8 @@ public enum Alphabet implements IIcon
         Color temp = new Color(color);
         float[] hsb = Color.RGBtoHSB(temp.getRed(), temp.getGreen(), temp.getBlue(), null);
         Color iconColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1.0F));
-        GL11.glColor4f(iconColor.getRed() / 255F, iconColor.getGreen() / 255F, iconColor.getBlue() / 255F, 1.0F);
+        RenderSystem.setShaderColor(iconColor.getRed() / 255F, iconColor.getGreen() / 255F, iconColor.getBlue() / 255F, 1.0F);
         this.draw(mc, x, y);
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

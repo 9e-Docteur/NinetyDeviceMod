@@ -1,6 +1,7 @@
 package com.mrcrayfish.device.programs.system.component;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.ApplicationManager;
 import com.mrcrayfish.device.api.app.*;
@@ -330,7 +331,7 @@ public class FileBrowser extends Component
             {
                 Color bgColor = new Color(getColorScheme().getBackgroundColor());
                 fill(poseStack, x, y, x + width, y + height, selected ? bgColor.brighter().brighter().getRGB() : bgColor.brighter().getRGB());
-                mc.getTextureManager().bindForSetup(ASSETS);
+                RenderSystem.setShaderTexture(0, ASSETS);
                 GlStateManager._clearColor(1F, 1.0F, 1.0F, 1.0F);
                 RenderUtil.fillWithTexture(x + 2, y + 2, drive.getType().ordinal() * 8, 30, 8, 8, 8, 8);
 
