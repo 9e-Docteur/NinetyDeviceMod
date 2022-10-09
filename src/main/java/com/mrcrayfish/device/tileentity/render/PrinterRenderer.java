@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.tileentity.render;
 
+import be.ninedocteur.ndm.client.ModelRegistry;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -24,6 +25,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,7 +37,11 @@ import java.util.function.Function;
  * Author: MrCrayfish
  */
 public class PrinterRenderer implements BlockEntityRenderer<TileEntityPrinter> {
-    private static final ModelPaper paperModel = new ModelPaper(Minecraft.getInstance().getEntityModels().bakeLayer(new ModelLayerLocation(new ResourceLocation("paper", "paper"), "paper")));
+    private static ModelPaper paperModel;
+
+    public PrinterRenderer(BlockEntityRendererProvider.Context pContextd) {
+        paperModel = new ModelPaper(Minecraft.getInstance().getEntityModels().bakeLayer(ModelRegistry.PAPER));
+    }
 
     @Override
     public void render(TileEntityPrinter te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)

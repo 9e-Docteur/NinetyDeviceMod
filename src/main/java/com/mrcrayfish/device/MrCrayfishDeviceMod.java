@@ -1,5 +1,6 @@
 package com.mrcrayfish.device;
 
+import be.ninedocteur.ndm.client.TileRenders;
 import be.ninedocteur.ndm.utils.NDMUtils;
 import com.mrcrayfish.device.api.ApplicationManager;
 import com.mrcrayfish.device.api.print.PrintingManager;
@@ -70,17 +71,7 @@ public class MrCrayfishDeviceMod {
 
         eventBus.addListener(MrCrayfishDeviceMod::init);
         eventBus.addListener(MrCrayfishDeviceMod::initClientEvent);
-        preInit();
         PacketHandler.init();
-    }
-
-    public static void preInit() {
-
-        //DeviceConfig.load(event.getSuggestedConfigurationFile());
-
-        //RegistrationHandler.init();
-
-
     }
 
     public static void setAllowedApps(List<AppInfo> allowedApps) {
@@ -99,6 +90,7 @@ public class MrCrayfishDeviceMod {
 
     public static void initClientEvent(FMLClientSetupEvent event) {
         DeviceConfig.restore();
+        TileRenders.register();
     }
 
     private static void registerApplications() {

@@ -14,6 +14,7 @@ import com.mrcrayfish.device.tileentity.TileEntityRouter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -25,6 +26,11 @@ import java.util.Collection;
  * Author: MrCrayfish
  */
 public class RouterRenderer implements BlockEntityRenderer<TileEntityRouter> {
+
+    public RouterRenderer(BlockEntityRendererProvider.Context pContextd) {
+
+    }
+
     @Override
     public void render(TileEntityRouter te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)
     {

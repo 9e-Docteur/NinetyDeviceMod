@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -27,6 +28,10 @@ import java.awt.*;
  * Author: MrCrayfish
  */
 public class PaperRenderer implements BlockEntityRenderer<TileEntityPaper> {
+
+    public PaperRenderer(BlockEntityRendererProvider.Context pContextd) {
+
+    }
     @Override
     public void render(TileEntityPaper te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)
     {

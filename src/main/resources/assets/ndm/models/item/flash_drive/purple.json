@@ -1,6 +1,6 @@
 {
     "parent": "ndm:item/flash_drive",
     "textures": {
-        "1": "blocks/wool_colored_purple"
+        "1": "block/wool_colored_purple"
     }
 }

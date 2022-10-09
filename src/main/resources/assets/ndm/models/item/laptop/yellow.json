@@ -1,6 +1,6 @@
 {
     "parent": "ndm:item/laptop",
     "textures": {
-        "2": "blocks/wool_colored_yellow"
+        "2": "block/wool_colored_yellow"
     }
 }

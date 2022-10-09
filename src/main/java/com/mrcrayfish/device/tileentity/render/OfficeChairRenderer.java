@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,6 +24,10 @@ import net.minecraft.world.level.block.state.BlockState;
 public class OfficeChairRenderer implements BlockEntityRenderer<TileEntityOfficeChair>
 {
     private final Minecraft mc = Minecraft.getInstance();
+
+    public OfficeChairRenderer(BlockEntityRendererProvider.Context pContextd) {
+
+    }
 
     @Override
     public void render(TileEntityOfficeChair te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)

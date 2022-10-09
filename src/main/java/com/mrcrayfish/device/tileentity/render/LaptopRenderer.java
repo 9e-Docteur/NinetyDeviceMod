@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,7 +29,12 @@ public class LaptopRenderer implements BlockEntityRenderer<TileEntityLaptop>
 {
 	private final Minecraft mc = Minecraft.getInstance();
 
-	private final ItemEntity entityItem = new ItemEntity(Minecraft.getInstance().level, 0D, 0D, 0D, ItemStack.EMPTY);
+	//private final ItemEntity entityItem;
+
+
+	public LaptopRenderer(BlockEntityRendererProvider.Context pContextd) {
+		//entityItem = new ItemEntity(Minecraft.getInstance().level, 0D, 0D, 0D, ItemStack.EMPTY);
+	}
 
 	@Override
 	public void render(TileEntityLaptop te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)
@@ -49,7 +55,7 @@ public class LaptopRenderer implements BlockEntityRenderer<TileEntityLaptop>
 					poseStack.mulPose(te.getBlockState().getValue(BlockLaptop.FACING).getRotation());
 					poseStack.translate(-0.5, 0, -0.5);
 					poseStack.translate(0.595, -0.2075, -0.005);
-					entityItem.flyDist = 0.0F;
+					//entityItem.flyDist = 0.0F;
 					//entityItem.setItem(new ItemStack(DeviceItems.FLASH_DRIVE.get(), 1, te.getExternalDriveColor()));
 					//Minecraft.getInstance().levelRenderer.renderEntity(entityItem, 0.0D, 0.0D, 0.0D, 0.0F, poseStack, bufferSource);
 					poseStack.translate(0.1, 0, 0);

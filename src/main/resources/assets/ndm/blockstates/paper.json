@@ -1,8 +1,16 @@
 {
-	"variants": {
-		"facing=north": { "model": "ndm:paper" },
-		"facing=east":  { "model": "ndm:paper" },
-		"facing=south": { "model": "ndm:paper" },
-		"facing=west":  { "model": "ndm:paper" }
-	}
+    "variants": {
+        "facing=north": {
+            "model": "ndm:block/paper"
+        },
+        "facing=east": {
+            "model": "ndm:block/paper"
+        },
+        "facing=south": {
+            "model": "ndm:block/paper"
+        },
+        "facing=west": {
+            "model": "ndm:block/paper"
+        }
+    }
 }
