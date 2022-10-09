@@ -17,7 +17,6 @@ import com.mrcrayfish.device.api.task.Callback;
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.api.task.TaskManager;
 import com.mrcrayfish.device.api.utils.RenderUtil;
-import com.mrcrayfish.device.core.client.LaptopFontRenderer;
 import com.mrcrayfish.device.core.task.TaskInstallApp;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.programs.system.SystemApplication;
@@ -25,7 +24,6 @@ import com.mrcrayfish.device.programs.system.component.FileBrowser;
 import com.mrcrayfish.device.programs.system.task.TaskUpdateApplicationData;
 import com.mrcrayfish.device.programs.system.task.TaskUpdateSystemData;
 import com.mrcrayfish.device.tileentity.TileEntityLaptop;
-import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
@@ -38,14 +36,14 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.awt.Color;
-import java.io.IOException;
 import java.util.*;
-import java.util.function.Supplier;
 
 import static com.mrcrayfish.device.util.GuiHelper.isMouseInside;
 
@@ -60,7 +58,8 @@ public class Laptop extends Screen implements System
 	public static final ResourceLocation ICON_TEXTURES = new ResourceLocation(Reference.MOD_ID, "textures/atlas/app_icons.png");
 	public static final int ICON_SIZE = 14;
 
-	public static final Font fontRenderer = new LaptopFontRenderer(Minecraft.getInstance());
+	@OnlyIn(Dist.CLIENT)
+	public static final Font fontRenderer = Minecraft.getInstance().font;
 
 	private static final List<Application> APPLICATIONS = new ArrayList<>();
 	private static final List<ResourceLocation> WALLPAPERS = new ArrayList<>();
@@ -201,6 +200,7 @@ public class Laptop extends Screen implements System
 
 	@Override
 	public void render(PoseStack poseStack, final int mouseX, final int mouseY, float partialTicks) {
+
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 		//Fixes the strange partialTicks that Forge decided to give us
 		Minecraft mc = Minecraft.getInstance();
@@ -406,11 +406,11 @@ public class Laptop extends Screen implements System
 			}
 
 			if (windows[0] != null) {
-				Window<Application> window = (Window<Application>) windows[0];
+				Window<Application> window = windows[0];
 				Window<Dialog> dialogWindow = window.getContent().getActiveDialog();
-				if (dragging) {
+				if (dialogWindow != null && dragging) {
 					if (isMouseOnScreen((int) mouseX, (int) mouseY)) {
-						Objects.requireNonNull(dialogWindow, (Supplier<String>) window).handleWindowMove(posX, posY, (int) -(lastMouseX - mouseX), (int) -(lastMouseY - mouseY));
+						Objects.requireNonNull(dialogWindow).handleWindowMove(posX, posY, (int) -(lastMouseX - mouseX), (int) -(lastMouseY - mouseY));
 					} else {
 						dragging = false;
 					}

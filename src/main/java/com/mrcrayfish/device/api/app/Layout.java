@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.Screen;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -184,9 +185,12 @@ public class Layout extends Component
 		}
 
 		RenderSystem.setShaderColor(1F, 1.0F, 1.0F, 1.0F);
-		for(Component c : components)
-		{
-			//RenderSystem.disableDepth();
+
+
+		Iterator<Component> componentIterator = components.iterator();
+		while (componentIterator.hasNext()) {
+			Component c = componentIterator.next();
+
 			GLHelper.pushScissor(x, y, width, height);
 			c.render(poseStack, laptop, mc, x + c.left, y + c.top, mouseX, mouseY, windowActive, partialTicks);
 			GLHelper.popScissor();

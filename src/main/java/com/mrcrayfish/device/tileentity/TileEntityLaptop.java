@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -44,11 +45,11 @@ public class TileEntityLaptop extends TileEntityNetworkDevice.Colored
 		return "Laptop";
 	}
 
-
 	@Override
-	public void tick() {
-		super.tick();
-		if(level.isClientSide)
+	public void tick(Level level, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity) {
+		super.tick(level, blockPos, blockState, blockEntity);
+
+		if(level.isClientSide())
 		{
 			prevRotation = rotation;
 			if(!open)

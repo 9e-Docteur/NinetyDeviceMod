@@ -108,7 +108,7 @@ public class BlockLaptop extends BlockDevice.Colored
 					}
 					return InteractionResult.SUCCESS;
 				}
-				Minecraft.getInstance().setScreen(new Laptop(laptop));
+				if(level.isClientSide()) Minecraft.getInstance().setScreen(new Laptop(laptop));
 			}
 		}
 

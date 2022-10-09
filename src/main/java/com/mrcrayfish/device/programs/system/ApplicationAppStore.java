@@ -162,8 +162,7 @@ public class ApplicationAppStore extends SystemApplication
 	public List<RemoteEntry> parseJson(String json)
 	{
 		List<RemoteEntry> entries = new ArrayList<>();
-		JsonParser parser = new JsonParser();
-		JsonArray array = parser.parse(json).getAsJsonArray();
+		JsonArray array = JsonParser.parseString(json).getAsJsonArray();
 		Gson gson = new Gson();
 		array.forEach(element -> entries.add(gson.fromJson(element, new TypeToken<RemoteEntry>(){}.getType())));
 		return entries;

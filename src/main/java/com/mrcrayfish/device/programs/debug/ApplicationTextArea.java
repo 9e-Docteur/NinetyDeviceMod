@@ -7,7 +7,6 @@ import com.mrcrayfish.device.api.app.component.ButtonToggle;
 import com.mrcrayfish.device.api.app.component.TextArea;
 import com.mrcrayfish.device.api.app.interfaces.IHighlight;
 import com.mrcrayfish.device.core.Laptop;
-import com.mrcrayfish.device.core.client.LaptopFontRenderer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 
@@ -104,17 +103,17 @@ public class ApplicationTextArea extends Application
         });
         layout.addComponent(buttonWordWrap);
 
-        ButtonToggle buttonDebug = new ButtonToggle(24, 5, Icons.HELP);
+        /*ButtonToggle buttonDebug = new ButtonToggle(24, 5, Icons.HELP);
         buttonDebug.setToolTip("Debug Mode", "Show invisible characters");
         buttonDebug.setClickListener((mouseX, mouseY, mouseButton) ->
         {
             if(mouseButton == 0)
             {
-                ((LaptopFontRenderer)Laptop.fontRenderer).setDebug(!buttonDebug.isSelected());
+                Laptop.fontRenderer).setDebug(!buttonDebug.isSelected());
             }
         });
         layout.addComponent(buttonDebug);
-
+*/
         ButtonToggle buttonHighlight = new ButtonToggle(43, 5, Icons.FONT);
         buttonHighlight.setToolTip("Highlight", "Set text highlighting to Java");
         buttonHighlight.setClickListener((mouseX, mouseY, mouseButton) ->
