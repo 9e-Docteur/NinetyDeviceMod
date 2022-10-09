@@ -20,12 +20,6 @@ public class PacketHandler
 
 	public static void init()
 	{
-	//	INSTANCE.registerMessage(1, MessageRequest.class, MessageRequest::toBytes, MessageRequest::new, MessageRequest::onMessage);
-	//	INSTANCE.registerMessage(MessageResponse.class, MessageResponse.class, 2, Side.CLIENT);
-	//	INSTANCE.registerMessage(MessageSyncApplications.class, MessageSyncApplications.class, 3, Side.CLIENT);
-	//	INSTANCE.registerMessage(MessageSyncConfig.class, MessageSyncConfig.class, 4, Side.CLIENT);
-	//	INSTANCE.registerMessage(MessageSyncBlock.class, MessageSyncBlock.class, 5, Side.SERVER);
-
 		registerMessage(MessageNotification.class, new MessageNotification());
 		registerMessage(MessageRequest.class, new MessageRequest());
 		registerMessage(MessageResponse.class, new MessageResponse());
@@ -39,9 +33,9 @@ public class PacketHandler
 		INSTANCE.registerMessage(id++, tClass, packetInstance::encode, packetInstance::decode, packetInstance::handle);
 	}
 
-//	public static <T extends IPacket<T>> void sendToAllClients(T packet) {
-//		ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers().forEach(p -> sendTo(p, packet));
-//	}
+	public static <T extends IPacket<T>> void sendToAllClients(T packet) {
+		ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers().forEach(p -> sendTo(packet, p));
+	}
 
 	public static <T extends IPacket<T>> void sendTo(T packet, ServerPlayer playerEntity) {
 		INSTANCE.sendTo(packet, playerEntity.connection.connection, NetworkDirection.PLAY_TO_CLIENT);

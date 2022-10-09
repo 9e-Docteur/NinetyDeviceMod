@@ -165,9 +165,6 @@ public class ClientProxy extends CommonProxy
             Field field = Application.class.getDeclaredField("info");
             field.setAccessible(true);
 
-            Field modifiers = Field.class.getDeclaredField("modifiers");
-            modifiers.setAccessible(true);
-            modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 
             field.set(application, generateAppInfo(identifier, clazz));
 

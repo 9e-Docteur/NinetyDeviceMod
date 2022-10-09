@@ -13,7 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -24,79 +23,68 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CommonProxy
-{
-	List<AppInfo> allowedApps;
-	int hashCode = -1;
+public class CommonProxy {
+    List<AppInfo> allowedApps;
+    int hashCode = -1;
 
-	public void preInit()
-	{
-		MinecraftForge.EVENT_BUS.register(this);
-	}
+    public void preInit() {
 
-	public void init() {}
+    }
 
-	public void postInit() {}
+    public void init() {
+    }
 
-	@Nullable
-	public Application registerApplication(ResourceLocation identifier, Class<? extends Application> clazz)
-	{
-		if(allowedApps == null)
-		{
-			allowedApps = new ArrayList<>();
-		}
-		if(SystemApplication.class.isAssignableFrom(clazz))
-		{
-			allowedApps.add(new AppInfo(identifier, true));
-		}
-		else
-		{
-			allowedApps.add(new AppInfo(identifier, false));
-		}
-		return null;
-	}
+    public void postInit() {
+    }
 
-	public boolean registerPrint(ResourceLocation identifier, Class<? extends IPrint> classPrint)
-	{
-		return true;
-	}
+    @Nullable
+    public Application registerApplication(ResourceLocation identifier, Class<? extends Application> clazz) {
+        if (allowedApps == null) {
+            allowedApps = new ArrayList<>();
+        }
+        if (SystemApplication.class.isAssignableFrom(clazz)) {
+            allowedApps.add(new AppInfo(identifier, true));
+        } else {
+            allowedApps.add(new AppInfo(identifier, false));
+        }
+        return null;
+    }
 
-	public boolean hasAllowedApplications()
-	{
-		return allowedApps != null;
-	}
+    public boolean registerPrint(ResourceLocation identifier, Class<? extends IPrint> classPrint) {
+        return true;
+    }
 
-	public List<AppInfo> getAllowedApplications()
-	{
-		if(allowedApps == null)
-		{
-			return Collections.emptyList();
-		}
-		return Collections.unmodifiableList(allowedApps);
-	}
+    public boolean hasAllowedApplications() {
+        return allowedApps != null;
+    }
 
-	@SubscribeEvent
-	public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event)
-	{
-		if(allowedApps != null)
-		{
-			PacketHandler.sendTo(new MessageSyncApplications(allowedApps), (ServerPlayer) event.getEntity());
-		}
-		PacketHandler.sendTo(new MessageSyncConfig(), (ServerPlayer) event.getEntity());
-	}
+    public List<AppInfo> getAllowedApplications() {
+        if (allowedApps == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(allowedApps);
+    }
 
-	@SubscribeEvent
-	public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event)
-	{
-		Level Level = event.getLevel();
-		if(!event.getItemStack().isEmpty() && event.getItemStack().getItem() == Items.PAPER)
-		{
-			if(Level.getBlockState(event.getPos()).getBlock() == DeviceBlocks.PRINTER.get())
-			{
-				event.setUseBlock(Event.Result.ALLOW);
-			}
-		}
-	}
+    @SubscribeEvent
+    public void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+		if(event.getEntity().getLevel().isClientSide()) return;
 
-	public void showNotification(CompoundTag tag) {}
+        if (allowedApps != null) {
+            PacketHandler.sendTo(new MessageSyncApplications(allowedApps), (ServerPlayer) event.getEntity());
+        }
+        PacketHandler.sendTo(new MessageSyncConfig(), (ServerPlayer) event.getEntity());
+    }
+
+    @SubscribeEvent
+    public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        Level Level = event.getLevel();
+        if (!event.getItemStack().isEmpty() && event.getItemStack().getItem() == Items.PAPER) {
+            if (Level.getBlockState(event.getPos()).getBlock() == DeviceBlocks.PRINTER.get()) {
+                event.setUseBlock(Event.Result.ALLOW);
+            }
+        }
+    }
+
+    public void showNotification(CompoundTag tag) {
+    }
 }
