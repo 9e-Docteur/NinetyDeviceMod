@@ -32,8 +32,6 @@ import java.util.List;
 public class TrayItemWifi extends TrayItem
 {
     private int pingTimer;
-    private static final PoseStack poseStack = new PoseStack();
-
     public TrayItemWifi()
     {
         super(Icons.WIFI_NONE);
@@ -115,7 +113,7 @@ public class TrayItemWifi extends TrayItem
             public void render(PoseStack poseStack, Device device, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
             {
                 Gui.fill(poseStack, x, y, x + width, y + height, selected ? Color.DARK_GRAY.getRGB() : Color.GRAY.getRGB());
-                RenderUtil.drawStringClipped(device.getName(), x + 16, y + 4, 70, Color.WHITE.getRGB(), false);
+                RenderUtil.drawStringClipped(poseStack, device.getName(), x + 16, y + 4, 70, Color.WHITE.getRGB(), false);
 
                 if(device.getPos() == null)
                     return;
@@ -124,15 +122,15 @@ public class TrayItemWifi extends TrayItem
                 double distance = Math.sqrt(device.getPos().distToCenterSqr(laptopPos.getX() + 0.5, laptopPos.getY() + 0.5, laptopPos.getZ() + 0.5));
                 if(distance > 20)
                 {
-                    Icons.WIFI_LOW.draw(mc, x + 3, y + 3);
+                    Icons.WIFI_LOW.draw(poseStack, mc, x + 3, y + 3);
                 }
                 else if(distance > 10)
                 {
-                    Icons.WIFI_MED.draw(mc, x + 3, y + 3);
+                    Icons.WIFI_MED.draw(poseStack, mc, x + 3, y + 3);
                 }
                 else
                 {
-                    Icons.WIFI_HIGH.draw(mc, x + 3, y + 3);
+                    Icons.WIFI_HIGH.draw(poseStack, mc, x + 3, y + 3);
                 }
             }
         });

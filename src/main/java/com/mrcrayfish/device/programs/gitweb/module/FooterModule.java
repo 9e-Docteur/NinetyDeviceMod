@@ -77,8 +77,8 @@ public class FooterModule extends Module
         {
             Screen.fill(poseStack, x, y, x + width1, y + height, finalColor);
 
-            RenderUtil.drawStringClipped(title, x + 5, y + 5, buttonHome.left - 10, -1, true);
-            RenderUtil.drawStringClipped(subTitle, x + 5, y + 16, buttonHome.left - 10, Color.LIGHT_GRAY.getRGB(), false);
+            RenderUtil.drawStringClipped(poseStack, title, x + 5, y + 5, buttonHome.left - 10, -1, true);
+            RenderUtil.drawStringClipped(poseStack, subTitle, x + 5, y + 16, buttonHome.left - 10, Color.LIGHT_GRAY.getRGB(), false);
         });
     }
 }

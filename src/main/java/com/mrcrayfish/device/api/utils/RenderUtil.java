@@ -101,10 +101,9 @@ public class RenderUtil
 		}
 	}
 
-	public static void drawStringClipped(String text, int x, int y, int width, int color, boolean shadow)
+	public static void drawStringClipped(PoseStack poseStack, String text, int x, int y, int width, int color, boolean shadow)
 	{
-		PoseStack poseStack = new PoseStack();
-		Laptop.fontRenderer.draw(poseStack, clipStringToWidth(text, width) + ChatFormatting.RESET, x, y, color);
+		Minecraft.getInstance().font.draw(poseStack, clipStringToWidth(text, width) + ChatFormatting.RESET, x, y, color);
 	}
 
 	public static String clipStringToWidth(String text, int width)

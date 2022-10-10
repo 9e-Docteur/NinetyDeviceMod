@@ -239,8 +239,8 @@ public class ApplicationEmail extends Application
 				Gui.fill(poseStack, x + 130, y + 5, x + width - 5, y + 34, color.getRGB());
 				Gui.fill(poseStack,x + 130, y + 34, x + width - 5, y + 35, color.darker().getRGB());
 				Gui.fill(poseStack,x + 130, y + 35, x + width - 5, y + height - 5, new Color(1.0F, 1.0F, 1.0F, 0.25F).getRGB());
-				RenderUtil.drawStringClipped(e.getSubject(), x + 135, y + 10, 120, Color.WHITE.getRGB(), true);
-				RenderUtil.drawStringClipped(e.getAuthor() + "@endermail.com", x + 135, y + 22, 120, Color.LIGHT_GRAY.getRGB(), false);
+				RenderUtil.drawStringClipped(poseStack, e.getSubject(), x + 135, y + 10, 120, Color.WHITE.getRGB(), true);
+				RenderUtil.drawStringClipped(poseStack, e.getAuthor() + "@endermail.com", x + 135, y + 22, 120, Color.LIGHT_GRAY.getRGB(), false);
 				Laptop.fontRenderer.drawWordWrap(e.getMessage(), x + 135, y + 40, 115, Color.WHITE.getRGB());
 			}
         });
@@ -266,8 +266,8 @@ public class ApplicationEmail extends Application
 					RenderSystem.setShaderTexture(0, ENDER_MAIL_ICONS);
 					RenderUtil.fillWithTexture(posX, y + 16, 20, 10, 7, 10, 13, 20);
 				}
-				RenderUtil.drawStringClipped(e.getSubject(), x + 5, y + 5, width - 20, Color.WHITE.getRGB(), false);
-				RenderUtil.drawStringClipped(e.getAuthor() + "@endermail.com", x + 5, y + 17, width - 20, Color.LIGHT_GRAY.getRGB(), false);
+				RenderUtil.drawStringClipped(poseStack, e.getSubject(), x + 5, y + 5, width - 20, Color.WHITE.getRGB(), false);
+				RenderUtil.drawStringClipped(poseStack, e.getAuthor() + "@endermail.com", x + 5, y + 17, width - 20, Color.LIGHT_GRAY.getRGB(), false);
 			}
 		});
 		layoutInbox.addComponent(listEmails);

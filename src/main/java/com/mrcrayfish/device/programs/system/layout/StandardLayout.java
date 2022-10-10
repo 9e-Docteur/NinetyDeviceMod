@@ -58,7 +58,7 @@ public class StandardLayout extends Layout
 
         if(previous == null && icon != null)
         {
-            icon.draw(mc, x + 5, y + 5);
+            icon.draw(poseStack, mc, x + 5, y + 5);
         }
         mc.font.draw(poseStack, title, x + 5 + (previous != null || icon != null ? 16 : 0), y + 7, Color.WHITE.getRGB());
 

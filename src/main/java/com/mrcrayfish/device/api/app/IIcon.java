@@ -1,8 +1,10 @@
 package com.mrcrayfish.device.api.app;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.utils.RenderUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 
 public interface IIcon
@@ -33,13 +35,13 @@ public interface IIcon
 
     int getOrdinal();
 
-    default void draw(Minecraft mc, int x, int y)
+    default void draw(PoseStack poseStack, Minecraft mc, int x, int y)
 	{
 		RenderSystem.setShaderColor(1F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.setShaderTexture(0, getIconAsset());
 		int size = getIconSize();
 		int assetWidth = getGridWidth() * size;
 		int assetHeight = getGridHeight() * size;
-		RenderUtil.fillWithTexture(x, y, getU(), getV(), size, size, size, size, assetWidth, assetHeight);
+		GuiComponent.blit(poseStack, x, y, getU(), getV(), size, size, size, size, assetWidth, assetHeight);
 	}
 }

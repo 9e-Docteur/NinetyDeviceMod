@@ -59,7 +59,7 @@ public class LayoutSearchApps extends StandardLayout
 
                 GlStateManager._clearColor(1F, 1.0F, 1.0F, 1.0F);
                 RenderUtil.drawApplicationIcon(info, x + 2, y + 2);
-                RenderUtil.drawStringClipped(info.getName() + ChatFormatting.GRAY + " - " + ChatFormatting.DARK_GRAY + info.getDescription(), x + 20, y + 5, itemListResults.getWidth() - 22, Color.WHITE.getRGB(), false);
+                RenderUtil.drawStringClipped(poseStack, info.getName() + ChatFormatting.GRAY + " - " + ChatFormatting.DARK_GRAY + info.getDescription(), x + 20, y + 5, itemListResults.getWidth() - 22, Color.WHITE.getRGB(), false);
             }
         });
         itemListResults.setItemClickListener((info, index, mouseButton) ->
@@ -80,7 +80,7 @@ public class LayoutSearchApps extends StandardLayout
 
         TextField textFieldSearch = new TextField(5, 26, ApplicationAppStore.LAYOUT_WIDTH - 10);
         textFieldSearch.setIcon(Icons.SEARCH);
-        textFieldSearch.setPlaceholder("...");
+        textFieldSearch.setPlaceholder("Search a program...");
         textFieldSearch.setKeyListener(c ->
         {
             Predicate<AppInfo> FILTERED = info -> StringUtils.containsIgnoreCase(info.getName(), textFieldSearch.getText()) || StringUtils.containsIgnoreCase(info.getDescription(), textFieldSearch.getText());

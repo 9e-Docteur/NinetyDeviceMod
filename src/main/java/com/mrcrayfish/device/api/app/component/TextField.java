@@ -36,7 +36,7 @@ public class TextField extends TextArea
 			Color bgColor = new Color(color(backgroundColor, getColorScheme().getBackgroundColor()));
 			Gui.fill(poseStack, x, y, x + 15, y + 16, bgColor.darker().darker().getRGB());
 			Gui.fill(poseStack,x + 1, y + 1, x + 15, y + 15, bgColor.brighter().getRGB());
-			icon.draw(mc, x + 3, y + 3);
+			icon.draw(poseStack, mc, x + 3, y + 3);
 		}
 		super.render(poseStack, laptop, mc, x + (icon != null ? 15 : 0), y, mouseX, mouseY, windowActive, partialTicks);
 	}

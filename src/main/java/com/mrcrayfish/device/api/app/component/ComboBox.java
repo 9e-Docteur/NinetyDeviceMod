@@ -116,7 +116,7 @@ public abstract class ComboBox<T> extends Component
             }
             else if(value != null)
             {
-                RenderUtil.drawStringClipped(value.toString(), xPosition + 3, yPosition + 3, width - 15, Color.WHITE.getRGB(), true);
+                RenderUtil.drawStringClipped(poseStack, value.toString(), xPosition + 3, yPosition + 3, width - 15, Color.WHITE.getRGB(), true);
             }
 
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

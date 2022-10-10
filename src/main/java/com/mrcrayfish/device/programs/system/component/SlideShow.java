@@ -79,7 +79,7 @@ public class SlideShow extends Component
             {
                 Gui.fill(poseStack, x, y, x + 15, y + height, OVERLAY.getRGB());
             }
-            Icons.CHEVRON_LEFT.draw(mc, x + 2, y + (height - 10) / 2);
+            Icons.CHEVRON_LEFT.draw(poseStack, mc, x + 2, y + (height - 10) / 2);
         }
 
         if(currentImage < IMAGES.size() - 1)
@@ -92,7 +92,7 @@ public class SlideShow extends Component
             {
                 Gui.fill(poseStack, x + width - 15, y, x + width, y + height, OVERLAY.getRGB());
             }
-            Icons.CHEVRON_RIGHT.draw(mc, x + 3 + width - 15, y + (height - 10) / 2);
+            Icons.CHEVRON_RIGHT.draw(poseStack, mc, x + 3 + width - 15, y + (height - 10) / 2);
         }
     }
 

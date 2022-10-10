@@ -55,7 +55,7 @@ public abstract class ContainerBox extends Component
         }
         poseStack.popPose();
 
-        RenderUtil.drawStringClipped(title, x + contentOffset + 8 + 4, y, 110, Color.WHITE.getRGB(), true);
+        RenderUtil.drawStringClipped(poseStack, title, x + contentOffset + 8 + 4, y, 110, Color.WHITE.getRGB(), true);
 
         slots.forEach(slot -> slot.render(x, y + 12));
     }

@@ -127,7 +127,7 @@ public class TaskBar
 			{
 				Gui.fill(poseStack, posX, y + 2, posX + 14, y + 16, new Color(1.0F, 1.0F, 1.0F, 0.1F).getRGB());
 			}
-			trayItems.get(i).getIcon().draw(mc, posX + 2, y + 4);
+			trayItems.get(i).getIcon().draw(poseStack, mc, posX + 2, y + 4);
 		}
 
 		RenderSystem.setShaderTexture(0, APP_BAR_GUI);

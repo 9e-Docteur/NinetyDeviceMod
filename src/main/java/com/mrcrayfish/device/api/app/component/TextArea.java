@@ -111,7 +111,7 @@ public class TextArea extends Component
 			if(!isFocused && placeholder != null && (lines.isEmpty() || (lines.size() == 1 && lines.get(0).isEmpty())))
 			{
 				RenderSystem.enableBlend();
-				RenderUtil.drawStringClipped(placeholder, x + padding, y + padding, width - padding * 2, placeholderColor, false);
+				RenderUtil.drawStringClipped(poseStack, placeholder, x + padding, y + padding, width - padding * 2, placeholderColor, false);
 			}
 
 			GLHelper.pushScissor(x + padding, y + padding, width - padding * 2, height - padding * 2);

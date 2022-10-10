@@ -100,7 +100,7 @@ public class ApplicationPixelPainter extends Application
 			@Override
 			public void render(PoseStack poseStack, Picture picture, Screen gui, Minecraft mc, int x, int y, int width, int height, boolean selected)
 			{
-				RenderUtil.drawStringClipped("Henlo", x, y, 100, AUTHOR_TEXT.getRGB(), true);
+				RenderUtil.drawStringClipped(poseStack, "Henlo", x, y, 100, AUTHOR_TEXT.getRGB(), true);
 			}
 		});
 		layoutMainMenu.addComponent(pictureList);

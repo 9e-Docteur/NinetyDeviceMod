@@ -877,8 +877,8 @@ public abstract class Dialog extends Wrappable
 				{
 					ColorScheme colorScheme = Laptop.getSystem().getSettings().getColorScheme();
 					Gui.fill(poseStack, x, y, x + width, y + height, selected ? colorScheme.getItemHighlightColor() : colorScheme.getItemBackgroundColor());
-					Icons.PRINTER.draw(mc, x + 3, y + 3);
-					RenderUtil.drawStringClipped(networkDevice.getName(), x + 18, y + 4, 118, Laptop.getSystem().getSettings().getColorScheme().getTextColor(), true);
+					Icons.PRINTER.draw(poseStack, mc, x + 3, y + 3);
+					RenderUtil.drawStringClipped(poseStack, networkDevice.getName(), x + 18, y + 4, 118, Laptop.getSystem().getSettings().getColorScheme().getTextColor(), true);
 				}
 			});
 			itemListPrinters.setItemClickListener((blockPos, index, mouseButton) ->

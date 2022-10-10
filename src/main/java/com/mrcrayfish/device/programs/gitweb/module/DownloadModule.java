@@ -70,10 +70,10 @@ public class DownloadModule extends Module
             RenderUtil.fillWithTexture(posX + 5, posY + 3, iconU, iconV, 28, 28, 14, 14, 224, 224);
 
             int textWidth = subWidth - 70 - 10 - 30 - 5;
-            RenderUtil.drawStringClipped(data.getOrDefault("file-name", "File"), posX + 37, posY + 7, textWidth, Color.ORANGE.getRGB(), true);
+            RenderUtil.drawStringClipped(poseStack, data.getOrDefault("file-name", "File"), posX + 37, posY + 7, textWidth, Color.ORANGE.getRGB(), true);
             if(data.containsKey("text"))
             {
-                RenderUtil.drawStringClipped(data.get("text"), posX + 37, posY + 19, textWidth, Color.LIGHT_GRAY.getRGB(), false);
+                RenderUtil.drawStringClipped(poseStack, data.get("text"), posX + 37, posY + 19, textWidth, Color.LIGHT_GRAY.getRGB(), false);
             }
         });
 

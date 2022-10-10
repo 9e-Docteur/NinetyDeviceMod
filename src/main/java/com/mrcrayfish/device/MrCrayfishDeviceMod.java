@@ -105,7 +105,6 @@ public class MrCrayfishDeviceMod {
         ApplicationManager.registerApplication(new ResourceLocation(Reference.MOD_ID, "app_store"), ApplicationAppStore.class);
 
         // Core
-        TaskManager.registerTask(TaskInstallApp.class);
         TaskManager.registerTask(TaskUpdateApplicationData.class);
         TaskManager.registerTask(TaskPrint.class);
         TaskManager.registerTask(TaskUpdateSystemData.class);
@@ -113,7 +112,7 @@ public class MrCrayfishDeviceMod {
         TaskManager.registerTask(TaskPing.class);
         TaskManager.registerTask(TaskGetDevices.class);
 
-        //Bank
+        // Bank
         TaskManager.registerTask(TaskDeposit.class);
         TaskManager.registerTask(TaskWithdraw.class);
         TaskManager.registerTask(TaskGetBalance.class);
@@ -121,20 +120,28 @@ public class MrCrayfishDeviceMod {
         TaskManager.registerTask(TaskAdd.class);
         TaskManager.registerTask(TaskRemove.class);
 
-        //File browser
+        // File browser
         TaskManager.registerTask(TaskSendAction.class);
         TaskManager.registerTask(TaskSetupFileBrowser.class);
         TaskManager.registerTask(TaskGetFiles.class);
         TaskManager.registerTask(TaskGetStructure.class);
         TaskManager.registerTask(TaskGetMainDrive.class);
 
-        //Ender Mail
+        // App Store
+        TaskManager.registerTask(TaskInstallApp.class);
+
+        // Ender Mail
         TaskManager.registerTask(TaskUpdateInbox.class);
         TaskManager.registerTask(TaskSendEmail.class);
         TaskManager.registerTask(TaskCheckEmailAccount.class);
         TaskManager.registerTask(TaskRegisterEmailAccount.class);
         TaskManager.registerTask(TaskDeleteEmail.class);
         TaskManager.registerTask(TaskViewEmail.class);
+
+        // Auction
+        TaskManager.registerTask(TaskAddAuction.class);
+        TaskManager.registerTask(TaskGetAuctions.class);
+        TaskManager.registerTask(TaskBuyItem.class);
 
         if (!DEVELOPER_MODE) {
             // Applications (Normal)
