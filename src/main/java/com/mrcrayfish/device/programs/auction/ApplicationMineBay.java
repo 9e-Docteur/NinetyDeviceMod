@@ -1,6 +1,7 @@
 package com.mrcrayfish.device.programs.auction;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.Application;
 import com.mrcrayfish.device.api.app.Dialog;
@@ -97,7 +98,7 @@ public class ApplicationMineBay extends Application
 				Gui.fill(poseStack,x, y + 25, x + 95, y + height, Color.LIGHT_GRAY.getRGB());
 				Gui.fill(poseStack,x + 94, y + 25, x + 95, y + height, Color.GRAY.getRGB());
 				
-				mc.getTextureManager().bindForSetup(MINEBAY_ASSESTS);
+				RenderSystem.setShaderTexture(0, MINEBAY_ASSESTS);
 				GlStateManager._clearColor(1.0F, 1.0F, 1.0F, 1.0F);
 				RenderUtil.fillWithTexture(x + 5, y + 6, 0, 0, 61, 11, 61, 12);
 			}

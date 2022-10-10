@@ -46,10 +46,10 @@ public class Spinner extends Component
 			Color bgColor = new Color(getColorScheme().getBackgroundColor()).brighter().brighter();
 			float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
 			bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1.0F));
-			GL11.glColor4f(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
-			mc.getTextureManager().bindForSetup(Component.COMPONENTS_GUI);
+			RenderSystem.setShaderColor(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
+			RenderSystem.setShaderTexture(0, Component.COMPONENTS_GUI);
 			blit(poseStack, xPosition, yPosition, (currentProgress % 8) * 12, 12 + 12 * (int) Math.floor((double) currentProgress / 8), 12, 12);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
 	}
 }

@@ -137,7 +137,7 @@ public class Game extends Component
 		
 		poseStack.pushPose();
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindForSetup(ICONS);
+		RenderSystem.setShaderTexture(0, ICONS);
 		
 		if(renderBackground)
 		{
@@ -186,7 +186,7 @@ public class Game extends Component
 			player.render(xPosition, yPosition, partialTicks);
 		}
 		
-		mc.getTextureManager().bindForSetup(ICONS);
+		RenderSystem.setShaderTexture(0, ICONS);
 		if(renderMidgroundHigh)
 		{
 			for(int i = 0; i < tiles[2].length; i++)

@@ -43,6 +43,7 @@ public class Label extends Component {
 					poseStack.translate((int) -(mc.font.width(text) * scale), 0, 0);
 				if(alignment == ALIGN_CENTER)
 					poseStack.translate((int) -(mc.font.width(text) * scale) / (int) (2 * scale), 0, 0);
+
 				Laptop.fontRenderer.draw(poseStack, text, 0, 0, textColor);
 			}
 			poseStack.popPose();

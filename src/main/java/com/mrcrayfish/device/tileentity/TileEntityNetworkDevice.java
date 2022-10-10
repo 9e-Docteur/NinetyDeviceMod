@@ -11,6 +11,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,7 +22,7 @@ import javax.annotation.Nullable;
 /**
  * Author: MrCrayfish
  */
-public abstract class TileEntityNetworkDevice extends TileEntityDevice implements Tickable
+public abstract class TileEntityNetworkDevice extends TileEntityDevice implements BlockEntityTicker
 {
     private final Level level = Minecraft.getInstance().level;
     private int counter;
@@ -30,10 +32,9 @@ public abstract class TileEntityNetworkDevice extends TileEntityDevice implement
         super(p_155228_, p_155229_, p_155230_);
     }
 
-
     @Override
-    public void tick(){
-        if(level.isClientSide)
+    public void tick(Level level, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity) {
+        if(level.isClientSide())
             return;
 
         if(connection != null)
@@ -45,8 +46,6 @@ public abstract class TileEntityNetworkDevice extends TileEntityDevice implement
             }
         }
     }
-
-
 
     public void connect(Router router)
     {

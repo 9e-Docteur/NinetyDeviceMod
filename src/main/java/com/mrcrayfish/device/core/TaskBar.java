@@ -88,14 +88,14 @@ public class TaskBar
 	
 	public void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, float partialTicks)
 	{
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 0.75F);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.75F);
 		RenderSystem.enableBlend();
-		mc.getTextureManager().bindForSetup(APP_BAR_GUI);
+		RenderSystem.setShaderTexture(0, APP_BAR_GUI);
 
 		Color bgColor = new Color(laptop.getSettings().getColorScheme().getBackgroundColor()).brighter().brighter();
 		float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
 		bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1.0F));
-		GL11.glColor4f(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
+		RenderSystem.setShaderColor(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
 
 		int trayItemsWidth = trayItems.size() * 14;
 		RenderUtil.fillWithTexture(x, y, 0, 0, 1, 18, 1, 18);
@@ -104,14 +104,14 @@ public class TaskBar
 
 		RenderSystem.disableBlend();
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		for(int i = 0; i < APPS_DISPLAYED && i < laptop.installedApps.size(); i++)
 		{
 			AppInfo info = laptop.installedApps.get(i + offset);
 			RenderUtil.drawApplicationIcon(info, x + 2 + i * 16, y + 2);
 			if(laptop.isApplicationRunning(info))
 			{
-				mc.getTextureManager().bindForSetup(APP_BAR_GUI);
+				RenderSystem.setShaderTexture(0, APP_BAR_GUI);
 				laptop.blit(poseStack, x + 1 + i * 16, y + 1, 35, 0, 16, 16);
 			}
 		}
@@ -130,7 +130,7 @@ public class TaskBar
 			trayItems.get(i).getIcon().draw(mc, posX + 2, y + 4);
 		}
 
-		mc.getTextureManager().bindForSetup(APP_BAR_GUI);
+		RenderSystem.setShaderTexture(0, APP_BAR_GUI);
 
 		/* Other Apps */
 		if(isMouseInside(mouseX, mouseY, x + 1, y + 1, x + 236, y + 16))
@@ -143,7 +143,7 @@ public class TaskBar
 			}
 		}
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		//RenderHelper.disableStandardItemLighting();
 	}
 	

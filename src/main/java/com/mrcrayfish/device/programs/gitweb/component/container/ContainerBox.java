@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.programs.gitweb.component.container;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.Reference;
 import com.mrcrayfish.device.api.app.Component;
@@ -42,7 +43,7 @@ public abstract class ContainerBox extends Component
     @Override
     protected void render(PoseStack poseStack, Laptop laptop, Minecraft mc, int x, int y, int mouseX, int mouseY, boolean windowActive, float partialTicks)
     {
-        mc.getTextureManager().bindForSetup(CONTAINER_BOXES_TEXTURE);
+        RenderSystem.setShaderTexture(0, CONTAINER_BOXES_TEXTURE);
         RenderUtil.fillWithTexture(x, y + 12, boxU, boxV, WIDTH, height, WIDTH, height, 256, 256);
 
         int contentOffset = (WIDTH - (Laptop.fontRenderer.width(title) + 8 + 4)) / 2;

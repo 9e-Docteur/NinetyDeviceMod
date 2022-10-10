@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.object.tiles;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrcrayfish.device.api.utils.RenderUtil;
 import com.mrcrayfish.device.object.Game;
 import com.mrcrayfish.device.object.Game.Layer;
@@ -18,9 +19,9 @@ public class TileGrass extends Tile
 		super.render(game, x, y, layer);
 		if(!game.isFullTile(layer, x, y + 1))
 		{
-			GL11.glColor4f(0.6F, 0.6F, 0.6F, 1F);
+			RenderSystem.setShaderColor(0.6F, 0.6F, 0.6F, 1F);
 			RenderUtil.fillWithTexture(game.xPosition + x * Tile.WIDTH, game.yPosition + y * Tile.HEIGHT + 6, Tile.dirt.x * 16, Tile.dirt.y * 16, Tile.WIDTH, Tile.HEIGHT, 16, 16);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		}
 	}
 

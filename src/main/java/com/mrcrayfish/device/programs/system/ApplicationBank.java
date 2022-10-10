@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.programs.system;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.api.app.*;
 import com.mrcrayfish.device.api.app.component.Button;
@@ -101,7 +102,7 @@ public class ApplicationBank extends SystemApplication
 //            RenderSystem.popMatrix();
 
 
-            mc.getTextureManager().bindForSetup(BANK_ASSETS);
+            RenderSystem.setShaderTexture(0, BANK_ASSETS);
             RenderUtil.fillWithTexture(x + 46, y + 19, 0, 0, 146, 52, 146, 52);
         });
 		

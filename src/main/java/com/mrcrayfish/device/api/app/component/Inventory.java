@@ -47,7 +47,7 @@ public class Inventory extends Component
 		if (this.visible)
 		{
 			RenderSystem.setShaderColor(1F, 1.0F, 1.0F, 1.0F);
-			mc.getTextureManager().bindForSetup(CHEST_GUI_TEXTURE);
+			RenderSystem.setShaderTexture(0, CHEST_GUI_TEXTURE);
 			RenderUtil.fillWithTexture(xPosition, yPosition, 7, 139, 162, 54, 162, 54);
 
 			net.minecraft.world.entity.player.Inventory inventory = mc.player.getInventory();

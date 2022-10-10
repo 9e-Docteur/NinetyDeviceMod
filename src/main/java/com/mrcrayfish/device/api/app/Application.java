@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.api.app;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.api.io.File;
@@ -136,7 +137,7 @@ public abstract class Application extends Wrappable {
 
         currentLayout.renderOverlay(laptop, mc, mouseX, mouseY, active);
 
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         //RenderHelper.disableStandardItemLighting();
     }
 

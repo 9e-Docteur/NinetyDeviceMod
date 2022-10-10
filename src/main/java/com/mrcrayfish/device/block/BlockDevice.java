@@ -130,11 +130,10 @@ public abstract class BlockDevice extends HorizontalDirectionalBlock implements 
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends BlockEntity> BlockEntityTicker<T> getTicker() {
         return (pLevel, pPos, pState, pBlockEntity) -> {
-            if (pBlockEntity instanceof Tickable) {
-                ((Tickable) pBlockEntity).tick();
-            }
+            if (pBlockEntity instanceof BlockEntityTicker ticker) ticker.tick(pLevel, pPos, pState, pBlockEntity);
         };
     }
 

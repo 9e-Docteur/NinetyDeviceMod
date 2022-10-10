@@ -204,12 +204,12 @@ I	 * @param top how many pixels from the top
 	{
 		if (this.visible)
         {
-            mc.getTextureManager().bindForSetup(Component.COMPONENTS_GUI);
+            RenderSystem.setShaderTexture(0, Component.COMPONENTS_GUI);
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			Color bgColor = new Color(getColorScheme().getBackgroundColor()).brighter().brighter();
 			float[] hsb = Color.RGBtoHSB(bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), null);
 			bgColor = new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1.0F));
-			GL11.glColor4f(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
+			RenderSystem.setShaderColor(bgColor.getRed() / 255F, bgColor.getGreen() / 255F, bgColor.getBlue() / 255F, 1.0F);
 			this.hovered = GuiHelper.isMouseWithin(mouseX, mouseY, x, y, width, height) && windowActive;
             int i = this.getHoverState(this.hovered);
             RenderSystem.enableBlend();
@@ -232,7 +232,7 @@ I	 * @param top how many pixels from the top
             RenderUtil.fillWithTexture(x + 2, y + 2, 98 + i * 5, 14, width - 4, height - 4, 1, 1);
             
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
             int contentWidth = (iconResource != null ? iconWidth: 0) + getTextWidth(text);
             if(iconResource != null && !isNullOrEmpty(text)) contentWidth += 3;
@@ -241,7 +241,7 @@ I	 * @param top how many pixels from the top
             if(iconResource != null)
 			{
 				int iconY = (height - iconHeight) / 2;
-				mc.getTextureManager().bindForSetup(iconResource);
+				RenderSystem.setShaderTexture(0, iconResource);
 				RenderUtil.fillWithTexture(x + contentX, y + iconY, iconU, iconV, iconWidth, iconHeight, iconWidth, iconHeight, iconSourceWidth, iconSourceHeight);
 			}
 

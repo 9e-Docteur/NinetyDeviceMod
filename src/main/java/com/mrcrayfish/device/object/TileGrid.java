@@ -85,7 +85,7 @@ public class TileGrid extends Component
 		fill(poseStack, xPosition + 1, yPosition + 16, xPosition + 92, yPosition + 99, Color.GRAY.getRGB());
 		
 
-		mc.getTextureManager().bindForSetup(Game.ICONS);
+		RenderSystem.setShaderTexture(0, Game.ICONS);
 		for(int i = 0; i < tabTiles.size(); i++)
 		{
 			Tile tile = tabTiles.get(i);

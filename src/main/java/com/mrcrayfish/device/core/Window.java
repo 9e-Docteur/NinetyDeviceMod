@@ -83,9 +83,9 @@ public class Window<T extends Wrappable>
 			content.clearPendingLayout();
 		}
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.enableBlend();
-		mc.getTextureManager().bindForSetup(WINDOW_GUI);
+		RenderSystem.setShaderTexture(0, WINDOW_GUI);
 
 		/* Corners */
 		gui.blit(poseStack, x + offsetX, y + offsetY, 0, 0, 1, 13);
@@ -116,7 +116,7 @@ public class Window<T extends Wrappable>
 		/* Render content */
 		content.render(gui, mc, x + offsetX + 1, y + offsetY + 13, mouseX, mouseY, active && dialogWindow == null, partialTicks);
 
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         
 		if(dialogWindow != null)
 		{

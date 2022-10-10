@@ -35,9 +35,9 @@ public class MessageRequest implements IPacket<MessageRequest>
 	@Override
 	public void encode(MessageRequest packet, FriendlyByteBuf byteBuf) {
 		byteBuf.writeInt(this.id);
-		byteBuf.writeUtf(this.request.getName());
+		byteBuf.writeUtf(packet.request.getName());
 		CompoundTag tag = new CompoundTag();
-		this.request.prepareRequest(tag);
+		packet.request.prepareRequest(tag);
 		byteBuf.writeNbt(tag);
 	}
 
@@ -47,7 +47,7 @@ public class MessageRequest implements IPacket<MessageRequest>
 		String name = byteBuf.readUtf();
 		this.request = TaskManager.getTask(name);
 		this.nbt = byteBuf.readNbt();
-		return null;
+		return new MessageRequest(id, request);
 	}
 
 	@Override

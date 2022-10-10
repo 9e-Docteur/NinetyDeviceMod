@@ -1,6 +1,7 @@
 package com.mrcrayfish.device.core;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.MrCrayfishDeviceMod;
 import com.mrcrayfish.device.Reference;
@@ -16,7 +17,6 @@ import com.mrcrayfish.device.api.task.Callback;
 import com.mrcrayfish.device.api.task.Task;
 import com.mrcrayfish.device.api.task.TaskManager;
 import com.mrcrayfish.device.api.utils.RenderUtil;
-import com.mrcrayfish.device.core.client.LaptopFontRenderer;
 import com.mrcrayfish.device.core.task.TaskInstallApp;
 import com.mrcrayfish.device.object.AppInfo;
 import com.mrcrayfish.device.programs.system.SystemApplication;
@@ -24,7 +24,6 @@ import com.mrcrayfish.device.programs.system.component.FileBrowser;
 import com.mrcrayfish.device.programs.system.task.TaskUpdateApplicationData;
 import com.mrcrayfish.device.programs.system.task.TaskUpdateSystemData;
 import com.mrcrayfish.device.tileentity.TileEntityLaptop;
-import com.mrcrayfish.device.util.GuiHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
@@ -37,14 +36,14 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.awt.Color;
-import java.io.IOException;
 import java.util.*;
-import java.util.function.Supplier;
 
 import static com.mrcrayfish.device.util.GuiHelper.isMouseInside;
 
@@ -59,7 +58,8 @@ public class Laptop extends Screen implements System
 	public static final ResourceLocation ICON_TEXTURES = new ResourceLocation(Reference.MOD_ID, "textures/atlas/app_icons.png");
 	public static final int ICON_SIZE = 14;
 
-	public static final Font fontRenderer = new LaptopFontRenderer(Minecraft.getInstance());
+	@OnlyIn(Dist.CLIENT)
+	public static final Font fontRenderer = Minecraft.getInstance().font;
 
 	private static final List<Application> APPLICATIONS = new ArrayList<>();
 	private static final List<ResourceLocation> WALLPAPERS = new ArrayList<>();
@@ -200,14 +200,15 @@ public class Laptop extends Screen implements System
 
 	@Override
 	public void render(PoseStack poseStack, final int mouseX, final int mouseY, float partialTicks) {
+
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 		//Fixes the strange partialTicks that Forge decided to give us
 		Minecraft mc = Minecraft.getInstance();
 
 		//this.drawDefaultBackground();
 
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindForSetup(LAPTOP_GUI);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderTexture(0, LAPTOP_GUI);
 
 		/* Physical Screen */
 		int posX = (width - DEVICE_WIDTH) / 2;
@@ -229,7 +230,7 @@ public class Laptop extends Screen implements System
 		RenderUtil.fillWithTexture(posX + BORDER, posY + BORDER, 10, 10, SCREEN_WIDTH, SCREEN_HEIGHT, 1, 1);
 
 		/* Wallpaper */
-		mc.getTextureManager().bindForSetup(WALLPAPERS.get(currentWallpaper));
+		RenderSystem.setShaderTexture(0, WALLPAPERS.get(currentWallpaper));
 		RenderUtil.fillWithFullTexture(posX + 10, posY + 10, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		if(!MrCrayfishDeviceMod.DEVELOPER_MODE)
@@ -238,7 +239,7 @@ public class Laptop extends Screen implements System
 		}
 		else
 		{
-			drawString(poseStack, fontRenderer, "Developer Version - " + Reference.VERSION, posX + BORDER + 5, posY + BORDER + 5, Color.WHITE.getRGB());
+			drawString(poseStack, font, "Developer Version - " + Reference.VERSION, posX + BORDER + 5, posY + BORDER + 5, Color.WHITE.getRGB());
 		}
 
 		boolean insideContext = false;
@@ -405,11 +406,11 @@ public class Laptop extends Screen implements System
 			}
 
 			if (windows[0] != null) {
-				Window<Application> window = (Window<Application>) windows[0];
+				Window<Application> window = windows[0];
 				Window<Dialog> dialogWindow = window.getContent().getActiveDialog();
-				if (dragging) {
+				if (dialogWindow != null && dragging) {
 					if (isMouseOnScreen((int) mouseX, (int) mouseY)) {
-						Objects.requireNonNull(dialogWindow, (Supplier<String>) window).handleWindowMove(posX, posY, (int) -(lastMouseX - mouseX), (int) -(lastMouseY - mouseY));
+						Objects.requireNonNull(dialogWindow).handleWindowMove(posX, posY, (int) -(lastMouseX - mouseX), (int) -(lastMouseY - mouseY));
 					} else {
 						dragging = false;
 					}

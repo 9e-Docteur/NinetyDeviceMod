@@ -200,7 +200,7 @@ public class Image extends Component
             {
                 image.restore();
 
-                GL11.glColor4f(1.0F, 1.0F, 1.0F, alpha);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, alpha);
 //                GlStateManager.enableAlpha();
 //                GlStateManager.enableBlend();
                 RenderSystem.setShaderTexture(0, image.textureId);

@@ -1,5 +1,6 @@
 package com.mrcrayfish.device.programs.gitweb.component.container;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mrcrayfish.device.core.Laptop;
 import net.minecraft.client.Minecraft;
@@ -44,7 +45,7 @@ public class FurnaceBox extends ContainerBox
     {
         super.render(poseStack, laptop, mc, x, y, mouseX, mouseY, windowActive, partialTicks);
 
-        mc.getTextureManager().bindForSetup(CONTAINER_BOXES_TEXTURE);
+        RenderSystem.setShaderTexture(0, CONTAINER_BOXES_TEXTURE);
 
         int burnProgress = this.getBurnLeftScaled(13);
         this.blit(poseStack, x + 26, y + 52 - burnProgress, 128, 238 - burnProgress, 14, burnProgress + 1);

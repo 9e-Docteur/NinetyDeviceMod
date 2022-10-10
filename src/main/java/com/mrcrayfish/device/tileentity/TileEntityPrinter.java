@@ -17,6 +17,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -45,8 +46,9 @@ public class TileEntityPrinter extends TileEntityNetworkDevice.Colored
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    public void tick(Level level, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity) {
+        super.tick(level, blockPos, blockState, blockEntity);
+
         if(!level.isClientSide)
         {
             if(remainingPrintTime > 0)
