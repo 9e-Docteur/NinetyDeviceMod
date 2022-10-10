@@ -4,7 +4,7 @@ license="All rights reserved"
 [[mods]] #mandatory
 modId="ndm" #mandatory
 version="1.0" #mandatory
-updateJSONURL=""
+updateJSONURL="https://raw.githubusercontent.com/9e-Docteur/NinetyDeviceMod/master/update.json"
 displayName="Ninety's Device Mod 1.0" #mandatory
 logoFile="device_mod.png" #optional
 credits="MrCrayfish, PandaRebel4307, Josia, Killar.exe" #optional
