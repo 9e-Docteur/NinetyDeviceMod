@@ -1,4 +1,7 @@
 # **About**
+[![Github Repo Size](https://img.shields.io/github/repo-size/9e-docteur/NinetyDeviceMod)]()
+[![Github Repo Issues](https://img.shields.io/github/issues/9e-docteur/NinetyDeviceMod)]()
+[![Github Repo Stars](https://img.shields.io/github/stars/9e-Docteur/NinetyDeviceMod)]()
 ***
 
 This mod is based on MrCrayfish's device mod. Because his mod is discountinued and under GPL3 Liscence, we can update the mod. And i'm gonna with my team trying to add features and update this mod!
