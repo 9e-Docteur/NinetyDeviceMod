@@ -39,6 +39,7 @@ import java.util.List;
 public class ApplicationAppStore extends SystemApplication
 {
 	public static final String CERTIFIED_APPS_URL = "https://api.docteam.tk/9e_Docteur/DeviceMod-CertifiedApps/app.json";
+	public static final String APPS_LOGO_URL = "https://api.docteam.tk/9e_Docteur/DeviceMod/";
 
 	public static final int LAYOUT_WIDTH = 250;
 	public static final int LAYOUT_HEIGHT = 150;
@@ -46,7 +47,6 @@ public class ApplicationAppStore extends SystemApplication
 	private Layout layoutMain;
 
 	public List<AppEntry> certifiedApps = new ArrayList<>();
-	private final PoseStack poseStack = new PoseStack();
 
 	@Override
 	public void init(@Nullable CompoundTag intent)
@@ -99,7 +99,7 @@ public class ApplicationAppStore extends SystemApplication
 		Label labelCertified = new Label(ChatFormatting.WHITE + ChatFormatting.BOLD.toString() + "Certified Apps", 10, 66);
 		homePageLayout.addComponent(labelCertified);
 
-		Label labelCertifiedDesc = new Label(ChatFormatting.GRAY + "Verified by MrCrayfish", LAYOUT_WIDTH - 10, 66);
+		Label labelCertifiedDesc = new Label(ChatFormatting.GRAY + "Verified by 9e_Docteur", LAYOUT_WIDTH - 10, 66);
 		labelCertifiedDesc.setAlignment(Component.ALIGN_RIGHT);
 		labelCertifiedDesc.setScale(1.0);
 		labelCertifiedDesc.setShadow(false);
@@ -108,7 +108,7 @@ public class ApplicationAppStore extends SystemApplication
 		Spinner spinner = new Spinner((LAYOUT_WIDTH - 12) / 2, 120);
 		homePageLayout.addComponent(spinner);
 
-		OnlineRequest.getInstance().make(CERTIFIED_APPS_URL + "/certified_apps.json", (success, response) ->
+		OnlineRequest.getInstance().make(CERTIFIED_APPS_URL, (success, response) ->
 		{
 			certifiedApps.clear();
 			spinner.setVisible(false);

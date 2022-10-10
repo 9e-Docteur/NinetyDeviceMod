@@ -1,10 +1,10 @@
 {
     "credit": "Made with Blockbench",
     "textures": {
-        "0": "ndm:block/cauldron1",
-        "1": "ndm:block/cauldron2",
+        "0": "ndm:block/laptop1",
+        "1": "ndm:block/laptop2",
         "2": "block/red_wool",
-        "particle": "ndm:block/cauldron1"
+        "particle": "ndm:block/laptop1"
     },
     "elements": [
         {

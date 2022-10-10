@@ -1,0 +1,6 @@
+{
+  "parent": "ndm:block/office_chair_full",
+  "textures": {
+    "chair_color": "minecraft:block/light_gray_wool"
+  }
+}

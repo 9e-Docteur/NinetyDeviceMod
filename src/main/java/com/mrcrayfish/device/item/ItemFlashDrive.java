@@ -24,8 +24,8 @@ public class ItemFlashDrive extends Item implements SubItems
 {
     private final DyeColor color;
 
-    public ItemFlashDrive(DyeColor color, Properties p_41383_) {
-        super(p_41383_);
+    public ItemFlashDrive(DyeColor color) {
+        super(new Properties().stacksTo(1));
         this.color = color;
     }
 

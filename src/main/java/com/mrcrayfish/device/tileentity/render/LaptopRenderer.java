@@ -39,7 +39,7 @@ public class LaptopRenderer implements BlockEntityRenderer<TileEntityLaptop>
 	@Override
 	public void render(TileEntityLaptop te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)
 	{
-		BlockState state = DeviceBlocks.LAPTOP.get().defaultBlockState().setValue(BlockLaptop.TYPE, BlockLaptop.Type.SCREEN);
+		BlockState state = DeviceBlocks.getAllLaptops().get(0).defaultBlockState().setValue(BlockLaptop.TYPE, BlockLaptop.Type.SCREEN);
 		BlockPos pos = te.getBlockPos();
 		
 		RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);

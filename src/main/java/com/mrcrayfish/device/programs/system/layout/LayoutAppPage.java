@@ -148,8 +148,8 @@ public class LayoutAppPage extends Layout
             btnInstall.setSize(55, 16);
             btnInstall.setClickListener((mouseX, mouseY, mouseButton) ->
             {
-                if(mouseButton == 0)
-                {
+               // if(mouseButton == 0)
+               // {
                     if(installed)
                     {
                         laptop.removeApplication(info, (o, success) ->
@@ -168,7 +168,7 @@ public class LayoutAppPage extends Layout
                             installed = true;
                         });
                     }
-                }
+                //}
             });
             this.addComponent(btnInstall);
 

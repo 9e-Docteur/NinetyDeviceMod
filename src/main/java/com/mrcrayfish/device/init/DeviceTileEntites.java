@@ -1,6 +1,7 @@
 package com.mrcrayfish.device.init;
 
 import com.mrcrayfish.device.tileentity.*;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -14,21 +15,21 @@ public class DeviceTileEntites
 
 	public static RegistryObject<BlockEntityType<TileEntityLaptop>> LAPTOP =
 			TILE_ENTITIES.register("laptop", () -> BlockEntityType.Builder.of(
-					TileEntityLaptop::new, DeviceBlocks.LAPTOP.get()).build(null));
+					TileEntityLaptop::new, DeviceBlocks.getAllLaptops().toArray(new Block[]{})).build(null));
 
 
 	public static RegistryObject<BlockEntityType<TileEntityPrinter>> PRINTER =
 			TILE_ENTITIES.register("printer", () -> BlockEntityType.Builder.of(
-					TileEntityPrinter::new, DeviceBlocks.PRINTER.get()).build(null));
+					TileEntityPrinter::new, DeviceBlocks.getAllPrinters().toArray(new Block[]{})).build(null));
 	public static RegistryObject<BlockEntityType<TileEntityPaper>> PAPER =
 			TILE_ENTITIES.register("paper", () -> BlockEntityType.Builder.of(
 					TileEntityPaper::new, DeviceBlocks.PAPER.get()).build(null));
 	public static RegistryObject<BlockEntityType<TileEntityOfficeChair>> CHAIR =
 			TILE_ENTITIES.register("chair", () -> BlockEntityType.Builder.of(
-					TileEntityOfficeChair::new, DeviceBlocks.CHAIR.get()).build(null));
+					TileEntityOfficeChair::new, DeviceBlocks.getAllOfficeChairs().toArray(new Block[]{})).build(null));
 	public static RegistryObject<BlockEntityType<TileEntityRouter>> ROUTER =
 			TILE_ENTITIES.register("router", () -> BlockEntityType.Builder.of(
-					TileEntityRouter::new, DeviceBlocks.ROUTER.get()).build(null));
+					TileEntityRouter::new, DeviceBlocks.getAllRouters().toArray(new Block[]{})).build(null));
 
 
 	public static void register(IEventBus eventBus)

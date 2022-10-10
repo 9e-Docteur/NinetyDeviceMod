@@ -79,7 +79,7 @@ public class CommonProxy {
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Level Level = event.getLevel();
         if (!event.getItemStack().isEmpty() && event.getItemStack().getItem() == Items.PAPER) {
-            if (Level.getBlockState(event.getPos()).getBlock() == DeviceBlocks.PRINTER.get()) {
+            if (Level.getBlockState(event.getPos()).getBlock() == DeviceBlocks.getAllPrinters().get(0)) {
                 event.setUseBlock(Event.Result.ALLOW);
             }
         }

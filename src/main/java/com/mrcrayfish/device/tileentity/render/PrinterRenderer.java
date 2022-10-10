@@ -47,7 +47,7 @@ public class PrinterRenderer implements BlockEntityRenderer<TileEntityPrinter> {
     public void render(TileEntityPrinter te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)
     {
         BlockState state = te.getLevel().getBlockState(te.getBlockPos());
-        if(state.getBlock() != DeviceBlocks.PRINTER.get())
+        if(state.getBlock() != DeviceBlocks.getAllPrinters().get(0))
             return;
 
         poseStack.pushPose();

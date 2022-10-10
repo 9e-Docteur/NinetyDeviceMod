@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ndm:block/yellow_printer",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "ndm:block/yellow_printer"
+    },
+    "facing=west": {
+      "model": "ndm:block/yellow_printer",
+      "y": 90
+    },
+    "facing=east": {
+      "model": "ndm:block/yellow_printer",
+      "y": 270
+    }
+  }
+}

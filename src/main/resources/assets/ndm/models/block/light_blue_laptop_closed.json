@@ -1,0 +1,6 @@
+{
+  "parent": "ndm:block/laptop_screen",
+  "textures": {
+    "2": "minecraft:block/light_blue_wool"
+  }
+}

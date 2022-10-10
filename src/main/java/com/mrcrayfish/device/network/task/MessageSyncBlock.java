@@ -34,7 +34,7 @@ public class MessageSyncBlock implements IPacket<MessageSyncBlock>
 
     @Override
     public MessageSyncBlock decode(FriendlyByteBuf byteBuf) {
-        return null;
+        return new MessageSyncBlock(routerPos);
     }
 
     @Override

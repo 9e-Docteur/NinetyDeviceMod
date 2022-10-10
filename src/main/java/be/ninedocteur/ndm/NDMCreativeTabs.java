@@ -8,7 +8,7 @@ public class NDMCreativeTabs {
     public static final CreativeModeTab NDM = new CreativeModeTab("ndm") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(DeviceBlocks.LAPTOP.get());
+            return new ItemStack(DeviceBlocks.RED_LAPTOP.get());
         }
     };
 

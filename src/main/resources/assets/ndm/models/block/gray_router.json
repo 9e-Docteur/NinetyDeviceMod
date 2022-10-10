@@ -1,0 +1,6 @@
+{
+  "parent": "ndm:block/router",
+  "textures": {
+    "1": "minecraft:block/gray_wool"
+  }
+}

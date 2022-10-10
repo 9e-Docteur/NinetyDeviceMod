@@ -35,7 +35,7 @@ public class RouterRenderer implements BlockEntityRenderer<TileEntityRouter> {
     public void render(TileEntityRouter te, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay)
     {
         BlockState state = te.getLevel().getBlockState(te.getBlockPos());
-        if(state.getBlock() != DeviceBlocks.ROUTER.get())
+        if(state.getBlock() != DeviceBlocks.getAllRouters().get(0))
             return;
 
         if(te.isDebug())

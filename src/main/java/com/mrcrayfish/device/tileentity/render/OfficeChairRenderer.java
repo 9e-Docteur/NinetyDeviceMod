@@ -34,7 +34,7 @@ public class OfficeChairRenderer implements BlockEntityRenderer<TileEntityOffice
     {
         BlockPos pos = te.getBlockPos();
         BlockState tempState = te.getLevel().getBlockState(pos);
-        if(tempState.getBlock() != DeviceBlocks.CHAIR.get())
+        if(tempState.getBlock() != DeviceBlocks.getAllOfficeChairs().get(0))
         {
             return;
         }
